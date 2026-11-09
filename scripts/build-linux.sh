@@ -77,6 +77,8 @@ ensure_privilege() { # 需要 root 时才提示，check / 打包不需要
 # 交互能力：只有真正的终端才询问
 INTERACTIVE=0
 [ -t 0 ] && [ -t 1 ] && INTERACTIVE=1
+# 调试 / 测试用：没有终端时也可强制走交互流程
+[ "${LIULI_FORCE_TTY:-0}" = "1" ] && INTERACTIVE=1
 
 ask() { # ask <提示> <默认值 y/n>
   local prompt="$1" def="${2:-n}" ans=""
@@ -422,21 +424,32 @@ show_env_check() {
 }
 
 # ---------------- 选择包类型 ----------------
+# 注意：结果直接写入全局 TARGET，不要写成 TARGET="$(choose_target)"，
+# 否则菜单文字会被命令替换捕获，屏幕上只剩一行空的输入提示。
 choose_target() {
-  if [ ! -t 0 ]; then echo "deb"; return; fi
+  TARGET="deb"
+  if [ "$INTERACTIVE" != "1" ]; then
+    dim "非交互环境（CI / 管道），默认打包 .deb；要指定请用脚本参数，如 build-linux.sh appimage"
+    return 0
+  fi
+
   hr
-  printf '%s请选择要打包的产物类型：%s\n' "$C_BOLD" "$C_OFF"
-  printf '  1) .deb 安装包        %s（默认，直接回车）%s\n' "$C_DIM" "$C_OFF"
-  printf '  2) AppImage 便携包\n'
-  printf '  3) 两种都要\n'
+  printf '%s请选择要打包的产物类型：%s\n\n' "$C_BOLD" "$C_OFF"
+  printf '  %s1)%s .deb 安装包      —— %s用 apt/dpkg 安装，自动进应用菜单（默认）%s\n' "$C_OK" "$C_OFF" "$C_DIM" "$C_OFF"
+  printf '  %s2)%s AppImage 便携包  —— %s单个文件免安装，chmod +x 直接运行%s\n' "$C_OK" "$C_OFF" "$C_DIM" "$C_OFF"
+  printf '  %s3)%s 两种都要        —— %s同时产出 .deb 与 AppImage%s\n\n' "$C_OK" "$C_OFF" "$C_DIM" "$C_OFF"
+  printf '  %s直接回车 = 选 1（.deb）；不支持的系统请选 2 或 3。%s\n' "$C_DIM" "$C_OFF"
+
   local a=""
-  read -r -p "输入 1 / 2 / 3 后回车： " a || a=""
+  read -r -p "$(printf '%s输入 1 / 2 / 3 后回车：%s ' "$C_BOLD" "$C_OFF")" a || a=""
   case "$a" in
-    ""|1) echo "deb" ;;
-    2)    echo "appimage" ;;
-    3)    echo "both" ;;
-    *)    warn "输入无效，按默认处理：.deb"; echo "deb" ;;
+    ""|1) TARGET="deb" ;;
+    2)    TARGET="appimage" ;;
+    3)    TARGET="both" ;;
+    *)    warn "输入「$a」无法识别，按默认处理：.deb"
+          TARGET="deb" ;;
   esac
+  ok "已选择：$(targets_for "$TARGET")"
 }
 
 targets_for() {
@@ -652,7 +665,7 @@ maybe_install() { # maybe_install <target>
     tar) log "tar.gz 无需安装，解压即可运行"; return 0 ;;
   esac
 
-  if [ ! -t 0 ]; then
+  if [ "$INTERACTIVE" != "1" ]; then
     dim "（非交互环境，跳过安装询问；需要安装请加 --yes 或手动运行安装命令）"
     return 0
   fi
@@ -663,9 +676,17 @@ maybe_install() { # maybe_install <target>
   fi
 
   if [ "$built" = "pick" ]; then
-    printf '%s安装哪一个？%s  1) .deb  2) AppImage  %s（回车=1）%s\n' "$C_BOLD" "$C_OFF" "$C_DIM" "$C_OFF"
-    local a=""; read -r -p "输入 1 / 2： " a || a=""
-    case "$a" in 2) built="appimage" ;; *) built="deb" ;; esac
+    hr
+    printf '%s两种产物都已生成，选择要安装的：%s\n\n' "$C_BOLD" "$C_OFF"
+    printf '  %s1)%s .deb 安装包  —— %s用 apt 安装，自动进应用菜单（默认）%s\n' "$C_OK" "$C_OFF" "$C_DIM" "$C_OFF"
+    printf '  %s2)%s AppImage     —— %s复制到 ~/Applications，并建桌面图标%s\n\n' "$C_OK" "$C_OFF" "$C_DIM" "$C_OFF"
+    local a=""
+    read -r -p "$(printf '%s输入 1 / 2 后回车：%s ' "$C_BOLD" "$C_OFF")" a || a=""
+    case "$a" in
+      2) built="appimage" ;;
+      *) built="deb" ;;
+    esac
+    ok "准备安装：$built"
   fi
   install_by_target "$built"
 }
@@ -680,12 +701,7 @@ main() {
     deb|appimage|both|tar|all) TARGET="$CMD" ;;
     "")
       banner
-      if [ "$INTERACTIVE" = 1 ]; then
-        TARGET="$(choose_target)"
-      else
-        dim "非交互环境，默认打包 .deb"
-        TARGET="deb"
-      fi
+      choose_target
       ;;
     *) die "未知命令：$CMD（可选 deb / appimage / both / tar / all / deps / repair / check）" ;;
   esac
