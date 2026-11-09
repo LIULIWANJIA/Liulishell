@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'" />
+  <title>导入 FinalShell 配置 - LIULI Shell</title>
+  <link rel="stylesheet" href="css/finalshell.css" />
+</head>
+<body>
+  <div class="ftitle" id="ftitle">
+    <span class="fmark">FS</span>
+    <span class="ftitle-text">导入 FinalShell 配置</span>
+    <span class="fgrow"></span>
+    <button class="fbtn" id="fmin" title="最小化">─</button>
+    <button class="fbtn" id="fmax" title="最大化">□</button>
+    <button class="fbtn close" id="fclose" title="关闭">✕</button>
+  </div>
+
+  <div class="fbody">
+    <div class="fhead">
+      <div>
+        <h1>导入 FinalShell 配置</h1>
+        <p>支持多个 JSON 文件或文件夹；文件夹会按层级自动创建分组（最多三级），三级以下文件夹内的配置归入对应的一级分组。能解密的密码会导入并加密保存，无法解密的密码保持为空。</p>
+        <div class="status" id="status"></div>
+      </div>
+    </div>
+
+    <div class="dropzone" id="dropzone">
+      <div class="dz-ico">+</div>
+      <div class="dz-title">拖入 JSON 文件或文件夹</div>
+      <div class="dz-sub">也可以点击下面按钮选择</div>
+      <div class="dz-actions">
+        <button class="btn primary" id="pick-files">选择 JSON 文件</button>
+        <button class="btn" id="pick-folder">选择文件夹</button>
+        <button class="btn" id="clear-sources">清空</button>
+      </div>
+    </div>
+
+    <div class="sources" id="sources"></div>
+
+    <div class="plan-card">
+      <div class="plan-head">导入计划</div>
+      <div class="plan-text" id="plan-text">尚未选择文件</div>
+    </div>
+
+    <div class="options">
+      <div class="opt-row">
+        <label>目标分组</label>
+        <select id="target-group"></select>
+        <span class="opt-note">仅用于直接选择的 JSON 文件</span>
+      </div>
+      <div class="opt-note">文件夹按层级自动创建分组（最多三级），三级以下文件夹内的 JSON 会归入对应的一级分组，不受目标分组影响。</div>
+    </div>
+  </div>
+
+  <div class="ffoot">
+    <span class="foot-hint">识别字段：name / host / port / user_name / password</span>
+    <span class="fgrow"></span>
+    <button class="btn" id="cancel">取消</button>
+    <button class="btn primary" id="do-import" disabled>开始导入</button>
+  </div>
+
+  <div class="toasts" id="toasts"></div>
+  <script src="js/finalshellwin.js"></script>
+</body>
+</html>

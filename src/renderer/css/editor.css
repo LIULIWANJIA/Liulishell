@@ -1,0 +1,51 @@
+:root {
+  --bg: #f7f6f2; --panel: #ffffff; --panel-2: #fbfaf7; --panel-3: #f3f1eb;
+  --line: #e7e5df; --line-strong: #d9d6ce; --text: #15191d; --text-2: #5d666f; --muted: #8b939b;
+  --accent: #16665a; --accent-soft: #e6efec; --primary: #15191d; --primary-hover: #000000;
+  --font-mono: Consolas, "Cascadia Mono", "Microsoft YaHei", monospace;
+  --font-size: 13px;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; display: flex; flex-direction: column; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif; font-size: 12.5px;
+}
+/* 与主窗口一致的四边 1px 外框 */
+body::after { content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 9999; border: 1px solid var(--line-strong); }
+::selection, *::selection { background: var(--accent-soft); color: var(--text); }
+
+.etitle {
+  flex: 0 0 34px; height: 34px; display: flex; align-items: center; gap: 8px;
+  padding: 0 5px 0 10px; background: var(--panel-2); border-bottom: 1px solid var(--line);
+  -webkit-app-region: drag; user-select: none;
+}
+.emark { width: 20px; height: 20px; border-radius: 5px; background: var(--primary); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 9px; font-weight: 700; }
+.etitle-text { font-size: 12px; font-weight: 600; }
+.egrow { flex: 1 1 auto; }
+.ebtn { height: 26px; min-width: 32px; border: 0; border-radius: 6px; background: transparent; color: var(--text-2); cursor: pointer; font-size: 12px; -webkit-app-region: no-drag; }
+.ebtn:hover { background: var(--panel-3); color: var(--text); }
+.ebtn.close:hover { background: #c0392b; color: #fff; }
+
+.etabs { flex: 0 0 auto; min-height: 34px; display: flex; align-items: center; gap: 4px; padding: 4px 8px; background: var(--panel-2); border-bottom: 1px solid var(--line); overflow-x: auto; }
+.etabs-empty { color: var(--muted); font-size: 11.5px; padding: 4px; }
+.etab { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--text-2); cursor: pointer; font-size: 11.5px; white-space: nowrap; }
+.etab.active { border-color: var(--accent); color: var(--text); box-shadow: inset 0 2px 0 var(--accent); }
+.edot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); flex: 0 0 auto; }
+.edot.dirty { background: #d08a1a; }
+.ename { max-width: 180px; overflow: hidden; text-overflow: ellipsis; }
+.eclose { border: 0; background: transparent; color: var(--muted); cursor: pointer; padding: 0 2px; font-size: 10px; }
+.eclose:hover { color: #c0392b; }
+
+.ebody { flex: 1 1 auto; min-height: 0; display: flex; background: var(--panel); }
+.egutter { flex: 0 0 auto; width: 52px; padding: 10px 8px 10px 0; text-align: right; font-family: var(--font-mono); font-size: var(--font-size); line-height: 1.6; color: var(--muted); background: var(--panel-2); border-right: 1px solid var(--line); white-space: pre; overflow: hidden; user-select: none; }
+#etext { flex: 1 1 auto; width: 100%; height: 100%; border: 0; outline: none; padding: 10px 12px; background: var(--panel); color: var(--text); font-family: var(--font-mono); font-size: var(--font-size); line-height: 1.6; resize: none; white-space: pre; tab-size: 4; }
+#etext:disabled { opacity: .6; }
+
+.efoot { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-top: 1px solid var(--line); background: var(--panel-2); }
+#estatus { color: var(--text-2); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ebtn2 { height: 27px; padding: 0 12px; border: 1px solid var(--line); border-radius: 7px; background: var(--panel); color: var(--text-2); cursor: pointer; font-size: 12px; -webkit-app-region: no-drag; }
+.ebtn2:hover { border-color: var(--accent); color: var(--accent); }
+.ebtn2.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+.ebtn2.primary:hover { background: var(--primary-hover); color: #fff; }
+body.theme-dark .ebtn.close:hover { background: #a63b38; }

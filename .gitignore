@@ -1,0 +1,21 @@
+node_modules/
+release/
+dist/
+*.log
+shot*.png
+crop*.png
+.DS_Store
+Thumbs.db
+
+# 编辑器 / 本地工作缓存（项目记忆等），不需要进仓库
+.workbuddy/
+.vscode/
+.idea/
+
+# 官网下载已改为外链，不再把安装包放进仓库；
+# 安装包体积也超过 Gitee 单文件限制，请上传到「发行版（Releases）」或网盘
+website/downloads/
+*.exe
+*.AppImage
+*.deb
+*.dmg

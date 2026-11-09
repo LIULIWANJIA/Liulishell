@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self';" />
+  <title>LIULI Shell</title>
+  <link rel="stylesheet" href="vendor/xterm.css" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <!-- 自绘顶栏（无系统标题栏 / 无系统菜单） -->
+  <div class="titlebar" id="titlebar">
+    <div class="tb-left">
+      <span class="tb-mark">❯_</span>
+      <span class="tb-title">LIULI Shell</span>
+      <span class="tb-sep"></span>
+      <button class="tb-menu" data-menu="file">文件</button>
+      <button class="tb-menu" data-menu="edit">编辑</button>
+      <button class="tb-menu" data-menu="view">视图</button>
+      <button class="tb-menu" data-menu="help">帮助</button>
+    </div>
+    <div class="tb-drag"><span id="tb-doc">SSH 工作台</span></div>
+    <div class="tb-right">
+      <button class="tb-btn" id="tb-downloads" title="下载管理器">下载管理器</button>
+      <button class="tb-btn" id="tb-settings" title="软件设置">设置</button>
+      <button class="tb-btn" id="tb-min" title="最小化">─</button>
+      <button class="tb-btn" id="tb-max" title="最大化">□</button>
+      <button class="tb-btn close" id="tb-close" title="关闭">✕</button>
+    </div>
+  </div>
+
+  <div class="app" id="app">
+    <!-- ================= 左：服务器列表 + 监控 ================= -->
+    <aside class="sidebar-left" id="sidebar-left">
+      <div class="left-tools">
+        <div class="sync-status-row">
+          <i class="sync-dot gray" id="sync-dot"></i>
+          <span class="sync-status-text gray" id="sync-status-text">未配置云同步</span>
+          <button class="icon-btn more-btn" id="btn-more" title="更多（导入 / 导出配置）">⋯</button>
+        </div>
+        <div class="sync-last-row" id="sync-last" title="上次云同步成功时间">
+          <span class="sync-last-label">上次同步</span>
+          <span class="sync-last-time" id="sync-last-time">—</span>
+        </div>
+        <div class="search">
+          <span class="search-ico">⌕</span>
+          <input id="conn-filter" type="search" placeholder="筛选名称 / 主机 / 用户" autocomplete="off" />
+        </div>
+        <div class="left-btns">
+          <button class="btn sm primary" id="btn-add-conn">＋ 新增配置</button>
+          <button class="btn sm" id="btn-add-group" title="新建分组">＋ 分组</button>
+        </div>
+      </div>
+
+      <div class="conn-list" id="conn-list"></div>
+
+      <div class="left-monitors" id="left-monitors">
+        <section class="panel compact">
+          <div class="panel-title">CPU <span class="panel-extra" id="cpu-extra">--</span></div>
+          <div class="meter-line"><span class="meter-val" id="cpu-val">--</span><span class="meter-unit">%</span></div>
+          <div class="meter"><i class="fill blue" id="cpu-bar" style="width:0%"></i></div>
+        </section>
+
+        <section class="panel compact">
+          <div class="panel-title">内存 <span class="panel-extra" id="mem-extra">--</span></div>
+          <div class="meter-line"><span class="meter-val" id="mem-val">--</span><span class="meter-unit" id="mem-total">/ --</span></div>
+          <div class="meter"><i class="fill green" id="mem-bar" style="width:0%"></i></div>
+        </section>
+
+        <section class="panel compact">
+          <div class="panel-title">Swap <span class="panel-extra" id="swap-extra">--</span></div>
+          <div class="meter-line"><span class="meter-val" id="swap-val">--</span><span class="meter-unit" id="swap-total">/ --</span></div>
+          <div class="meter"><i class="fill amber" id="swap-bar" style="width:0%"></i></div>
+        </section>
+
+        <section class="panel compact disk-panel" id="disk-panel">
+          <div class="panel-title">磁盘 <span class="panel-extra" id="disk-extra"></span></div>
+          <table class="grid-table disk-table" id="disk-table">
+            <thead><tr><th>路径</th><th>可用 / 总</th></tr></thead>
+            <tbody id="disk-body">
+              <tr class="placeholder"><td colspan="2">暂无数据</td></tr>
+            </tbody>
+          </table>
+          <div class="disk-picker hidden" id="disk-picker">
+            <select id="disk-select" class="mini-select" title="选择磁盘分区"></select>
+            <div class="disk-line" id="disk-line"></div>
+          </div>
+        </section>
+      </div>
+
+      <div class="left-foot">
+        <span id="foot-sessions">0 个会话</span>
+        <span id="foot-conns">0 个配置</span>
+      </div>
+    </aside>
+
+    <div class="splitter v" id="split-left" title="拖动调整宽度"></div>
+
+    <!-- ================= 中：终端 + 文件/快捷命令 ================= -->
+    <section class="center">
+      <div class="terminal-block">
+        <div class="tabs">
+          <div class="tabs-scroll" id="tabs"></div>
+          <div class="tabs-tools">
+            <button class="icon-btn" id="btn-clear-term" title="清空当前终端">清屏</button>
+            <button class="icon-btn" id="btn-toggle-right" title="显示 / 隐藏服务器信息面板">▤</button>
+          </div>
+        </div>
+
+        <div class="term-host" id="term-host">
+          <div class="empty-state" id="empty-state">
+            <div class="empty-logo">❯_</div>
+            <div class="empty-title">还没有打开的终端</div>
+            <div class="empty-sub">从左侧选择一台服务器连接，或点击「＋ 新增配置」</div>
+            <div class="recent-box" id="recent-box">
+              <div class="recent-head"><span>最近连接</span><span class="pane-grow"></span><button class="btn sm" id="recent-clear">清空历史</button></div>
+              <div class="recent-list" id="recent-list"></div>
+              <div class="recent-tip">单击快速连接 · 右键可置顶或删除单行</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="find-bar" id="find-bar">
+          <span class="find-label">查找</span>
+          <input id="find-input" type="text" placeholder="输入关键字后回车…" spellcheck="false" autocomplete="off" />
+          <span class="find-count" id="find-count"></span>
+          <button class="icon-btn" id="find-prev" title="上一个匹配">↑</button>
+          <button class="icon-btn" id="find-next" title="下一个匹配">↓</button>
+          <button class="icon-btn" id="find-close" title="关闭 (Esc)">✕</button>
+        </div>
+
+        <div class="cmd-bar">
+          <span class="cmd-caret">❯</span>
+          <input id="cmd-input" type="text" placeholder="输入命令后回车发送，↑↓ 调历史" autocomplete="off" spellcheck="false" />
+          <button class="btn sm" id="btn-history" title="查看全部命令历史">历史</button>
+          <select id="cmd-target" title="命令发送目标">
+            <option value="current">当前会话</option>
+            <option value="all">全部会话</option>
+          </select>
+          <button class="btn primary" id="btn-send">发送</button>
+        </div>
+      </div>
+
+      <div class="splitter-h" id="split-h" title="拖动调整高度，双击复位"></div>
+
+      <div class="bottom-pane" id="bottom-pane">
+        <div class="pane-tabs">
+          <button class="pane-tab active" data-page="files">文件</button>
+          <button class="pane-tab" data-page="snippets">快捷命令</button>
+          <div class="pane-grow"></div>
+          <button class="btn sm" id="btn-dl-manager" title="打开下载管理器">下载管理器</button>
+          <button class="btn sm" id="btn-fav-folders" title="收藏的文件夹">★ 收藏文件夹</button>
+          <button class="icon-btn" id="btn-collapse-bottom" title="收起 / 展开">▾</button>
+        </div>
+
+        <div class="pane-pages">
+          <div class="page active" id="page-files">
+            <div class="file-toolbar">
+              <button class="btn sm" data-act="up" title="返回上级目录">↑ 上级</button>
+              <button class="btn sm" data-act="refresh" title="刷新">⟳</button>
+              <div class="path"><input id="file-path" spellcheck="false" placeholder="/" /></div>
+              <button class="btn sm" data-act="mkdir">新建文件夹</button>
+              <button class="btn sm" data-act="upload">上传</button>
+              <button class="btn sm" data-act="download">下载</button>
+              <button class="btn sm" data-act="copy">复制</button>
+              <button class="btn sm" data-act="paste">粘贴</button>
+              <button class="btn sm danger" data-act="delete">删除</button>
+              <button class="icon-btn" id="btn-toggle-tree" title="显示 / 隐藏目录树">▤</button>
+            </div>
+            <div class="file-main">
+              <div class="file-tree" id="file-tree"></div>
+              <div class="file-right">
+                <div class="file-table-wrap" id="file-drop">
+                  <table class="file-table">
+                    <thead>
+                      <tr>
+                        <th class="col-name">名称</th>
+                        <th class="col-size">大小</th>
+                        <th class="col-time">修改时间</th>
+                        <th class="col-perm">权限</th>
+                      </tr>
+                    </thead>
+                    <tbody id="file-body">
+                      <tr class="placeholder"><td colspan="4">未连接服务器</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="file-foot">
+                  <span id="file-status">未连接</span>
+                  <span id="file-sel"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="page" id="page-snippets">
+            <div class="snip-head">
+              <div class="board-tabs" id="board-tabs"></div>
+              <div class="pane-grow"></div>
+              <select id="snip-target" class="mini-target" title="快捷命令发送目标">
+                <option value="current">当前会话</option>
+                <option value="all">全部会话</option>
+              </select>
+              <button class="btn sm" id="btn-add-board">＋ 板块</button>
+              <button class="btn sm primary" id="btn-add-snippet">＋ 快捷命令</button>
+            </div>
+
+            <div class="snip-list" id="snip-list"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="splitter v" id="split-right" title="拖动调整宽度"></div>
+
+    <!-- ================= 右：服务器信息 ================= -->
+    <aside class="sidebar-right" id="sidebar-right">
+      <div class="srv-head">
+        <div class="srv-avatar" id="srv-avatar">--</div>
+        <div class="srv-meta">
+          <div class="srv-name" id="srv-name">未连接</div>
+          <div class="srv-host" id="srv-host">从左侧选择服务器</div>
+        </div>
+        <span class="dot offline" id="srv-dot" title="连接状态"></span>
+        <button class="icon-btn" id="btn-collapse-right" title="收起服务器信息">»</button>
+      </div>
+
+      <div class="side-body" id="side-body">
+        <section class="panel">
+          <div class="panel-title">服务器信息</div>
+          <div class="kv">
+            <div class="kv-item"><span>系统</span><b id="info-os">--</b></div>
+            <div class="kv-item"><span>内核</span><b id="info-kernel">--</b></div>
+            <div class="kv-item"><span>架构</span><b id="info-arch">--</b></div>
+            <div class="kv-item"><span>用户</span><b id="info-user">--</b></div>
+            <div class="kv-item"><span>运行</span><b id="info-uptime">--</b></div>
+            <div class="kv-item"><span>负载</span><b id="info-load">--</b></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-title">
+            进程预览
+          </div>
+          <table class="grid-table proc-table">
+            <thead>
+              <tr>
+                <th>进程名</th>
+                <th class="sortable" data-sort="cpu">CPU <i class="arrow"></i></th>
+                <th class="sortable" data-sort="mem">内存 <i class="arrow"></i></th>
+              </tr>
+            </thead>
+            <tbody id="proc-body">
+              <tr class="placeholder"><td colspan="3">暂无数据</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="panel">
+          <div class="panel-title">
+            <span class="panel-tools">
+              <select class="mini-select" id="nic-select"></select>
+              <span class="net-unit" id="net-unit">MB/s</span>
+            </span>
+          </div>
+          <canvas id="net-chart" height="58"></canvas>
+          <div class="net-legend">
+            <span class="rx"><i></i>下行 <b id="rx-rate">0 B/s</b></span>
+            <span class="tx"><i></i>上行 <b id="tx-rate">0 B/s</b></span>
+          </div>
+        </section>
+      </div>
+
+    </aside>
+
+    <!-- 命令编辑器：始终悬浮在窗口右下角；隐藏服务器信息面板时不受影响 -->
+    <div class="cmd-editor" id="cmd-editor">
+      <div class="ce-head">
+        <span class="ce-title">命令编辑器</span>
+        <span class="ce-hint">Ctrl + Enter</span>
+      </div>
+      <textarea id="editor-text" spellcheck="false" placeholder="多行脚本，按行执行…"></textarea>
+      <div class="ce-foot">
+        <select id="editor-target" title="发送目标">
+          <option value="current">当前会话</option>
+          <option value="all">全部会话</option>
+        </select>
+        <button class="btn sm primary" id="editor-send">发送</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 软件设置中心 ================= -->
+  <div class="settings-mask" id="settings-mask">
+    <div class="settings-panel">
+      <div class="settings-head">
+        <span class="settings-title">软件设置</span>
+        <span class="settings-sub">修改后立即生效并自动保存</span>
+        <button class="icon-btn" id="settings-close" title="关闭">✕</button>
+      </div>
+      <div class="settings-body">
+        <nav class="settings-nav">
+          <button class="snav active" data-tab="appearance">外观与主题</button>
+          <button class="snav" data-tab="font">字体</button>
+          <button class="snav" data-tab="units">速率单位</button>
+          <button class="snav" data-tab="mouse">鼠标按键</button>
+          <button class="snav" data-tab="shortcuts">快捷键</button>
+          <button class="snav" data-tab="transfer">传输 / 代理</button>
+          <button class="snav" data-tab="webdav">云同步</button>
+          <button class="snav" data-tab="panels">板块显示</button>
+          <button class="snav" data-tab="startup">启动</button>
+          <button class="snav" data-tab="data">数据与重置</button>
+        </nav>
+        <div class="settings-content" id="settings-content"></div>
+      </div>
+      <div class="settings-foot">
+        <button class="btn sm" id="settings-reset">恢复默认设置</button>
+        <span class="pane-grow"></span>
+        <button class="btn primary" id="settings-done">完成</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 弹窗 ================= -->
+  <div class="modal-mask" id="modal-mask">
+    <div class="modal" id="modal">
+      <div class="modal-head">
+        <span id="modal-title">标题</span>
+        <button class="icon-btn" id="modal-close">✕</button>
+      </div>
+      <div class="modal-body" id="modal-body"></div>
+      <div class="modal-foot" id="modal-foot">
+        <button class="btn" id="modal-cancel">取消</button>
+        <button class="btn primary" id="modal-ok">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 二级弹窗（叠在父弹窗之上，不覆盖父弹窗内容） -->
+  <div class="modal-mask sub" id="sub-mask">
+    <div class="modal" id="sub-modal">
+      <div class="modal-head">
+        <span id="sub-title">标题</span>
+        <button class="icon-btn" id="sub-close">✕</button>
+      </div>
+      <div class="modal-body" id="sub-body"></div>
+      <div class="modal-foot">
+        <button class="btn" id="sub-cancel">取消</button>
+        <button class="btn primary" id="sub-ok">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="ctx-menu" id="ctx-menu"></div>
+  <div class="toasts" id="toasts"></div>
+
+  <script src="vendor/xterm.js"></script>
+  <script src="vendor/addon-fit.js"></script>
+  <script src="js/util.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/details.js"></script>
+  <script src="js/terminal.js"></script>
+  <script src="js/history.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/authprompt.js"></script>
+  <script src="js/titlebar.js"></script>
+  <script src="js/recent.js"></script>
+  <script src="js/sidebar.js"></script>
+  <script src="js/connections.js"></script>
+  <script src="js/files.js"></script>
+  <script src="js/snippets.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,156 @@
+{
+  "name": "liulishell",
+  "productName": "LIULI Shell",
+  "version": "1.13.4",
+  "description": "LIULI Shell - 跨平台 SSH 终端与服务器管理工具",
+  "main": "src/main/main.js",
+  "author": "LIULI",
+  "homepage": "https://shell.minecft.cn",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "vendor": "node scripts/copy-vendor.js",
+    "mock": "node test/mock-ssh-server.js",
+    "dist:win": "electron-builder --win nsis portable --x64",
+    "dist:win:installer": "electron-builder --win nsis --x64",
+    "dist:win:portable": "electron-builder --win portable --x64",
+    "dist:win:dir": "electron-builder --win --x64 --dir",
+    "dist:linux": "electron-builder --linux AppImage deb tar.gz --x64",
+    "dist:linux:appimage": "electron-builder --linux AppImage --x64",
+    "dist:linux:deb": "electron-builder --linux deb --x64",
+    "dist:linux:tar": "electron-builder --linux tar.gz --x64",
+    "build:linux": "bash scripts/build-linux.sh",
+    "deps:linux": "bash scripts/build-linux.sh deps",
+    "dist:mac": "electron-builder --mac dmg zip --x64 --arm64"
+  },
+  "dependencies": {
+    "@xterm/addon-fit": "^0.11.0",
+    "@xterm/xterm": "^6.0.0",
+    "socks": "^2.8.10",
+    "ssh2": "^1.17.0"
+  },
+  "devDependencies": {
+    "electron": "^45.2.3",
+    "electron-builder": "^26.18.0"
+  },
+  "build": {
+    "appId": "com.liuli.shell",
+    "productName": "LIULI Shell",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "src/**/*",
+      "package.json",
+      "!**/node_modules/@xterm/**",
+      "!**/node_modules/cpu-features/**",
+      "!**/*.map",
+      "!**/*.ts",
+      "!**/*.md",
+      "!**/{test,tests,example,examples,doc,docs}/**",
+      "!**/{.eslintrc.js,.eslintignore,.editorconfig,.travis.yml,.gitignore,.npmignore}"
+    ],
+    "electronLanguages": [
+      "zh-CN",
+      "en-US"
+    ],
+    "compression": "maximum",
+    "afterPack": "build/after-pack.js",
+    "asar": true,
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": false,
+      "allowElevation": true,
+      "perMachine": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "LIULI Shell",
+      "runAfterFinish": true,
+      "deleteAppDataOnUninstall": false,
+      "uninstallDisplayName": "LIULI Shell ${version}"
+    },
+    "portable": {
+      "artifactName": "${productName} ${version} Portable.${ext}",
+      "requestExecutionLevel": "user"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb",
+        "tar.gz"
+      ],
+      "category": "Development",
+      "maintainer": "LIULI <support@shell.minecft.cn>",
+      "vendor": "LIULI",
+      "synopsis": "跨平台 SSH 终端与服务器管理工具",
+      "description": "LIULI Shell 是跨平台 SSH 终端与服务器管理工具，支持会话管理、SFTP 文件管理、服务器监控、WebDAV 云同步与多主题界面。",
+      "icon": "build/icon.png",
+      "executableName": "liuli-shell",
+      "artifactName": "LIULI-Shell-${version}-${arch}.${ext}",
+      "desktop": {
+        "entry": {
+          "Name": "LIULI Shell",
+          "Comment": "跨平台 SSH 终端与服务器管理工具",
+          "Categories": "Development;System;Network;"
+        }
+      }
+    },
+    "deb": {
+      "depends": [
+        "libgtk-3-0 | libgtk-3-0t64",
+        "libnotify4 | libnotify4t64",
+        "libnss3",
+        "libxss1",
+        "libxtst6",
+        "libatspi2.0-0 | libatspi2.0-0t64",
+        "libsecret-1-0",
+        "libgbm1",
+        "libuuid1",
+        "xdg-utils"
+      ]
+    },
+    "appImage": {
+      "artifactName": "LIULI-Shell-${version}-${arch}.${ext}"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "category": "public.app-category.developer-tools",
+      "icon": "build/icon.png"
+    },
+    "npmRebuild": false
+  }
+}

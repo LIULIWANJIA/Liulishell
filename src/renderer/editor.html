@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;" />
+  <title>文件编辑器 - LIULI Shell</title>
+  <link rel="stylesheet" href="css/editor.css" />
+</head>
+<body>
+  <div class="etitle" id="etitle">
+    <span class="emark">❯_</span>
+    <span class="etitle-text">文件编辑器</span>
+    <span class="egrow"></span>
+    <button class="ebtn" id="emin" title="最小化">─</button>
+    <button class="ebtn" id="emax" title="最大化">□</button>
+    <button class="ebtn close" id="eclosewin" title="关闭">✕</button>
+  </div>
+
+  <div class="etabs" id="etabs"></div>
+
+  <div class="ebody">
+    <div class="egutter" id="egutter">1</div>
+    <textarea id="etext" spellcheck="false" wrap="off" placeholder="双击主窗口中的文件即可编辑（仅支持 < 10MB 的 UTF-8 文本）"></textarea>
+  </div>
+
+  <div class="efoot">
+    <span id="estatus">等待打开文件…</span>
+    <span class="egrow"></span>
+    <button class="ebtn2" id="eclose">关闭当前标签</button>
+    <button class="ebtn2 primary" id="esave">保存 (Ctrl+S)</button>
+  </div>
+
+  <script src="js/editor.js"></script>
+</body>
+</html>
