@@ -263,16 +263,33 @@
   }
   .dev-note h3 { margin: 0 0 8px; font-size: 13px; }
 
-  /* 最短路径 */
+  /* 快速构建安装 */
   .quick-start {
     background: var(--panel); border: 1px solid #cfe0da; border-radius: 12px;
-    padding: 16px; margin-bottom: 16px;
+    padding: 18px; margin-bottom: 16px;
   }
-  .quick-start h3 { margin: 0 0 10px; font-size: 13px; }
-  .qs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; }
-  .qs-grid > div { min-width: 0; }
-  .qs-label { margin: 0 0 6px; font-size: 11px; font-weight: 600; color: var(--accent); }
-  .qs-tip { margin: 10px 0 0; font-size: 11px; color: var(--muted); line-height: 1.7; }
+  .qs-head h3 { margin: 0 0 6px; font-size: 19px; letter-spacing: .3px; }
+  .qs-head p { margin: 0 0 14px; font-size: 11.5px; color: var(--muted); line-height: 1.7; }
+  .qs-tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+  .qs-tab {
+    padding: 6px 16px; border-radius: 8px; border: 1px solid var(--line);
+    background: var(--panel-2); color: var(--text-2); font: inherit; font-size: 11.5px;
+    cursor: pointer; transition: .15s ease;
+  }
+  .qs-tab:hover { border-color: var(--line-strong); color: var(--text); }
+  .qs-tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .qs-panel { display: none; position: relative; }
+  .qs-panel.active { display: block; animation: osFade .18s ease; }
+  .qs-panel pre { margin: 0; padding: 34px 18px 16px; max-height: 420px; overflow: auto; }
+  .qs-note { margin: 10px 0 0; font-size: 11px; color: var(--muted); line-height: 1.75; }
+  .qs-copy {
+    position: absolute; top: 9px; right: 9px; z-index: 2;
+    padding: 4px 10px; border-radius: 6px; border: 1px solid #2b3441;
+    background: #1e252f; color: #a9b6c4; font: inherit; font-size: 10.5px; cursor: pointer;
+    transition: .15s ease;
+  }
+  .qs-copy:hover { background: #2a3543; color: #fff; }
+  .c-cm { color: #7d8c9b; }
 
   /* 常见报错表 */
   .err-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 11.5px; }
@@ -284,10 +301,6 @@
   .err-table td { color: var(--text-2); }
   .err-table td:first-child { color: var(--text); font-family: var(--mono); font-size: 11px; }
   .err-table tr:last-child td { border-bottom: 0; }
-
-  @media (max-width: 980px) {
-    .qs-grid { grid-template-columns: 1fr; }
-  }
 
   footer { border-top: 1px solid var(--line); padding: 26px 0 34px; color: var(--muted); font-size: 11px; }
   .foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
@@ -627,26 +640,52 @@
           </div>
         </div>
         <div class="dev">
-          <div class="quick-start">
-            <h3>先看这里：最短路径</h3>
-            <div class="qs-grid">
-              <div>
-                <p class="qs-label">Linux（自动装依赖 + 打包）</p>
-                <pre>git clone https://gitee.com/liuliwanjiaweb/liuli-shell.git
-cd liuli-shell
-npm ci &amp;&amp; npm run vendor
-bash scripts/build-linux.sh          # 自动识别发行版、装依赖、处理 t64 包名</pre>
-              </div>
-              <div>
-                <p class="qs-label">macOS（Xcode CLT + Node 20）</p>
-                <pre>xcode-select --install
-brew install node@20 git &amp;&amp; brew link --overwrite --force node@20
-git clone https://gitee.com/liuliwanjiaweb/liuli-shell.git
-cd liuli-shell &amp;&amp; npm ci &amp;&amp; npm run vendor
-npm run dist:mac                     # dmg + zip（x64 / arm64）</pre>
-              </div>
+          <div class="quick-start" id="quick-start">
+            <div class="qs-head">
+              <h3>快速构建安装</h3>
+              <p>三步拿到安装包：<b>先清掉旧目录</b> → 拉源码 → 打包。切换系统查看对应命令，整段可直接复制到终端。</p>
             </div>
-            <p class="qs-tip">两条路都产出到项目根目录的 <code>dist/</code>。只要拿到能跑的包，看到这里就够了；遇到报错再往下查。</p>
+            <div class="qs-tabs" role="tablist">
+              <button class="qs-tab active" type="button" role="tab" data-qs="linux">Linux</button>
+              <button class="qs-tab" type="button" role="tab" data-qs="mac">macOS</button>
+            </div>
+
+            <div class="qs-panel active" data-qs="linux" role="tabpanel">
+              <button class="qs-copy" type="button" data-copy>复制命令</button>
+              <pre><span class="c-cm"># 1) 先删掉旧目录再克隆，避免上次残留的文件让构建异常</span>
+rm -rf liuli-shell
+git clone https://gitee.com/liuliwanjiaweb/liuli-shell.git
+cd liuli-shell
+
+<span class="c-cm"># 2) 一条命令搞定：识别发行版 → 补系统依赖 → 选 deb / AppImage → 打包 → 询问安装</span>
+bash scripts/build-linux.sh
+
+<span class="c-cm"># 3) 依赖没装上或构建报错时，再依次尝试（随时可中断，不影响系统）</span>
+bash scripts/build-linux.sh repair
+bash scripts/build-linux.sh deps
+bash scripts/build-linux.sh</pre>
+              <p class="qs-note">产物在 <code>dist/</code>。脚本会按版本自动选 <code>*t64</code> 包名并回退；非交互场景可加参数，如 <code>bash scripts/build-linux.sh deb</code>、<code>... appimage</code>、<code>... -y</code>。</p>
+            </div>
+
+            <div class="qs-panel" data-qs="mac" role="tabpanel">
+              <button class="qs-copy" type="button" data-copy>复制命令</button>
+              <pre><span class="c-cm"># 1) 基础环境（已装过会自动跳过，命令都带容错）</span>
+xcode-select --install 2&gt;/dev/null || true
+command -v brew &gt;/dev/null || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+command -v node &gt;/dev/null || brew install node@20
+brew link --overwrite --force node@20 &gt;/dev/null 2&gt;&amp;1 || true
+
+<span class="c-cm"># 2) 先删掉旧目录再克隆</span>
+rm -rf liuli-shell
+git clone https://gitee.com/liuliwanjiaweb/liuli-shell.git
+cd liuli-shell
+
+<span class="c-cm"># 3) 装依赖并打包（npm ci 失败自动回退 npm install）</span>
+npm ci || npm install
+npm run vendor
+npm run dist:mac</pre>
+              <p class="qs-note">产物在 <code>dist/</code>（<code>.dmg</code> / <code>.zip</code>）。只打当前架构更快：<code>npx electron-builder --mac dmg zip --arm64</code>。</p>
+            </div>
           </div>
 
           <div class="source-note">
@@ -739,10 +778,11 @@ source ~/.zshrc</pre>
               <pre>brew install node@20 git
 brew link --overwrite --force node@20
 node -v &amp;&amp; npm -v          # 期望输出 v20.x</pre>
-              <p><b>3. 源码与依赖</b></p>
-              <pre>git clone https://gitee.com/liuliwanjiaweb/liuli-shell.git
+              <p><b>3. 源码与依赖</b>（先删旧目录，避免残留文件导致异常）</p>
+              <pre>rm -rf liuli-shell
+git clone https://gitee.com/liuliwanjiaweb/liuli-shell.git
 cd liuli-shell
-npm ci                     # 严格按 package-lock.json 安装
+npm ci || npm install      # 锁文件与平台不一致时回退 npm install
 npm run vendor             # 复制 xterm 资源到 src/renderer/vendor，打包前必须执行</pre>
               <p><b>4. 打包</b>（只打当前架构最快；两种都要就给 <code>dist:mac</code>）</p>
               <pre>npm run dist:mac                              # x64 + arm64 一起出
@@ -822,6 +862,8 @@ spctl --assess --type execute -vv "/Applications/LIULI Shell.app"   # 查看拦�
 /* Linux 各发行版构建命令（Tab 切换）。包名差异集中在系统依赖，其余步骤一致。 */
 (function () {
   var CLONE = [
+    '# 旧目录先删掉，避免残留文件导致构建异常',
+    'rm -rf liuli-shell',
     'git clone https://gitee.com/liuliwanjiaweb/liuli-shell.git',
     'cd liuli-shell',
     'npm ci || npm install',
@@ -834,8 +876,11 @@ spctl --assess --type execute -vv "/Applications/LIULI Shell.app"   # 查看拦�
     'npm run dist:linux:deb',
     'npm run dist:linux:tar',
     '',
-    '# 或一键脚本（自动识别发行版、自动处理 t64 包名）',
-    'bash scripts/build-linux.sh'
+    '# 或一键脚本（自动识别发行版、自动处理 t64 包名、可选交互）',
+    'bash scripts/build-linux.sh',
+    '',
+    '# 依赖没装上、构建报错时',
+    'bash scripts/build-linux.sh repair && bash scripts/build-linux.sh deps'
   ];
   var NVM = [
     '# 系统源 Node 版本常常低于 18，推荐用 nvm 装 20',
@@ -968,6 +1013,49 @@ spctl --assess --type execute -vv "/Applications/LIULI Shell.app"   # 查看拦�
     });
     Array.prototype.forEach.call(panels.querySelectorAll('.os-panel'), function (p) {
       p.classList.toggle('active', p.dataset.os === btn.dataset.os);
+    });
+  });
+})();
+</script>
+<script>
+/* 快速构建安装：Linux / macOS 切换 + 一键复制命令 */
+(function () {
+  var box = document.getElementById('quick-start');
+  if (!box) return;
+  var tabs = box.querySelectorAll('.qs-tab');
+  var panels = box.querySelectorAll('.qs-panel');
+
+  Array.prototype.forEach.call(tabs, function (tab) {
+    tab.addEventListener('click', function () {
+      var key = tab.getAttribute('data-qs');
+      Array.prototype.forEach.call(tabs, function (t) { t.classList.toggle('active', t === tab); });
+      Array.prototype.forEach.call(panels, function (p) {
+        p.classList.toggle('active', p.getAttribute('data-qs') === key);
+      });
+    });
+  });
+
+  Array.prototype.forEach.call(box.querySelectorAll('[data-copy]'), function (btn) {
+    btn.addEventListener('click', function () {
+      var panel = btn.parentNode;
+      var pre = panel ? panel.querySelector('pre') : null;
+      if (!pre) return;
+      var text = pre.innerText || pre.textContent || '';
+      var flash = function () {
+        var old = btn.textContent;
+        btn.textContent = '已复制';
+        setTimeout(function () { btn.textContent = old; }, 1400);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(flash, function () {});
+      } else {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); flash(); } catch (e) {}
+        document.body.removeChild(ta);
+      }
     });
   });
 })();

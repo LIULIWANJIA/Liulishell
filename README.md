@@ -34,8 +34,17 @@
 ### Linux：一键脚本（推荐）
 
 ```bash
+# 1) 先删掉旧目录再克隆，避免上次残留的文件让构建异常
+rm -rf liuli-shell
 git clone https://gitee.com/liuliwanjiaweb/liuli-shell.git
 cd liuli-shell
+
+# 2) 一条命令：识别发行版 → 补系统依赖 → 选 deb / AppImage → 打包 → 询问安装
+bash scripts/build-linux.sh
+
+# 3) 依赖没装上或构建报错时，再依次尝试
+bash scripts/build-linux.sh repair
+bash scripts/build-linux.sh deps
 bash scripts/build-linux.sh
 ```
 
@@ -56,7 +65,13 @@ bash scripts/build-linux.sh
 ### Linux：手动命令
 
 ```bash
-npm ci && npm run vendor
+# 先删旧目录再克隆
+rm -rf liuli-shell
+git clone https://gitee.com/liuliwanjiaweb/liuli-shell.git
+cd liuli-shell
+
+npm ci || npm install     # 锁文件与平台不一致时回退 npm install
+npm run vendor
 npm run dist:linux:deb        # .deb
 npm run dist:linux:appimage   # AppImage
 npm run dist:linux:tar        # tar.gz（不依赖 FUSE，兼容性最好）
@@ -68,10 +83,19 @@ npm run dist:linux:tar        # tar.gz（不依赖 FUSE，兼容性最好）
 ### macOS
 
 ```bash
-xcode-select --install
-brew install node@20 git && brew link --overwrite --force node@20
+# 基础环境（已装过会自动跳过）
+xcode-select --install 2>/dev/null || true
+command -v brew >/dev/null || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+command -v node >/dev/null || brew install node@20
+brew link --overwrite --force node@20 >/dev/null 2>&1 || true
+
+# 先删旧目录再克隆
+rm -rf liuli-shell
 git clone https://gitee.com/liuliwanjiaweb/liuli-shell.git
-cd liuli-shell && npm ci && npm run vendor
+cd liuli-shell
+
+npm ci || npm install      # 失败自动回退 npm install
+npm run vendor
 npm run dist:mac                              # x64 + arm64 一起出
 npx electron-builder --mac dmg zip --arm64    # 只打 Apple Silicon
 ```
