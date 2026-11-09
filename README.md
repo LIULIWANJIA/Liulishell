@@ -1,10 +1,95 @@
 # LIULI Shell
 
-> 作者：**LIULIWANJIA**　|　源码仓库：<https://gitee.com/liuliwanjiaweb/liuli-shell>
+> 作者：**LIULIWANJIA**　|　官网：<https://shell.minecft.cn>　|　源码仓库：<https://gitee.com/liuliwanjiaweb/liuli-shell>
 
-跨平台 SSH 终端与服务器管理工具，三栏布局参考 FinalShell，支持 **Windows x64 / Linux x64**，目标服务器支持 **Ubuntu 20.04 / 22.04 / 24.04 / 26.04** 等主流发行版。
+跨平台 SSH 终端与服务器管理工具（Windows / Linux / macOS），三栏布局参考 FinalShell，目标服务器支持 **Ubuntu 20.04 / 22.04 / 24.04 / 26.04** 等主流发行版。
 
 技术栈：Electron + xterm.js + ssh2（原生 SFTP 与 shell channel，无外部命令依赖）。
+
+当前版本 **v1.13.4** · Windows 提供现成安装包 · Linux / macOS 请按下方教程自行构建。
+
+## 下载
+
+| 版本 | 适用平台 | 说明 |
+| --- | --- | --- |
+| **Windows 安装版** | Windows 10 / 11 x64 | NSIS 安装向导，per-machine 安装，自动创建桌面与开始菜单图标（约 102 MB） |
+| **Windows 便携版** | Windows 10 / 11 x64 | 免安装、免管理员权限，双击即用（约 93 MB） |
+| Linux（`.deb` / AppImage / `.tar.gz`） | x64 / arm64 | 需自行构建，见 [源码构建](#源码构建) |
+| macOS（`.dmg` / `.zip`） | Intel / Apple Silicon | 需自行构建，见 [源码构建](#源码构建) |
+
+- 官网下载入口：<https://shell.minecft.cn>（下载外链配置中，页面按钮暂以 `#` 占位，正式地址以上线后为准）
+- 发行版附件：<https://gitee.com/liuliwanjiaweb/liuli-shell/releases>
+
+**安装与升级：**
+
+- 全新安装默认目录：有 D 盘时 `D:\LIULISHELL`，否则 `C:\Program Files\LIULI Shell`，向导中可自行修改。
+- 安装器会读取注册表卸载项的 `DisplayVersion`：检测到低版本 → 按钮变「升级」并沿用原安装目录（跳过目录选择页）；同版本询问是否覆盖；高版本询问是否降级；`/S` 静默安装不弹窗。
+- **升级 / 重装 / 卸载都不会删除数据**：配置在 `%APPDATA%\LIULI Shell`（`liulishell-data.json` + 加密凭据），安装器只清理安装目录 `$INSTDIR`。升级前请先退出正在运行的实例。
+- 便携版默认与安装版共用 `%APPDATA%\LIULI Shell`；若要完全随身携带，在便携版 exe 同级新建 `data` 文件夹即可。**便携版 exe 不要放进安装目录**（升级时安装目录会被整体替换）。
+
+## 源码构建
+
+要求：Node.js ≥ 18（推荐 20 LTS）、Git。Linux 与 macOS 必须在对应系统（或同架构 CI）上构建，产物互不通用。
+
+### Linux：一键脚本（推荐）
+
+```bash
+git clone https://gitee.com/liuliwanjiaweb/liuli-shell.git
+cd liuli-shell
+bash scripts/build-linux.sh
+```
+
+脚本按顺序完成：识别发行版与版本 → 检测并补齐系统依赖 → 选择包类型 → 打包 → 询问是否安装。
+
+| 命令 | 作用 |
+| --- | --- |
+| `bash scripts/build-linux.sh` | 交互式：选 `1` 打 `.deb`、`2` 打 AppImage、`3` 两种都打（直接回车默认 `.deb`），打包完询问是否安装 |
+| `bash scripts/build-linux.sh deb` / `appimage` / `both` / `tar` | 直接指定产物，不再询问 |
+| `bash scripts/build-linux.sh deps` | 只安装 / 补全系统依赖 |
+| `bash scripts/build-linux.sh check` | 只体检：打印系统信息与缺失依赖，不改动系统 |
+| `bash scripts/build-linux.sh repair` | 修复构建环境（dpkg 中断、破损依赖、npm 源、Electron 二进制） |
+| 附加开关 `-y` / `--no-install` / `--no-deps` | 免询问安装 / 只打包不安装 / 跳过依赖安装 |
+
+- **包名自动适配**：Ubuntu 24.04+、Debian 13+、Mint 22+ 的系统库改为 `*t64` 命名，脚本按版本优先新名，失败自动在 `libgtk-3-0` ↔ `libgtk-3-0t64` 之间回退；支持 apt / dnf / yum / pacman / zypper。
+- **安装行为**：`.deb` 走 `apt install` 并生成桌面图标；AppImage 安装到 `~/Applications/LIULI-Shell/`（含图标），并生成应用菜单、桌面图标与 `~/.local/bin/liuli-shell` 命令入口。
+
+### Linux：手动命令
+
+```bash
+npm ci && npm run vendor
+npm run dist:linux:deb        # .deb
+npm run dist:linux:appimage   # AppImage
+npm run dist:linux:tar        # tar.gz（不依赖 FUSE，兼容性最好）
+```
+
+- 产物在 `dist/`。AppImage 的运行下限由**构建机的 glibc** 决定，想让 20.04 ~ 26.04 通用，请在 Ubuntu 20.04 上构建。
+- AppImage 需要 `libfuse.so.2`：Ubuntu 24.04+ 装 `libfuse2t64`，20.04 / 22.04 与 Debian 12 装 `libfuse2`；不装 FUSE 可加 `--appimage-extract-and-run`，或改用 `.tar.gz` / `.deb`。
+
+### macOS
+
+```bash
+xcode-select --install
+brew install node@20 git && brew link --overwrite --force node@20
+git clone https://gitee.com/liuliwanjiaweb/liuli-shell.git
+cd liuli-shell && npm ci && npm run vendor
+npm run dist:mac                              # x64 + arm64 一起出
+npx electron-builder --mac dmg zip --arm64    # 只打 Apple Silicon
+```
+
+- 产物在 `dist/`（`.dmg` / `.zip`）。未签名被 Gatekeeper 拦截时：`xattr -dr com.apple.quarantine "/Applications/LIULI Shell.app"`。
+- 对外分发需 Developer ID 证书并 notarize：配置 `CSC_LINK`、`CSC_KEY_PASSWORD`、`APPLE_ID`、`APPLE_APP_SPECIFIC_PASSWORD`、`APPLE_TEAM_ID`。
+
+### 构建常见报错
+
+| 报错 / 现象 | 处理 |
+| --- | --- |
+| 无法定位软件包 `libasound2` | 24.04+ 已改名 `*t64`，跑 `bash scripts/build-linux.sh deps` 自动回退 |
+| `dlopen(): error loading libfuse.so.2` | 装 `libfuse2` / `libfuse2t64`，或 `--appimage-extract-and-run`，或改用 tar.gz |
+| Electron 下载超时 | `export ELECTRON_MIRROR=https://registry.npmmirror.com/-/binary/electron/` |
+| `npm ci` 失败 | 删除 `node_modules` 后改 `npm install`；确认 Node ≥ 18 |
+| `rpmbuild not found` | 只有打 rpm 才需要，装 `rpm-build` 后再试 |
+
+## 界面预览
 
 ![界面预览](website/assets/theme-warm.png)
 
@@ -157,37 +242,26 @@ npm run mock         # 127.0.0.1:2222，用户名 demo，密码任意
 
 模拟服务器内置假 `/proc`、`ps`、`ss`、`df` 与 SFTP，并模拟 OSC 7 目录上报，可完整验证监控、进程/网络详情、文件树、cd 联动与独立编辑器读写。
 
-## 打包
+## 打包命令速查
+
+Windows 与 Linux / macOS 的完整教程见顶部 [源码构建](#源码构建)，这里只列 npm 脚本：
 
 ```bash
-npm run dist:win           # Windows x64：NSIS 安装包 + 便携版
-npm run dist:win:installer # 仅 NSIS 安装包
-npm run dist:win:portable  # 仅便携版
-npm run dist:win:dir       # 免安装目录（调试用）
-npm run dist:linux         # Linux x64：AppImage + deb + tar.gz
+npm run dist:win            # Windows x64：NSIS 安装包 + 便携版
+npm run dist:win:installer  # 仅 NSIS 安装包
+npm run dist:win:portable   # 仅便携版
+npm run dist:win:dir        # 免安装目录（调试用）
+npm run dist:linux          # Linux x64：AppImage + deb + tar.gz
 npm run dist:linux:appimage # 仅 AppImage
 npm run dist:linux:deb      # 仅 deb
 npm run dist:linux:tar      # 仅 tar.gz（不依赖 FUSE）
-npm run build:linux         # 一键脚本：按发行版自动装依赖再打包
-npm run dist:mac           # macOS：dmg + zip（x64 / arm64，需在 macOS 上构建）
+npm run build:linux         # Linux 一键脚本：识别发行版、装依赖、可选交互打包
+npm run dist:mac            # macOS：dmg + zip（x64 / arm64，需在 macOS 上构建）
 ```
 
-- **Linux 推荐用 `bash scripts/build-linux.sh`**：自动识别 Ubuntu / Debian / Fedora / Arch，按发行版安装构建依赖（`apt/dnf/pacman`，含 Node 与 npm），然后再执行 vendor + electron-builder。只装依赖可跑 `bash scripts/build-linux.sh deps`。
-- **包名差异**：Ubuntu 24.04 起系统库统一改名为 `*t64`（`libasound2t64`、`libgtk-3-0t64`…），照抄 22.04 的命令会报「无法定位软件包」。脚本与官网教程都做了「先旧名、失败回退 t64」处理；`.deb` 的 `depends` 也写成 `libgtk-3-0 | libgtk-3-0t64` 这类可选依赖，24.04 / 26.04 可直接安装。
-- **AppImage 与 FUSE**：AppImage（type-2 运行时）需要 `libfuse.so.2`，Ubuntu 20.04/22.04 自带，24.04/26.04 需 `apt install libfuse2t64`；否则可加 `--appimage-extract-and-run` 参数或直接使用 `.tar.gz` 版本。AppImage 的运行下限由**构建机的 glibc** 决定，想让 20.04 ~ 26.04 通用请在 Ubuntu 20.04 上构建。
-- macOS 必须在 macOS 或 macOS CI 上构建；未签名时需在系统设置中允许打开。正式分发需 Apple Developer ID 签名与 notarize。
-
-- Windows 安装程序为 per-machine 安装，全新安装默认目录：有 D 盘时用 `D:\LIULISHELL`，否则 `C:\Program Files\LIULI Shell`，向导中可自行修改；安装完成后创建桌面与开始菜单图标。
-- **安装程序会读取注册表里的已安装版本**（卸载项 `DisplayVersion`）：
-  - 检测到更低版本 → 提示「已安装 X，将升级到 Y」，安装按钮显示为「升级」，并**沿用原安装目录**（自动跳过目录选择页，避免装出第二份），实现原地覆盖升级；
-  - 检测到相同版本 → 询问是否覆盖安装；检测到更高版本 → 询问是否降级；
-  - 静默安装（`/S`）不弹窗，直接按上述规则继续。
-- **升级 / 重装 / 卸载都不会删除数据**：配置在 `%APPDATA%\LIULI Shell`（`liulishell-data.json` + 加密凭据），安装器只清理安装目录 `$INSTDIR`，且 `deleteAppDataOnUninstall: false`；升级前请先退出正在运行的 LIULI Shell（安装器也会检测并提示关闭）。
-- **便携版**（`LIULI Shell <版本> Portable.exe`）：免安装、不需要管理员权限。默认与安装版共用 `%APPDATA%\LIULI Shell` 配置；若要完全随身携带，在便携版 exe 同级新建 `data` 文件夹，配置就存在那里。**便携版 exe 不要放进安装目录**（升级时安装目录会被整体替换）。
-- 软件官网：`website/index.html`（单页静态站，含功能详情、5 套主题截图与下载入口，下载文件放在 `website/downloads/`）。
-- Windows 包可在 Windows 上直接构建；**Linux 包建议在 Linux 机器或 CI 上构建**。官网构建教程已按发行版分 Tab，命令与仓库脚本保持一致。
-- 国内网络可加：
-  `ELECTRON_MIRROR=https://registry.npmmirror.com/-/binary/electron/ ELECTRON_BUILDER_BINARIES_MIRROR=https://registry.npmmirror.com/-/binary/electron-builder-binaries/`
+- 产物统一输出到项目根目录 `dist/`；Windows 安装包与便携版体积较大，**不要提交进仓库**，请上传到 Gitee「发行版（Releases）」或网盘。
+- 官网源码在 `website/index.html`（单页静态站，含功能详情、主题预览与下载入口）；下载改走外链，仓库不再存放安装包。
+- 国内网络可加：`ELECTRON_MIRROR=https://registry.npmmirror.com/-/binary/electron/ ELECTRON_BUILDER_BINARIES_MIRROR=https://registry.npmmirror.com/-/binary/electron-builder-binaries/`
 
 ## 连接 Ubuntu 24.04 / 26.04 说明
 
@@ -209,4 +283,4 @@ npm run dist:mac           # macOS：dmg + zip（x64 / arm64，需在 macOS 上�
 - 独立编辑器仅支持 UTF-8 文本且小于 10MB；保存为直接覆写，不保留历史版本。
 - 网络「上传 / 下载」来自 `ss -i` 字节统计（需 root 才能看到进程归属）。
 - 目录树为懒加载，单层超过 350 项时折叠展示。
-- 版本 **v1.13.2**，作者 **LIULIWANJIA**。
+- 版本 **v1.13.4**，作者 **LIULIWANJIA**。
