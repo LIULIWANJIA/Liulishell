@@ -33,22 +33,26 @@
 
 ### Linux：一键脚本（推荐）
 
+> **请一条一条执行**，不要整段粘贴：Gitee 拉取源码时会提示输入账户与密码，等克隆完成、回到命令行提示符后再执行下一条。
+
 ```bash
 # 1) 先删掉旧目录再克隆，避免上次残留的文件让构建异常
-rm -rf liuli-shell
-git clone https://gitee.com/liuliwanjiaweb/liuli-shell.git
-cd liuli-shell
+rm -rf liuli-shell && git clone https://gitee.com/liuliwanjiaweb/liuli-shell.git
 
-# 2) 一条命令：识别发行版 → 补系统依赖 → 选 deb / AppImage → 打包 → 询问安装
-bash scripts/build-linux.sh
+# 2) 一条命令：进入项目目录 识别发行版 → 补系统依赖 → 选 deb / AppImage → 打包 → 询问安装
+cd liuli-shell && bash scripts/build-linux.sh
+```
 
+脚本按顺序完成：识别发行版与版本 → 检测并补齐系统依赖 → 选择包类型 → 打包 → 询问是否安装。
+
+**仅在依赖没装上或构建报错时**，再按顺序逐条尝试下面三条（正常构建无需执行）：
+
+```bash
 # 3) 依赖没装上或构建报错时，再依次尝试
 bash scripts/build-linux.sh repair
 bash scripts/build-linux.sh deps
 bash scripts/build-linux.sh
 ```
-
-脚本按顺序完成：识别发行版与版本 → 检测并补齐系统依赖 → 选择包类型 → 打包 → 询问是否安装。
 
 | 命令 | 作用 |
 | --- | --- |
