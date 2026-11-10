@@ -350,7 +350,8 @@ window.Term = (function () {
         term: null,
         fit: null,
         pane: null,
-        typeBuf: ''
+        typeBuf: '',
+        cmdAnchor: null
       };
       if (pending.pane && pending.pane.parentNode) pending.pane.parentNode.removeChild(pending.pane);
       const pendingInfo = App.state.pendingSysinfo.get(real.id);
@@ -475,6 +476,35 @@ window.Term = (function () {
     if (window.History) History.record(text);
   }
 
+  /**
+   * 回车时还原「最终执行的那一行」：
+   * 直接在终端里敲字时，输入缓冲只能看到按键，看不到 Tab 补全 / shell 自动补全的结果，
+   * 所以再读一次终端缓冲中光标所在行，用「开始输入时的光标列」到「当前光标列」截出真实命令行。
+   * 读不到或不一致时回退到按键缓冲。
+   */
+  function resolveTypedLine(sess, typed) {
+    const fallback = String(typed || '');
+    const term = sess && sess.term;
+    if (!term) return fallback;
+    try {
+      const b = term.buffer.active;
+      const row = b.baseY + b.cursorY;
+      const line = b.getLine(row);
+      if (!line) return fallback;
+      const raw = line.translateToString(true);
+      const anchor = sess.cmdAnchor;
+      if (!anchor || anchor.row !== row || b.cursorX <= anchor.col) return fallback;
+      const cmd = raw.slice(anchor.col, b.cursorX).trim();
+      if (!cmd) return fallback;
+      const t = fallback.trim();
+      // 抓到的内容必须包含按键缓冲（补全只会让它更长），否则视为串行，宁可用缓冲
+      if (t && !cmd.includes(t)) return fallback;
+      return cmd;
+    } catch (_) {
+      return fallback;
+    }
+  }
+
   /** 从终端按键流里跟踪当前命令行：回车时记录到历史。
    *  只用于补全「直接在终端里输入」的命令，方向键调用旧历史的情况不重复记。 */
   function trackTyped(sess, data) {
@@ -503,16 +533,31 @@ window.Term = (function () {
         continue;
       }
       if (ch === '\r' || ch === '\n') {
-        recordHistoryLine(text);
+        recordHistoryLine(resolveTypedLine(sess, text));
         text = '';
+        sess.cmdAnchor = null;
         i++;
         continue;
       }
       if (ch === '\x7f' || ch === '\b') { text = text.slice(0, -1); i++; continue; }
       if (ch === '\x17') { text = text.replace(/\s*\S+$/, ''); i++; continue; }
-      if (ch === '\x03' || ch === '\x15' || ch === '\x0b') { text = ''; i++; continue; }
+      if (ch === '\x03' || ch === '\x15' || ch === '\x0b') {
+        text = '';
+        sess.cmdAnchor = null;
+        i++;
+        continue;
+      }
       const code = ch.charCodeAt(0);
       if (code < 32) { i++; continue; }
+      if (!text) {
+        // 第一个字符到达时光标还在提示符末尾：记下命令行起点，供回车时精确截取
+        try {
+          const b = sess.term.buffer.active;
+          sess.cmdAnchor = { row: b.baseY + b.cursorY, col: b.cursorX };
+        } catch (_) {
+          sess.cmdAnchor = null;
+        }
+      }
       text += ch;
       i++;
     }

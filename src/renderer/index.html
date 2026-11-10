@@ -75,15 +75,13 @@
 
         <section class="panel compact disk-panel" id="disk-panel">
           <div class="panel-title">磁盘 <span class="panel-extra" id="disk-extra"></span></div>
-          <table class="grid-table disk-table" id="disk-table">
-            <thead><tr><th>路径</th><th>可用 / 总</th></tr></thead>
-            <tbody id="disk-body">
-              <tr class="placeholder"><td colspan="2">暂无数据</td></tr>
-            </tbody>
-          </table>
-          <div class="disk-picker hidden" id="disk-picker">
-            <select id="disk-select" class="mini-select" title="选择磁盘分区"></select>
-            <div class="disk-line" id="disk-line"></div>
+          <div class="disk-scroll" id="disk-scroll">
+            <table class="grid-table disk-table" id="disk-table">
+              <thead><tr><th>路径</th><th>可用 / 总</th></tr></thead>
+              <tbody id="disk-body">
+                <tr class="placeholder"><td colspan="2">暂无数据</td></tr>
+              </tbody>
+            </table>
           </div>
         </section>
       </div>
@@ -235,10 +233,12 @@
             <div class="kv-item"><span>用户</span><b id="info-user">--</b></div>
             <div class="kv-item"><span>运行</span><b id="info-uptime">--</b></div>
             <div class="kv-item"><span>负载</span><b id="info-load">--</b></div>
+            <div class="kv-item"><span>IP</span><b id="info-ip" class="copyable" title="点击复制 IP">--</b></div>
+            <div class="kv-item"><span>端口</span><b id="info-port" class="copyable" title="点击复制端口">--</b></div>
           </div>
         </section>
 
-        <section class="panel">
+        <section class="panel proc-panel">
           <div class="panel-title">
             进程预览
           </div>
@@ -256,14 +256,14 @@
           </table>
         </section>
 
-        <section class="panel">
+        <section class="panel net-panel">
           <div class="panel-title">
             <span class="panel-tools">
               <select class="mini-select" id="nic-select"></select>
               <span class="net-unit" id="net-unit">MB/s</span>
             </span>
           </div>
-          <canvas id="net-chart" height="58"></canvas>
+          <canvas id="net-chart" height="96"></canvas>
           <div class="net-legend">
             <span class="rx"><i></i>下行 <b id="rx-rate">0 B/s</b></span>
             <span class="tx"><i></i>上行 <b id="tx-rate">0 B/s</b></span>

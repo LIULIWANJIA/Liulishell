@@ -76,6 +76,21 @@ window.History = (function () {
   }
 
   function openDialog() {
+    // 打开前先从本地配置重新读一遍：无论命令是从终端直接敲的、命令栏发的还是快捷命令执行的，
+    // 只要已落盘就一定能在这里看到（也顺带修正模块内缓存的滞后）
+    window.api
+      .historyList()
+      .then((fresh) => {
+        if (Array.isArray(fresh)) {
+          list = fresh;
+          App.emit('history:change', list);
+        }
+      })
+      .catch(() => {})
+      .then(() => renderDialog());
+  }
+
+  function renderDialog() {
     const render = (filter) => {
       const box = $('#his-list');
       const counter = $('#his-count');

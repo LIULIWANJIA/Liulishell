@@ -38,13 +38,17 @@ window.Files = (function () {
 
     tbody.addEventListener('click', onRowClick);
     tbody.addEventListener('dblclick', onRowDblClick);
-    tbody.addEventListener('contextmenu', onRowContext);
+    // 右键绑在文件列表整块区域（含文件下方的空白处），空白处也能弹出菜单
+    const fileArea = U.qs('.file-right') || dropEl;
+    fileArea.addEventListener('contextmenu', onRowContext);
 
     treeEl.addEventListener('click', onTreeClick);
     treeEl.addEventListener('contextmenu', onTreeContext);
     $('#btn-toggle-tree').addEventListener('click', (e) => {
       treeEl.classList.toggle('hidden');
-      e.currentTarget.classList.toggle('active', !treeEl.classList.contains('hidden'));
+      const shown = !treeEl.classList.contains('hidden');
+      e.currentTarget.classList.toggle('active', shown);
+      if (shown) scrollTreeToActive();
       Term.fitActive();
     });
 
@@ -150,6 +154,8 @@ window.Files = (function () {
       lastIndex = -1;
       pathInput.value = res.path;
       render();
+      // 切换目录后文件列表回到顶部（否则沿用了上一个目录的滚动位置，看起来像空列表）
+      dropEl.scrollTop = 0;
       setStatus(
         res.cached
           ? `${res.path} · ${entries.length} 项 · 缓存（正在后台刷新…）`
@@ -160,6 +166,7 @@ window.Files = (function () {
       await ensureTreePath(res.path);
       if (mySeq !== seq) return;
       renderTree();
+      scrollTreeToActive();
       if (opts.userAction) Term.cdTo(sess.id, res.path);
     } catch (err) {
       if (mySeq !== seq) return;
@@ -275,6 +282,8 @@ window.Files = (function () {
       treeEl.innerHTML = '<div class="tree-empty">未连接</div>';
       return;
     }
+    // 重绘会重建全部节点，先记下滚动位置，避免展开 / 折叠时目录树自己跳回顶部
+    const keepTop = treeEl.scrollTop;
     const activePath = App.active ? App.active.remotePath : '';
     const rows = [];
     const walk = (node, depth) => {
@@ -297,6 +306,21 @@ window.Files = (function () {
     };
     walk(treeRoot, 0);
     treeEl.innerHTML = rows.join('');
+    treeEl.scrollTop = keepTop;
+  }
+
+  /** 目录树滚动到当前目录所在节点：联动展开多级上级后，节点常常落在可视区之外 */
+  function scrollTreeToActive() {
+    if (!treeEl || treeEl.classList.contains('hidden')) return;
+    const el = treeEl.querySelector('.tnode.active');
+    if (!el) return;
+    const nodeRect = el.getBoundingClientRect();
+    const boxRect = treeEl.getBoundingClientRect();
+    const delta = nodeRect.top - boxRect.top;
+    const visible = treeEl.clientHeight;
+    if (delta >= 4 && delta + nodeRect.height <= visible - 4) return;
+    const target = treeEl.scrollTop + delta - Math.round((visible - nodeRect.height) / 2);
+    treeEl.scrollTop = Math.max(0, target);
   }
 
   /** 目录树：单击文件夹即进入（只切换文件管理目录，不向终端发送 cd）；箭头仍负责展开 / 折叠 */
@@ -428,19 +452,24 @@ window.Files = (function () {
 
   function onRowContext(e) {
     e.preventDefault();
-    const tr = e.target.closest('tr[data-i]');
-    if (tr) {
-      const idx = Number(tr.dataset.i);
-      const f = entries[idx];
-      if (!selection.has(f.name)) {
-        selection = new Set([f.name]);
-        lastIndex = idx;
-        updateRowSelection();
-      }
-    }
     const sess = App.active;
     if (!sess) return;
+    const tr = e.target.closest('tr[data-i]');
     const target = tr ? entries[Number(tr.dataset.i)] : null;
+    if (target) {
+      if (!selection.has(target.name)) {
+        selection = new Set([target.name]);
+        lastIndex = Number(tr.dataset.i);
+        updateRowSelection();
+      }
+    } else if (selection.size) {
+      // 右键空白处：清掉选中，避免菜单里的「删除所选」误伤之前选中的文件
+      selection.clear();
+      lastIndex = -1;
+      updateRowSelection();
+    }
+    const hasSel = selection.size > 0;
+    const hasClip = !!(App.state.clipboard && (App.state.clipboard.paths || []).length);
     // 操作目录：右键文件夹 → 该文件夹；右键文件/空白 → 当前目录
     const targetDir = target && target.isDir ? U.posix.join(sess.remotePath, target.name) : sess.remotePath;
     const items = [
@@ -449,20 +478,18 @@ window.Files = (function () {
       { label: 'CD 目录', onClick: () => navigate(targetDir, { userAction: true }) },
       { label: '收藏此目录', onClick: () => addFavorite(targetDir) },
       { sep: true },
-      { label: '下载所选', onClick: () => downloadSelection(selectedEntries()) },
-      { label: '上传文件…', onClick: () => upload(targetDir) },
+      { label: `下载所选${hasSel ? '（' + selection.size + '）' : ''}`, disabled: !hasSel, onClick: () => downloadSelection(selectedEntries()) },
       { sep: true },
-      { label: '重命名', disabled: !target, onClick: () => target && renameEntry(target) },
+      { label: '重命名…', disabled: !target, onClick: () => target && renameEntry(target) },
       { label: '新建文件…', onClick: () => createFile(targetDir) },
       { label: '新建文件夹…', onClick: () => mkdir(targetDir) },
       { sep: true },
-      { label: '复制', onClick: copySelection },
-      { label: '粘贴到当前目录', onClick: pasteHere },
-      { label: '粘贴到该目录', disabled: !target, onClick: () => pasteInto(targetDir) },
+      { label: '复制', disabled: !hasSel, onClick: copySelection },
+      { label: '粘贴到当前目录', disabled: !hasClip, onClick: pasteHere },
+      { label: '粘贴到该目录', disabled: !hasClip || !target || !target.isDir, onClick: () => pasteInto(targetDir) },
       { sep: true },
-      { sep: true },
-      { label: '删除所选（普通）', danger: true, onClick: () => deleteSelection('plain') },
-      { label: '删除所选（rm -f）', danger: true, onClick: () => deleteSelection('rmf') }
+      { label: '删除所选（普通）', danger: true, disabled: !hasSel, onClick: () => deleteSelection('plain') },
+      { label: '删除所选（rm -f）', danger: true, disabled: !hasSel, onClick: () => deleteSelection('rmf') }
     ];
     U.ctxMenu(items, e.clientX, e.clientY);
   }
@@ -624,15 +651,99 @@ window.Files = (function () {
 
   async function doPaste(sess, dest) {
     const cb = App.state.clipboard;
-    if (!cb) return U.toast('剪贴板为空，请先复制', 'error');
+    if (!cb || !cb.paths || !cb.paths.length) return U.toast('剪贴板为空，请先复制', 'error');
     if (cb.sessionId !== sess.id) return U.toast('暂不支持跨服务器粘贴', 'error');
+
+    // 先取一次目标目录的最新列表，用于判断是否重名（避免用缓存做出错误判断）
+    let existing = [];
     try {
-      await window.api.fsCopy({ sessionId: sess.id, sources: cb.paths, dest, move: false });
-      U.toast(`已粘贴 ${cb.paths.length} 项`, 'ok');
-      refresh();
+      const res = await window.api.fsList({ sessionId: sess.id, path: dest, refresh: true });
+      existing = (res.entries || []).map((e) => e.name);
     } catch (err) {
-      U.toast('粘贴失败: ' + U.cleanError(err), 'error');
+      return U.toast('读取目标目录失败: ' + U.cleanError(err), 'error');
     }
+    const used = new Set(existing);
+    const items = [];
+
+    for (const src of cb.paths) {
+      const base = U.posix.basename(src);
+      if (!base) continue;
+      let name = base;
+      let overwrite = false;
+      if (used.has(name)) {
+        // 同名冲突：覆盖文件 / 重命名，任一步取消都会中止整次粘贴
+        const choice = await askPasteConflict(name);
+        if (!choice) return;
+        if (choice === 'overwrite') {
+          overwrite = true;
+        } else {
+          name = await askPasteRename(name, used);
+          if (!name) return;
+        }
+      }
+      used.add(name);
+      items.push({ src, name, overwrite });
+    }
+    if (!items.length) return;
+
+    try {
+      await window.api.fsCopy({ sessionId: sess.id, dest, items, move: false });
+      const renamed = items.filter((it) => it.name !== U.posix.basename(it.src)).length;
+      U.toast(`已粘贴 ${items.length} 项` + (renamed ? `（其中 ${renamed} 项已重命名）` : ''), 'ok');
+      if (dest === sess.remotePath) refresh();
+      else afterDirMutation(dest);
+    } catch (err) {
+      U.toast('粘贴失败: ' + U.cleanError(err), 'error', 4200);
+    }
+  }
+
+  /** 目标目录已存在同名项：覆盖文件 / 重命名 / 关闭取消 */
+  function askPasteConflict(name) {
+    return U.openModal({
+      title: '目标已存在同名项目',
+      width: '440px',
+      okText: '覆盖文件',
+      cancelText: '重命名',
+      cancelValue: 'rename',
+      body: `<div style="line-height:1.8;color:var(--text-2)">
+        目标目录中已存在与 <b>${U.esc(name)}</b> 同名的文件或文件夹。<br/>
+        · <b>覆盖文件</b>：用粘贴的内容替换它（同名文件夹会被整体替换，无法撤销）<br/>
+        · <b>重命名</b>：粘贴时改成另一个名称，原项目保持不变</div>`,
+      onOk: () => 'overwrite'
+    });
+  }
+
+  /** 重命名粘贴：新名称仍与目标目录重名时再次提示，直到不冲突或取消 */
+  async function askPasteRename(original, used) {
+    let suggestion = suggestPasteName(original, used);
+    for (;;) {
+      const name = await U.promptDialog('重命名后粘贴', '新名称', suggestion, original);
+      if (!name) return '';
+      if (name === '.' || name === '..' || /[\/\\]/.test(name)) {
+        U.toast('名称不能包含路径分隔符', 'error', 3200);
+        suggestion = name;
+        continue;
+      }
+      if (used.has(name)) {
+        U.toast(`「${name}」仍与目标目录中的项目重名，请换一个名称`, 'error', 3600);
+        suggestion = name;
+        continue;
+      }
+      return name;
+    }
+  }
+
+  /** 默认建议名：name (1)、name (2)…，保留扩展名 */
+  function suggestPasteName(name, used) {
+    const dot = name.lastIndexOf('.');
+    const hasExt = dot > 0 && dot < name.length - 1 && !name.startsWith('.');
+    const stem = hasExt ? name.slice(0, dot) : name;
+    const ext = hasExt ? name.slice(dot) : '';
+    for (let i = 1; i < 500; i++) {
+      const cand = `${stem} (${i})${ext}`;
+      if (!used.has(cand)) return cand;
+    }
+    return `${stem} (${Date.now()})${ext}`;
   }
 
   async function renameEntry(entry) {

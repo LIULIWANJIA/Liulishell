@@ -65,9 +65,14 @@ button, input, select, textarea { font-family: inherit; font-size: inherit; colo
   /* 占据下方面板右侧预留区域，高度与下方面板一致 */
   height: var(--bottom-h);
 }
-/* 下方面板收起时，编辑器上移并给命令栏留出按钮空间 */
-.app.info-hidden.bottom-collapsed .cmd-editor { bottom: 33px; height: 150px; }
-.app.info-hidden.bottom-collapsed .cmd-bar { padding-right: calc(var(--right-w) + 12px); }
+/* 命令编辑器的显示规则（唯一判据）：
+ *   下方面板展开     → 显示（占据右下角，右栏底部 / 隐藏右栏时占右侧条带）
+ *   下方面板收起 + 右侧信息栏显示 → 仍然显示（右侧栏底部为它留出高度）
+ *   下方面板收起 + 右侧信息栏也隐藏 → 才隐藏，终端与命令栏占满整窗
+ */
+.app.bottom-collapsed.info-hidden .cmd-editor { display: none; }
+.app.bottom-collapsed.info-hidden #bottom-pane,
+.app.bottom-collapsed.info-hidden #split-h { margin-right: 0; }
 
 /* ===================== 控件 ===================== */
 .btn {
@@ -244,23 +249,30 @@ input[type="checkbox"], input[type="radio"], .field input[type="checkbox"], .fie
 .group-items { display: flex; flex-direction: column; gap: 1px; padding: 1px 0 3px; }
 .group.collapsed .group-items { display: none; }
 
-/* 一级分组展开时给一层跟随主题的强调底色：一眼看清当前展开的是哪个一级分组 */
-.group.lv1 { border-radius: 8px; transition: background .15s ease; }
+/* 一级分组展开时：整块只铺一层很淡的底色（区分展开范围），
+ * 真正醒目的是组头——直接常驻 hover 底色，鼠标不在上面也能一眼看出这一组是展开的 */
+.group.lv1 { border-radius: 9px; margin-bottom: 7px; transition: background .15s ease; }
 .group.lv1.open {
-  background: rgba(var(--accent-rgb), .055);
-  box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), .09);
+  background: rgba(var(--accent-rgb), .05);
+  box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), .1);
+}
+.group.lv1.open > .group-head {
+  margin-top: 0;
+  background: rgba(var(--accent-rgb), .16);
+  border-radius: 9px 9px 0 0;
+  color: var(--accent);
 }
 .group.lv1.open > .group-items { padding: 1px 3px 4px; }
-.group.lv1.open > .group-head { color: var(--accent); }
 .group.lv1.open > .group-head .gh-count {
   color: var(--accent);
-  border-color: rgba(var(--accent-rgb), .3);
-  background: rgba(var(--accent-rgb), .07);
+  border-color: rgba(var(--accent-rgb), .34);
+  background: rgba(var(--accent-rgb), .12);
 }
-.group.lv1.open > .group-head:hover { background: rgba(var(--accent-rgb), .1); color: var(--accent); }
-body.theme-dark .group.lv1.open { background: rgba(var(--accent-rgb), .14); box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), .2); }
-body.theme-dark .group.lv1.open > .group-head .gh-count { background: rgba(var(--accent-rgb), .16); }
-body.theme-dark .group.lv1.open > .group-head:hover { background: rgba(var(--accent-rgb), .22); }
+.group.lv1.open > .group-head:hover { background: rgba(var(--accent-rgb), .24); color: var(--accent); }
+body.theme-dark .group.lv1.open { background: rgba(var(--accent-rgb), .1); box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), .18); }
+body.theme-dark .group.lv1.open > .group-head { background: rgba(var(--accent-rgb), .24); }
+body.theme-dark .group.lv1.open > .group-head .gh-count { background: rgba(var(--accent-rgb), .28); }
+body.theme-dark .group.lv1.open > .group-head:hover { background: rgba(var(--accent-rgb), .34); }
 /* 二、三级分组：缩进 + 细引导线，层级清楚但不抢视线 */
 .group .group { margin-bottom: 0; }
 .group .group > .group-items {
@@ -329,12 +341,9 @@ body.theme-dark .group.lv1.open > .group-head:hover { background: rgba(var(--acc
 .left-monitors .panel { padding: 5px 8px; margin-bottom: 0; flex: 0 0 auto; }
 .left-monitors .panel.disk-panel { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
 .left-monitors .panel.disk-panel .disk-table { flex: 0 0 auto; }
-.disk-picker { display: flex; flex-direction: column; gap: 5px; min-height: 0; }
-.disk-picker .mini-select { width: 100%; max-width: none; height: 24px; }
-.disk-line { display: flex; flex-direction: column; gap: 4px; }
-.disk-line-main { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; font-size: 10.5px; color: var(--text-2); }
-.disk-line-main b { font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.disk-line-main span { flex: 0 0 auto; font-variant-numeric: tabular-nums; }
+/* 挂载点全部列出，超出面板高度时在内部滚动 */
+.disk-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; }
+.disk-scroll .disk-table thead th { position: sticky; top: 0; background: var(--panel-2); z-index: 1; }
 .left-monitors .meter-val { font-size: 15px; }
 .left-monitors .meter-line { margin-bottom: 2px; line-height: 1.25; }
 .left-monitors .meter { height: 5px; }
@@ -583,7 +592,12 @@ body.resizing { user-select: none; cursor: grabbing; }
 
 .side-body { flex: 1 1 auto; overflow-y: auto; overflow-x: hidden; padding: 7px 7px 5px; display: flex; flex-direction: column; }
 .side-body .panel { flex: 0 0 auto; }
-.side-body .panel:last-child { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 96px; }
+/* 面板高度固定，不随右侧栏可用高度变化：网络心跳始终是默认高度；
+ * 多余空间交给「进程预览」：basis 0 让它的高度完全由布局决定（不受内容反推），
+ * 行数由脚本按实际可用高度计算撑满，超出部分直接裁掉，不出现滚动条 */
+.side-body .panel.proc-panel { flex: 1 1 0; min-height: 132px; display: flex; flex-direction: column; overflow: hidden; }
+.side-body .panel.proc-panel .proc-table { flex: 0 0 auto; }
+.side-body .panel.net-panel { flex: 0 0 auto; display: flex; flex-direction: column; min-height: 96px; }
 
 .panel { background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 6px 8px 6px; margin-bottom: 5px; }
 .panel:last-child { margin-bottom: 0; }
@@ -596,6 +610,14 @@ body.resizing { user-select: none; cursor: grabbing; }
 .kv-item { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
 .kv-item span { color: var(--muted); font-size: 10.5px; }
 .kv-item b { font-weight: 500; font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* IP 可能是很长的域名：优先在点号处折行、最多两行（完整值见悬浮提示，点击复制整串） */
+.kv-item b#info-ip {
+  white-space: normal; word-break: normal; overflow-wrap: anywhere; line-height: 1.35;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
+}
+/* 可点击复制的值（服务器信息里的 IP / 端口） */
+.kv-item b.copyable { cursor: pointer; }
+.kv-item b.copyable:hover { color: var(--accent); text-decoration: underline dotted; }
 
 .meter-line { display: flex; align-items: baseline; gap: 3px; margin-bottom: 3px; }
 .meter-val { font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: -.3px; }
@@ -620,7 +642,7 @@ body.resizing { user-select: none; cursor: grabbing; }
 .grid-table th.sortable.active { color: var(--accent); }
 .grid-table th.sortable.active .arrow { border-left: 3.5px solid transparent; border-right: 3.5px solid transparent; border-top: 4px solid var(--accent); }
 
-#net-chart { width: 100%; display: block; border-radius: 5px; background: var(--panel-2); flex: 1 1 auto; min-height: 46px; height: auto; }
+#net-chart { width: 100%; display: block; border-radius: 5px; background: var(--panel-2); flex: 0 0 auto; height: 96px; min-height: 96px; }
 .net-legend { display: flex; justify-content: space-between; margin-top: 3px; font-size: 10.5px; color: var(--text-2); }
 .net-legend i { display: inline-block; width: 7px; height: 7px; border-radius: 2px; margin-right: 3px; }
 .net-legend .rx i { background: var(--accent); }
@@ -1122,10 +1144,9 @@ body.dragging-panel { user-select: none; }
 /* 网络心跳标题栏：网卡与单位居右 */
 .side-body > .panel:last-child > .panel-title { justify-content: flex-end; }
 
-/* 下方面板收起/隐藏时，监控区恢复自适应高度，避免只剩几十像素 */
-.app.bottom-collapsed .left-monitors,
+/* 下方面板收起时：命令编辑器与左下监控区都保持原有高度与位置（只收起下方面板本身），
+ * 高度绑定关系（--bottom-h 一份变量驱动三处）在重新展开后自然恢复 */
 .app.hide-bottom .left-monitors { height: auto; max-height: 55%; overflow-y: auto; }
-.app.bottom-collapsed .cmd-editor { height: 150px; bottom: 33px; }
 
 .proxy-list { display: flex; flex-direction: column; gap: 7px; }
 .proxy-row { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel-2); }

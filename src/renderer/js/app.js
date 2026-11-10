@@ -114,6 +114,14 @@
     $('#foot-conns').textContent = `${(App.state.data.connections || []).length} 个配置`;
   }
 
+  /** 布局变化后重排右侧栏：网络心跳按固定尺寸重绘，进程预览按新的可用高度重算行数 */
+  function relayoutSidebar() {
+    if (!window.Sidebar || !Sidebar.relayout) return;
+    try {
+      Sidebar.relayout();
+    } catch (_) {}
+  }
+
   /** 搜索框上方的云同步状态：灰=未配置 / 黄=待同步 / 红=失败 / 绿=成功 / 蓝=同步中 */
   function updateSyncStatus() {
     const dot = U.qs('#sync-dot');
@@ -278,6 +286,7 @@
       document.body.classList.remove('resizing');
       saveLayout();
       Term.fitActive();
+      relayoutSidebar();
     };
 
     const bind = (el, m) => {
@@ -310,6 +319,7 @@
 
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', onUp);
+    window.addEventListener('resize', U.debounce(relayoutSidebar, 160));
   }
 
   const LAYOUT_VERSION = 5;
@@ -380,6 +390,7 @@
       $('#btn-collapse-bottom').textContent = collapsed ? '▴' : '▾';
       saveLayout();
       Term.fitActive();
+      relayoutSidebar();
     });
 
     // 只隐藏「服务器信息」面板，命令编辑器始终保留
@@ -392,6 +403,7 @@
       btn.title = hide ? '显示服务器信息面板' : '隐藏服务器信息面板';
       saveLayout();
       Term.fitActive();
+      relayoutSidebar();
     };
 
     $('#btn-collapse-right').addEventListener('click', () => toggleRight(true));

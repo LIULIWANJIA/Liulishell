@@ -120,9 +120,6 @@ const api = {
   winIsMaximized: () => ipcRenderer.invoke('win:isMaximized'),
   winClose: () => ipcRenderer.invoke('win:close'),
   viewReload: () => ipcRenderer.invoke('view:reload'),
-  viewDevTools: () => ipcRenderer.invoke('view:devtools'),
-  viewFullscreen: () => ipcRenderer.invoke('view:fullscreen'),
-  viewZoom: (delta) => ipcRenderer.invoke('view:zoom', delta),
   /* 界面缩放（独立存储，不写入配置文件） */
   zoomGet: () => ipcRenderer.invoke('zoom:get'),
   zoomPreview: (percent) => ipcRenderer.invoke('zoom:preview', percent),

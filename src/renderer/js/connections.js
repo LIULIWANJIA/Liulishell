@@ -7,6 +7,9 @@ window.Connections = (function () {
   let filter = '';
   let collapsedGroups = null;
   let knownGroups = new Set();
+  /** 多选状态：Ctrl / Cmd + 左键逐个加选，Shift + 左键按可见顺序连选 */
+  let pickedIds = new Set();
+  let lastPickId = '';
 
   /** 名称排序：数字自然序、字母序、大小写同字时大写在前，待回收置底 */
   function compareText(a, b) {
@@ -148,6 +151,12 @@ window.Connections = (function () {
   function render() {
     const groups = App.state.data.groups || [];
     const conns = App.state.data.connections || [];
+    // 删除配置后清掉残留的多选状态
+    const validIds = new Set(conns.map((c) => c.id));
+    if (Array.from(pickedIds).some((id) => !validIds.has(id))) {
+      pickedIds = new Set(Array.from(pickedIds).filter((id) => validIds.has(id)));
+      if (!pickedIds.has(lastPickId)) lastPickId = '';
+    }
     const collapsed = collapsedSet();
     const groupIds = groups.map((g) => g.id);
     let changed = false;
@@ -206,7 +215,9 @@ window.Connections = (function () {
       const label = String(c.name || c.host || '?').trim();
       const initial = label.slice(0, 1).toUpperCase();
       const isKey = c.authType === 'key';
-      return `<div class="conn-item${online ? ' online' : ''}${active ? ' active' : ''}" data-id="${c.id}">
+      return `<div class="conn-item${online ? ' online' : ''}${active ? ' active' : ''}${
+        pickedIds.has(c.id) ? ' picked' : ''
+      }" data-id="${c.id}">
         <span class="ci-avatar">${U.esc(initial)}</span>
         <span class="ci-body">
           <span class="ci-name">${U.esc(label)}</span>
@@ -246,24 +257,62 @@ window.Connections = (function () {
     }
     listEl.innerHTML = html;
 
-    listEl.querySelectorAll('.conn-item').forEach((card) => {
-      // 单击只选中，不再直接连接；连接统一走右键菜单
-      card.addEventListener('click', () => {
-        listEl.querySelectorAll('.conn-item').forEach((c) => c.classList.remove('picked'));
-        card.classList.add('picked');
+    const cards = Array.from(listEl.querySelectorAll('.conn-item'));
+    const orderIds = cards.map((el) => el.dataset.id);
+    cards.forEach((card) => {
+      const id = card.dataset.id;
+      // 单击只选中，不再直接连接；Ctrl / Cmd 多选、Shift 连选，连接统一走右键菜单
+      card.addEventListener('click', (e) => {
+        const idx = orderIds.indexOf(id);
+        if (e.ctrlKey || e.metaKey) {
+          if (pickedIds.has(id)) pickedIds.delete(id);
+          else pickedIds.add(id);
+          lastPickId = id;
+        } else if (e.shiftKey && lastPickId) {
+          const from = orderIds.indexOf(lastPickId);
+          if (from < 0) {
+            pickedIds = new Set([id]);
+            lastPickId = id;
+          } else {
+            const [a, b] = [Math.min(from, idx), Math.max(from, idx)];
+            pickedIds = new Set(orderIds.slice(a, b + 1));
+          }
+        } else {
+          pickedIds = new Set([id]);
+          lastPickId = id;
+        }
+        syncPicked();
       });
       card.addEventListener('contextmenu', (e) => {
         e.preventDefault();
-        const c = App.findConnection(card.dataset.id);
+        const c = App.findConnection(id);
         if (!c) return;
+        // 右键未选中的服务器时，切换到只选它；右键已选中的则保留整批选择
+        if (!pickedIds.has(id)) {
+          pickedIds = new Set([id]);
+          lastPickId = id;
+          syncPicked();
+        }
+        const ids = Array.from(pickedIds).filter((x) => App.findConnection(x));
+        const multi = ids.length > 1;
         const proxies = App.state.data.settings.proxies || [];
         U.ctxMenu(
           [
-            { label: '连接', onClick: () => Term.connect(c.id) },
-            proxies.length ? { label: '通过默认代理连接', onClick: () => Term.connect(c.id, { proxyMode: 'default' }) } : null,
+            multi
+              ? { label: `连接所选服务器（${ids.length} 台）`, onClick: () => connectMany(ids) }
+              : null,
+            { label: multi ? '仅连接此台' : '连接', onClick: () => Term.connect(c.id) },
+            proxies.length
+              ? {
+                  label: multi ? '通过默认代理连接所选' : '通过默认代理连接',
+                  onClick: () => connectMany(multi ? ids : [c.id], { proxyMode: 'default' })
+                }
+              : null,
             { sep: true },
             { label: '编辑配置', onClick: () => openEditor(c) },
             { label: '复制主机地址', onClick: () => navigator.clipboard.writeText(c.host).then(() => U.toast('已复制', 'ok')) },
+            multi ? { label: '取消多选', onClick: () => { pickedIds = new Set([c.id]); lastPickId = c.id; syncPicked(); } } : null,
+            { sep: true },
             { label: '删除配置', danger: true, onClick: () => removeConnection(c.id) }
           ].filter(Boolean),
           e.clientX,
@@ -296,7 +345,7 @@ window.Connections = (function () {
               label: `连接本组服务器（${items.length}）`,
               onClick: () => {
                 if (!items.length) return U.toast('该分组下没有服务器配置', 'info');
-                items.forEach((c) => Term.connect(c.id));
+                connectMany(items.map((c) => c.id));
               }
             },
             { label: collapsedSet().has(gid) ? '展开分组' : '折叠分组', onClick: toggle },
@@ -311,6 +360,24 @@ window.Connections = (function () {
           e.clientY
         );
       });
+    });
+  }
+
+  /** 只切换选中样式，不重建列表（保留滚动位置与展开状态） */
+  function syncPicked() {
+    listEl.querySelectorAll('.conn-item').forEach((el) => {
+      el.classList.toggle('picked', pickedIds.has(el.dataset.id));
+    });
+  }
+
+  /** 依次连接多台服务器：错开几十毫秒建立会话，避免同时握手把界面顶住 */
+  function connectMany(ids, opts) {
+    const list = (ids || []).filter((id) => App.findConnection(id));
+    if (!list.length) return;
+    if (list.length === 1) return Term.connect(list[0], opts);
+    U.toast(`正在连接 ${list.length} 台服务器…`, 'info', 2200);
+    list.forEach((id, i) => {
+      setTimeout(() => Term.connect(id, opts), i * 90);
     });
   }
 

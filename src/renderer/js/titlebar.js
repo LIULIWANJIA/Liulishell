@@ -37,12 +37,7 @@ window.TitleBar = (function () {
         { label: '收起 / 展开下方面板', onClick: () => $('#btn-collapse-bottom').click() },
         { label: '清屏', onClick: () => Term.clearActive() },
         { sep: true },
-        { label: '放大', onClick: () => window.api.viewZoom(0.5) },
-        { label: '缩小', onClick: () => window.api.viewZoom(-0.5) },
-        { label: '全屏', onClick: () => window.api.viewFullscreen() },
-        { sep: true },
-        { label: '重新加载', onClick: () => window.api.viewReload() },
-        { label: '开发者工具', onClick: () => window.api.viewDevTools() }
+        { label: '重新加载', onClick: () => window.api.viewReload() }
       ],
       help: [
         { label: '官方网站', onClick: () => openSite() },

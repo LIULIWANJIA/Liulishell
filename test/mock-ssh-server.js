@@ -83,12 +83,18 @@ function netDev() {
 }
 
 function df() {
-  return [
+  const lines = [
     'Filesystem      Size  Used Avail Use% Mounted on',
     '/dev/sda1        50G   21G   27G  44% /',
     '/dev/sdb1       200G  182G  8.5G  96% /data',
-    'tmpfs           3.9G     0  3.9G   0% /dev/shm'
-  ].join('\n');
+    '/dev/sdc1       500G  120G  380G  24% /backup',
+    '/dev/sdd1       120G   96G   24G  80% /var/lib/docker',
+    '/dev/sde1        32G   12G   20G  38% /opt',
+    '/dev/sdf1        16G    4G   12G  25% /home',
+    'tmpfs           3.9G     0  3.9G   0% /dev/shm',
+    'tmpfs           782M  1.2M  781M   1% /run/user/0'
+  ];
+  return lines.join('\n');
 }
 
 function loadavg() {
@@ -96,7 +102,7 @@ function loadavg() {
 }
 
 function ps() {
-  return [
+  const base = [
     '    PID USER     %CPU %MEM   RSS COMMAND         ',
     '   1024 root     12.5  4.2 348160 nginx           nginx: worker process',
     '   2048 mysql     8.1  2.4 198656 mysqld          /usr/sbin/mysqld --daemonize',
@@ -104,11 +110,19 @@ function ps() {
     '   4096 root      1.2  0.8  65536 dockerd         /usr/bin/dockerd -H fd://',
     '   5120 root      0.6  0.5  41984 sshd            sshd: demo [priv]',
     '   6000 root      0.2  0.3  24576 systemd         /sbin/init splash'
-  ].join('\n');
+  ];
+  // 再造一批进程，便于验证「进程预览按可用高度撑满」
+  for (let i = 0; i < 34; i++) {
+    const pid = 7000 + i * 7;
+    base.push(
+      `${String(pid).padStart(7)} root     ${(11 - i * 0.28).toFixed(1).padStart(4)}  0.3 ${String(16000 + i * 2200).padStart(6)} worker-${String(i + 1).padStart(2, '0')}      /opt/app/worker ${i + 1}`
+    );
+  }
+  return base.join('\n');
 }
 
 function psBasic() {
-  return [
+  const base = [
     '    PID %CPU %MEM   RSS COMMAND',
     '   1024 12.5  4.2 348160 nginx',
     '   2048  8.1  2.4 198656 mysqld',
@@ -116,7 +130,15 @@ function psBasic() {
     '   4096  1.2  0.8  65536 dockerd',
     '   5120  0.6  0.5  41984 sshd',
     '   6000  0.2  0.3  24576 systemd'
-  ].join('\n');
+  ];
+  // 再造一批进程，方便验证「进程预览按高度撑满」
+  for (let i = 0; i < 34; i++) {
+    const pid = 7000 + i * 7;
+    const cpu = (12 - i * 0.31).toFixed(1);
+    const rss = 18000 + i * 2600;
+    base.push(`${String(pid).padStart(7)} ${cpu.padStart(4)}  0.3 ${String(rss).padStart(6)} worker-${i + 1}`);
+  }
+  return base.join('\n');
 }
 
 function procCwd() {
@@ -222,8 +244,16 @@ function runCommand(cmd) {
     const move = c.startsWith('mv');
     const rest = c.slice(c.indexOf('--') + 2).trim().split(/\s+/).filter(Boolean).map(shellQuoteStrip);
     const dest = rest.pop();
+    const destIsDir = (() => {
+      try {
+        return fs.statSync(toLocal(dest)).isDirectory();
+      } catch (_) {
+        return false;
+      }
+    })();
     rest.forEach((src) => {
-      const target = path.join(toLocal(dest), path.basename(src));
+      // 与真实 cp 一致：目标是已存在的目录 → 复制进去；目标不存在 → 直接落到该路径（支持粘贴时重命名）
+      const target = destIsDir || rest.length > 1 ? path.join(toLocal(dest), path.basename(src)) : toLocal(dest);
       try {
         if (move) fs.renameSync(toLocal(src), target);
         else fs.cpSync(toLocal(src), target, { recursive: true });

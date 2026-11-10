@@ -435,11 +435,9 @@
         <a href="#dev">快速构建</a>
         <a href="#migrate">FinalShell 导入</a>
         <a href="#features">功能</a>
-        <a href="#shots">界面</a>
-        <a href="#settings">设定</a>
-        <a href="#manual">手动打包</a>
+        <a href="https://t.me/liulishell" target="_blank">TG群组</a>
       </nav>
-      <a class="btn primary" href="https://pan.quark.cn/s/3b9930496416?pwd=YKXY" target="_blank" rel="noopener noreferrer">下载 v1.13.9 <span class="ext">↗</span></a>
+      <a class="btn primary" href="https://pan.quark.cn/s/3b9930496416?pwd=YKXY" target="_blank" rel="noopener noreferrer">下载 v1.14.1 <span class="ext">↗</span></a>
       <button class="nav-toggle" id="nav-toggle" type="button" aria-label="打开菜单" aria-expanded="false">
         <i></i><i></i><i></i>
       </button>
@@ -464,7 +462,7 @@
               <a class="btn big" href="#dev">源码快速构建</a>
             </div>
             <div class="meta">
-              <span><i></i>v1.13.9</span>
+              <span><i></i>v1.14.1</span>
               <span>Windows 10 / 11 x64</span>
               <span>便携版免安装</span>
               <span>升级保留配置</span>
@@ -494,7 +492,7 @@
           <div>
             <div class="kicker">Download</div>
             <h2>下载 LIULI Shell</h2>
-            <p>当前版本 v1.13.9 · Windows 10 / 11 x64。<b>优先提供便携版</b>：无需安装，双击即用；安装版走夸克网盘。所有下载链接均在新窗口打开。</p>
+            <p>当前版本 v1.14.1 · Windows 10 / 11 x64。<b>优先提供便携版</b>：无需安装，双击即用；安装版走夸克网盘。所有下载链接均在新窗口打开。</p>
           </div>
         </div>
         <div class="download-grid">
@@ -729,7 +727,7 @@ npx electron-builder --mac dmg zip --arm64    <span class="c-cm"># 只打 Apple 
     </section>
 
     <!-- ============ 界面 ============ -->
-    <section id="shots">
+    <section>
       <div class="wrap">
         <div class="section-head">
           <div>
@@ -771,7 +769,7 @@ npx electron-builder --mac dmg zip --arm64    <span class="c-cm"># 只打 Apple 
     </section>
 
     <!-- ============ 设定介绍 ============ -->
-    <section id="settings">
+    <section>
       <div class="wrap">
         <div class="section-head">
           <div>
@@ -890,7 +888,7 @@ npx electron-builder --mac dmg zip --arm64    <span class="c-cm"># 只打 Apple 
     </section>
 
     <!-- ============ 最底部：手动打包全流程（保留 TAB 分系统） ============ -->
-    <section id="manual">
+    <section>
       <div class="wrap">
         <details class="manual-wrap">
           <summary>
@@ -1044,7 +1042,7 @@ spctl --assess --type execute -vv "/Applications/LIULI Shell.app"   # 查看拦�
 
               <h3 style="margin-top:18px">通用说明</h3>
               <ul>
-                <li><b>构建目录：</b>所有产物默认输出到项目根目录 <code>dist/</code>。Linux 为 <code>LIULI-Shell-1.13.9-x86_64.AppImage</code> / <code>.deb</code> / <code>.tar.gz</code>，macOS 为 <code>.dmg</code> / <code>.zip</code>。</li>
+                <li><b>构建目录：</b>所有产物默认输出到项目根目录 <code>dist/</code>。Linux 为 <code>LIULI-Shell-1.14.1-x86_64.AppImage</code> / <code>.deb</code> / <code>.tar.gz</code>，macOS 为 <code>.dmg</code> / <code>.zip</code>。</li>
                 <li><b>打包前必做：</b><code>npm run vendor</code> 会把 xterm.js 等前端资源复制到 <code>src/renderer/vendor/</code>，缺少这一步打出来的包终端会是空白。</li>
                 <li><b>选构建机：</b>AppImage 只能跑在 glibc 不低于构建机的系统上。要在 20.04 ~ 26.04 通用，就在最老的 Ubuntu 20.04 上构建；只给自己用则本机构建最快。</li>
                 <li><b>交叉构建：</b>Linux 包在 Linux 构建、macOS 包必须在 macOS 构建，两者产物互不通用；Windows 包同理。推荐用对应系统的 CI（如 <code>ubuntu-22.04</code>、<code>macos-14</code> runner）出包。</li>
@@ -1063,7 +1061,7 @@ spctl --assess --type execute -vv "/Applications/LIULI Shell.app"   # 查看拦�
         <img src="assets/icon.png" alt="LIULI Shell" />
         <span>LIULI Shell<small>by LIULIWANJIA</small></span>
       </div>
-      <div>跨平台 SHELL 工具 · 人性化的 · 更易用的 · v1.13.9</div>
+      <div>跨平台 SHELL 工具 · 人性化的 · 更易用的 · v1.14.1</div>
     </div>
   </footer>
 

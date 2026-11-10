@@ -16,36 +16,149 @@ body::after { content: ''; position: fixed; inset: 0; pointer-events: none; z-in
 ::selection, *::selection { background: var(--accent-soft); color: var(--text); }
 
 .etitle {
-  flex: 0 0 34px; height: 34px; display: flex; align-items: center; gap: 8px;
-  padding: 0 5px 0 10px; background: var(--panel-2); border-bottom: 1px solid var(--line);
-  -webkit-app-region: drag; user-select: none;
+  flex: 0 0 32px; height: 32px; display: flex; align-items: center; gap: 2px;
+  padding: 0 4px 0 3px; background: var(--panel-2); border-bottom: 1px solid var(--line);
+  -webkit-app-region: drag; user-select: none; position: relative;
 }
-.emark { width: 20px; height: 20px; border-radius: 5px; background: var(--primary); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 9px; font-weight: 700; }
-.etitle-text { font-size: 12px; font-weight: 600; }
 .egrow { flex: 1 1 auto; }
-.ebtn { height: 26px; min-width: 32px; border: 0; border-radius: 6px; background: transparent; color: var(--text-2); cursor: pointer; font-size: 12px; -webkit-app-region: no-drag; }
+.ebtn { height: 24px; min-width: 30px; border: 0; border-radius: 5px; background: transparent; color: var(--text-2); cursor: pointer; font-size: 12px; -webkit-app-region: no-drag; }
 .ebtn:hover { background: var(--panel-3); color: var(--text); }
 .ebtn.close:hover { background: #c0392b; color: #fff; }
 
-.etabs { flex: 0 0 auto; min-height: 34px; display: flex; align-items: center; gap: 4px; padding: 4px 8px; background: var(--panel-2); border-bottom: 1px solid var(--line); overflow-x: auto; }
-.etabs-empty { color: var(--muted); font-size: 11.5px; padding: 4px; }
-.etab { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--text-2); cursor: pointer; font-size: 11.5px; white-space: nowrap; }
+/* ---------------- 顶部菜单（直接放在顶栏里，点击展开） ---------------- */
+.emenu {
+  position: relative; display: flex; align-items: center; gap: 1px;
+  -webkit-app-region: no-drag;
+}
+.emenu-btn {
+  height: 24px; padding: 0 9px; border: 1px solid transparent; border-radius: 5px;
+  background: transparent; color: var(--text-2); font-size: 12px; cursor: pointer;
+  white-space: nowrap; -webkit-app-region: no-drag;
+}
+.emenu-btn:hover { background: var(--panel-3); color: var(--text); }
+.emenu-btn.active { background: var(--panel-3); border-color: var(--line); color: var(--text); }
+
+.emenu-drop {
+  position: absolute; top: calc(100% + 4px); left: 0; z-index: 50; min-width: 236px;
+  padding: 5px; background: var(--panel); border: 1px solid var(--line-strong); border-radius: 9px;
+  box-shadow: 0 14px 30px rgba(20, 30, 40, .16); display: none; -webkit-app-region: no-drag;
+}
+.emenu-drop.show { display: block; }
+.emi {
+  display: flex; align-items: center; gap: 8px; height: 29px; padding: 0 8px;
+  border-radius: 6px; color: var(--text-2); font-size: 12px; cursor: pointer; user-select: none;
+  white-space: nowrap;
+}
+.emi:hover { background: var(--panel-3); color: var(--text); }
+.emi.disabled { opacity: .4; cursor: not-allowed; }
+.emi.disabled:hover { background: transparent; color: var(--text-2); }
+.emi .tick { flex: 0 0 auto; width: 12px; color: var(--accent); font-size: 11px; }
+.emi .k { margin-left: auto; padding-left: 20px; color: var(--muted); font-size: 10px; font-family: var(--font-mono); }
+.emi-sep { height: 1px; margin: 4px 6px; background: var(--line); }
+
+.etabs { flex: 0 0 auto; min-height: 30px; display: flex; align-items: center; gap: 4px; padding: 3px 6px; background: var(--panel-2); border-bottom: 1px solid var(--line); overflow-x: auto; }
+.etabs-empty { color: var(--muted); font-size: 11.5px; padding: 2px 4px; }
+.etab { display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 7px; border: 1px solid var(--line); border-radius: 5px; background: var(--panel); color: var(--text-2); cursor: pointer; font-size: 11.5px; white-space: nowrap; }
 .etab.active { border-color: var(--accent); color: var(--text); box-shadow: inset 0 2px 0 var(--accent); }
-.edot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); flex: 0 0 auto; }
-.edot.dirty { background: #d08a1a; }
-.ename { max-width: 180px; overflow: hidden; text-overflow: ellipsis; }
+.ename { max-width: 190px; overflow: hidden; text-overflow: ellipsis; }
+/* 未保存标记：文件名后面的 * */
+.edirty { font-style: normal; font-weight: 700; color: #d08a1a; margin-left: 1px; }
+.etab.active .edirty { color: #c57c10; }
 .eclose { border: 0; background: transparent; color: var(--muted); cursor: pointer; padding: 0 2px; font-size: 10px; }
 .eclose:hover { color: #c0392b; }
 
-.ebody { flex: 1 1 auto; min-height: 0; display: flex; background: var(--panel); }
-.egutter { flex: 0 0 auto; width: 52px; padding: 10px 8px 10px 0; text-align: right; font-family: var(--font-mono); font-size: var(--font-size); line-height: 1.6; color: var(--muted); background: var(--panel-2); border-right: 1px solid var(--line); white-space: pre; overflow: hidden; user-select: none; }
-#etext { flex: 1 1 auto; width: 100%; height: 100%; border: 0; outline: none; padding: 10px 12px; background: var(--panel); color: var(--text); font-family: var(--font-mono); font-size: var(--font-size); line-height: 1.6; resize: none; white-space: pre; tab-size: 4; }
+/* ---------------- 编辑区 ---------------- */
+.ebody { flex: 1 1 auto; min-height: 0; display: flex; background: var(--panel); position: relative; }
+
+.egutter {
+  flex: 0 0 auto; width: 48px; padding: 8px 6px 34px 0; text-align: right;
+  font-family: var(--font-mono); font-size: var(--font-size); color: var(--muted);
+  background: var(--panel-2); border-right: 1px solid var(--line);
+  overflow: hidden; user-select: none; position: relative; z-index: 2;
+}
+.elnum {
+  /* 高度由脚本按「该逻辑行的实际视觉高度」设置，自动换行时行号也不会错位 */
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.elnum.cur { color: var(--accent); font-weight: 600; }
+/* 查找命中行的行号标记：命中行浅色块，当前匹配行强调色 + 左侧竖条 */
+.elnum.hit { background: color-mix(in srgb, var(--accent) 14%, transparent); }
+.elnum.curhit {
+  background: color-mix(in srgb, var(--accent) 30%, transparent);
+  color: var(--accent);
+  font-weight: 700;
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+#etext {
+  flex: 1 1 auto; width: 100%; height: 100%; border: 0; outline: none; padding: 8px 10px;
+  background: transparent; color: var(--text);
+  font-family: var(--font-mono); font-size: var(--font-size); line-height: 1.6;
+  resize: none; tab-size: 4; overflow: auto;
+  position: relative; z-index: 1;
+}
+
+/* 查找命中行的底色（浮在正文下方、行号右侧），随滚动同步平移 */
+.ehl-layer {
+  position: absolute; left: 48px; right: 0; top: 0; bottom: 0;
+  overflow: hidden; pointer-events: none; z-index: 0;
+}
+.ehl-track { position: absolute; left: 0; right: 0; top: 0; will-change: transform; }
+.ehl { position: absolute; left: 0; right: 0; background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.ehl.cur { background: color-mix(in srgb, var(--accent) 18%, transparent); }
+#etext.wrap { white-space: pre-wrap; overflow-wrap: break-word; word-break: break-word; }
+#etext.nowrap { white-space: pre; overflow-x: auto; }
 #etext:disabled { opacity: .6; }
 
-.efoot { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-top: 1px solid var(--line); background: var(--panel-2); }
+/* 行高测量用的隐藏镜像：与 textarea 完全一致的字体与宽度 */
+.emirror {
+  position: absolute; left: -99999px; top: 0; visibility: hidden; pointer-events: none;
+  font-family: var(--font-mono); font-size: var(--font-size); line-height: 1.6;
+  white-space: pre-wrap; overflow-wrap: break-word; word-break: break-word; tab-size: 4;
+  padding: 0; border: 0;
+}
+.emirror > div { min-height: 1.6em; }
+
+/* ---------------- 查找替换 ---------------- */
+.efind {
+  position: absolute; right: 14px; top: 8px; width: 360px; z-index: 40;
+  display: none; flex-direction: column; gap: 6px; padding: 9px 10px 8px;
+  background: var(--panel); border: 1px solid var(--line-strong); border-radius: 9px;
+  box-shadow: 0 12px 30px rgba(20, 30, 40, .14);
+}
+.efind.show { display: flex; }
+.efind-row { display: flex; align-items: center; gap: 6px; }
+.efind-label { flex: 0 0 32px; color: var(--muted); font-size: 11px; }
+.efind-row input[type="text"] {
+  flex: 1 1 auto; min-width: 0; height: 26px; padding: 0 8px; border: 1px solid var(--line-strong);
+  border-radius: 6px; background: var(--panel-2); font-size: 12px; outline: none;
+}
+.efind-row input[type="text"]:focus { border-color: var(--accent); background: var(--panel); }
+.efind-count { flex: 0 0 auto; color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; min-width: 46px; text-align: center; }
+.efind-case { display: inline-flex; align-items: center; gap: 5px; color: var(--text-2); font-size: 11px; }
+.ebtn2.icon { width: 28px; padding: 0; }
+.ebtn2.on { border-color: #e6b06a; background: #fff6e6; color: #9c6412; }
+
+/* ---------------- 底部 ---------------- */
+.efoot { flex: 0 0 auto; display: flex; align-items: center; gap: 7px; padding: 6px 10px; border-top: 1px solid var(--line); background: var(--panel-2); }
 #estatus { color: var(--text-2); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ebtn2 { height: 27px; padding: 0 12px; border: 1px solid var(--line); border-radius: 7px; background: var(--panel); color: var(--text-2); cursor: pointer; font-size: 12px; -webkit-app-region: no-drag; }
+.efoot-pos { color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ebtn2 { height: 25px; padding: 0 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--text-2); cursor: pointer; font-size: 12px; -webkit-app-region: no-drag; white-space: nowrap; }
 .ebtn2:hover { border-color: var(--accent); color: var(--accent); }
 .ebtn2.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
 .ebtn2.primary:hover { background: var(--primary-hover); color: #fff; }
 body.theme-dark .ebtn.close:hover { background: #a63b38; }
+
+/* ---------------- 输入浮层 ---------------- */
+.edialog-mask {
+  position: fixed; inset: 0; z-index: 60; display: none; align-items: flex-start; justify-content: center;
+  padding-top: 16vh; background: rgba(20, 26, 33, .28);
+}
+.edialog-mask.show { display: flex; }
+.edialog { width: 380px; background: var(--panel); border: 1px solid var(--line-strong); border-radius: 10px; box-shadow: 0 18px 44px rgba(20, 30, 40, .2); overflow: hidden; }
+.edialog-title { padding: 10px 12px; font-size: 12.5px; font-weight: 600; border-bottom: 1px solid var(--line); background: var(--panel-2); }
+.edialog-body { padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+.edialog-body input { height: 28px; padding: 0 9px; border: 1px solid var(--line-strong); border-radius: 6px; background: var(--panel-2); outline: none; font-size: 12.5px; }
+.edialog-body input:focus { border-color: var(--accent); background: var(--panel); }
+.edialog-hint { color: var(--muted); font-size: 11px; min-height: 14px; }
+.edialog-foot { display: flex; justify-content: flex-end; gap: 7px; padding: 0 12px 12px; }

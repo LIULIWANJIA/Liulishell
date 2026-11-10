@@ -65,7 +65,10 @@ window.U = (function () {
     }, ms);
   }
 
-  /* ---------------- 弹窗 ---------------- */
+  /* ---------------- 弹窗 ----------------
+   * opts.cancelValue：取消按钮返回的值（不传则返回 null）。
+   * 用于「覆盖 / 重命名」这类二选一确认：okText 对应 onOk，cancelText 对应 cancelValue。
+   */
   let modalResolver = null;
 
   function openModal(opts) {
@@ -114,7 +117,10 @@ window.U = (function () {
         }
       };
       okBtn.onclick = onOk;
-      cancelBtn.onclick = () => finish(null, false);
+      cancelBtn.onclick = () => {
+        if (opts.cancelValue !== undefined) finish(opts.cancelValue, true);
+        else finish(null, false);
+      };
       qs('#modal-close').onclick = () => finish(null, false);
       mask.onmousedown = (e) => {
         if (e.target === mask) finish(null, false);

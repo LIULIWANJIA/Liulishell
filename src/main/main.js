@@ -217,8 +217,15 @@ async function decryptConfigFileAsync(text, passphrase) {
   }
 }
 
-function createWindow() {
-  const data = store.load();
+/** 标题栏区域是否还落在某块屏幕的工作区内（拔掉外接屏 / 改分辨率后避免窗口跑到看不见的地方） */
+function rectVisibleOn(area, x, y, width, height) {
+  const overlapX = Math.min(x + width, area.x + area.width) - Math.max(x, area.x);
+  const overlapY = Math.min(y + Math.max(40, Math.min(height, 200)), area.y + area.height) - Math.max(y, area.y);
+  return overlapX >= 120 && overlapY >= 40;
+}
+
+/** 计算启动时的窗口几何信息：优先还原上次的位置与大小，越界或首次启动时回退到默认贴右 */
+function resolveWindowGeometry(data) {
   const w = data.settings.window || {};
   let area = { x: 0, y: 0, width: 1920, height: 1080 };
   try {
@@ -227,18 +234,46 @@ function createWindow() {
   // 默认尺寸：约 60% 屏宽、86% 屏高，贴靠屏幕右侧（不要占满桌面）
   const defaultW = Math.max(1000, Math.round(area.width * 0.6));
   const defaultH = Math.max(620, Math.round(area.height * 0.86));
-  const width = U_clamp(w.width || defaultW, 1000, area.width);
-  const height = U_clamp(w.height || defaultH, 620, area.height);
+  let width = Math.max(1000, Math.round(Number(w.width) || defaultW));
+  let height = Math.max(620, Math.round(Number(w.height) || defaultH));
+  let x;
+  let y;
+  let maximized = false;
 
-  // 首次启动（还没记住窗口位置）默认贴靠主屏幕右侧
-  let x = typeof w.x === 'number' ? w.x : undefined;
-  let y = typeof w.y === 'number' ? w.y : undefined;
+  if (Number.isFinite(w.x) && Number.isFinite(w.y)) {
+    // 用保存的位置判断窗口原本在哪块屏幕上，多显示器环境下按那块屏的工作区纠正尺寸
+    let targetArea = area;
+    try {
+      targetArea = screen.getDisplayMatching({ x: Math.round(w.x), y: Math.round(w.y), width, height }).workArea;
+    } catch (_) {}
+    if (rectVisibleOn(targetArea, Math.round(w.x), Math.round(w.y), width, height)) {
+      width = Math.min(width, Math.max(1000, targetArea.width));
+      height = Math.min(height, Math.max(620, targetArea.height));
+      x = U_clamp(Math.round(w.x), targetArea.x - width + 160, targetArea.x + targetArea.width - 160);
+      y = U_clamp(Math.round(w.y), targetArea.y - 8, targetArea.y + targetArea.height - 60);
+      maximized = !!w.maximized;
+    }
+  }
+
   if (x === undefined || y === undefined) {
+    width = U_clamp(width, 1000, Math.max(1000, area.width));
+    height = U_clamp(height, 620, Math.max(620, area.height));
     if (data.settings.startDockedRight !== false) {
       x = Math.max(area.x, area.x + area.width - width);
       y = area.y + Math.round((area.height - height) * 0.45);
+    } else {
+      x = area.x + Math.round((area.width - width) / 2);
+      y = area.y + Math.round((area.height - height) / 2);
     }
+    maximized = false;
   }
+  return { x, y, width, height, maximized };
+}
+
+function createWindow() {
+  const data = store.load();
+  const geo = resolveWindowGeometry(data);
+  const { width, height, x, y } = geo;
 
   win = new BrowserWindow({
     width,
@@ -268,6 +303,9 @@ function createWindow() {
     // 显示前再压一次：Chromium 会按 origin 记住上次 zoom level（预览值也会被记住），
     // 页面加载后可能被它覆盖；窗口尚未显示时纠正，用户看不到中间态
     applyZoomTo(win);
+    if (geo.maximized) {
+      try { win.maximize(); } catch (_) {}
+    }
     win.show();
   });
 
@@ -343,15 +381,57 @@ function createWindow() {
     }, 900);
   });
 
+  /* ---------- 窗口位置 / 大小记忆 ----------
+   * 注意：BrowserWindow 的 moved / resized 事件只在 macOS / Windows 存在，
+   * Linux 上不会触发，所以必须同时监听 move / resize（三个平台都有），
+   * 并在关闭窗口与退出前强制落盘，避免拖拽结束后没来得及写入。
+   */
   const persistBounds = () => {
-    if (!win) return;
-    const b = win.getNormalBounds ? win.getNormalBounds() : win.getBounds();
-    store.patchSettings({ window: { width: b.width, height: b.height, x: b.x, y: b.y } });
+    if (!win || win.isDestroyed()) return;
+    let b;
+    try {
+      b = win.isMaximized() || win.isFullScreen()
+        ? (win.getNormalBounds ? win.getNormalBounds() : win.getBounds())
+        : win.getBounds();
+    } catch (_) {
+      return;
+    }
+    if (!b || !Number.isFinite(b.width) || b.width < 200 || !Number.isFinite(b.x)) return;
+    store.patchSettings({
+      window: {
+        width: Math.round(b.width),
+        height: Math.round(b.height),
+        x: Math.round(b.x),
+        y: Math.round(b.y),
+        maximized: !!win.isMaximized()
+      }
+    });
   };
-  win.on('resized', persistBounds);
-  win.on('moved', persistBounds);
-  win.on('maximize', () => broadcast('win:maximized', true));
-  win.on('unmaximize', () => broadcast('win:maximized', false));
+  let boundsTimer = null;
+  const persistBoundsSoon = () => {
+    if (boundsTimer) clearTimeout(boundsTimer);
+    boundsTimer = setTimeout(() => {
+      boundsTimer = null;
+      persistBounds();
+    }, 350);
+  };
+  ['resize', 'resized', 'move', 'moved'].forEach((ev) => win.on(ev, persistBoundsSoon));
+  win.on('maximize', () => {
+    broadcast('win:maximized', true);
+    persistBoundsSoon();
+  });
+  win.on('unmaximize', () => {
+    broadcast('win:maximized', false);
+    persistBoundsSoon();
+  });
+  win.on('close', () => {
+    if (boundsTimer) {
+      clearTimeout(boundsTimer);
+      boundsTimer = null;
+    }
+    persistBounds();
+    try { store.saveNow(); } catch (_) {}
+  });
   win.on('closed', () => {
     win = null;
     if (editorWin && !editorWin.isDestroyed()) editorWin.close();
@@ -482,6 +562,20 @@ function ensureEditorWindow() {
     });
   }
   editorWin.once('ready-to-show', () => editorWin.show());
+  if (!app.isPackaged && process.env.LIULI_EDITOR_SHOT) {
+    // 调试钩子：给编辑器窗口截图（仅未打包时生效）
+    editorWin.webContents.once('did-finish-load', () => {
+      setTimeout(async () => {
+        try {
+          const img = await editorWin.webContents.capturePage();
+          fs.writeFileSync(path.join(app.getAppPath(), process.env.LIULI_EDITOR_SHOT), img.toPNG());
+          console.log('[shot] editor saved -> ' + process.env.LIULI_EDITOR_SHOT);
+        } catch (err) {
+          console.error('[shot] editor failed:', err.message);
+        }
+      }, Number(process.env.LIULI_EDITOR_SHOT_DELAY) || 1500);
+    });
+  }
   editorWin.on('closed', () => {
     editorWin = null;
   });
@@ -596,16 +690,7 @@ function buildMenu() {
     { label: '编辑', submenu: [{ role: 'copy', label: '复制' }, { role: 'paste', label: '粘贴' }, { role: 'selectAll', label: '全选' }] },
     {
       label: '视图',
-      submenu: [
-        { role: 'reload', label: '重新加载' },
-        { role: 'toggleDevTools', label: '开发者工具' },
-        { type: 'separator' },
-        { role: 'resetZoom', label: '实际大小' },
-        { role: 'zoomIn', label: '放大' },
-        { role: 'zoomOut', label: '缩小' },
-        { type: 'separator' },
-        { role: 'togglefullscreen', label: '全屏' }
-      ]
+      submenu: [{ role: 'reload', label: '重新加载' }]
     }
   ];
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
@@ -822,17 +907,6 @@ ipcMain.handle('win:maximize', () => {
 ipcMain.handle('win:isMaximized', () => !!(win && win.isMaximized()));
 ipcMain.handle('win:close', () => win && win.close());
 ipcMain.handle('view:reload', () => win && win.webContents.reload());
-ipcMain.handle('view:devtools', () => win && win.webContents.toggleDevTools());
-ipcMain.handle('view:fullscreen', () => {
-  if (win) win.setFullScreen(!win.isFullScreen());
-  return win ? win.isFullScreen() : false;
-});
-ipcMain.handle('view:zoom', (_e, delta) => {
-  if (!win) return 0;
-  const next = U_clamp(win.webContents.getZoomLevel() + Number(delta || 0), -2, 3);
-  win.webContents.setZoomLevel(next);
-  return next;
-});
 
 /* ---------- 界面缩放设置 ----------
  * zoom:preview 只临时生效（用于「先看一眼效果」），zoom:save 才写盘。
@@ -885,7 +959,7 @@ ipcMain.handle('dialog:pickKey', async () => {
 
 ipcMain.handle('settings:resetWindowPos', () => {
   const w = store.load().settings.window || {};
-  store.patchSettings({ window: Object.assign({}, w, { x: null, y: null }) });
+  store.patchSettings({ window: Object.assign({}, w, { x: null, y: null, maximized: false }) });
   return true;
 });
 
@@ -1524,9 +1598,11 @@ ipcMain.handle('fs:deletePlain', async (_e, { sessionId, paths }) => {
   return true;
 });
 
-ipcMain.handle('fs:copy', async (_e, { sessionId, sources, dest, move }) => {
+ipcMain.handle('fs:copy', async (_e, { sessionId, sources, dest, move, items }) => {
   const sess = ssh.getSession(sessionId);
-  await sess.copy(sources || [], dest, !!move);
+  // items 用于粘贴时带「重命名 / 覆盖」语义；sources 保留旧行为（原名复制）
+  if (Array.isArray(items) && items.length) await sess.copyItems(items, dest, !!move);
+  else await sess.copy(sources || [], dest, !!move);
   dirCache.invalidate(sessionConnKey(sess), [dest].concat(sources || []));
   return true;
 });

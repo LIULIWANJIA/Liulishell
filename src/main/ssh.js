@@ -727,7 +727,8 @@ class SshSession {
       this.send('monitor:procs', {
         sessionId: this.id,
         sort: this.procSort,
-        rows: rows.slice(0, 5)
+        // 右栏「进程预览」按可用高度展示，这里给足条数（最多 60 条），由界面决定显示几行
+        rows: rows.slice(0, 60)
       });
     } catch (_) {}
   }
@@ -894,6 +895,49 @@ class SshSession {
     const flag = move ? '-f' : '-a';
     const cmd = (move ? 'mv ' : 'cp ') + flag + ' -- ' + sources.map(shq).join(' ') + ' ' + shq(destDir);
     return this.exec(cmd, 60000);
+  }
+
+  /** 远端路径是否已存在（走 SFTP stat；权限不足按“不存在”处理，交给后续命令报错） */
+  async remoteExists(remotePath) {
+    const sftp = await this.getSftp();
+    return new Promise((resolve) => {
+      sftp.stat(remotePath, (err) => resolve(!err));
+    });
+  }
+
+  /**
+   * 按「源 → 目标文件名」逐项复制，用于粘贴时重命名 / 覆盖：
+   * items: [{ src, name, overwrite }]
+   * - name 为目标目录下的最终文件名（可改名）
+   * - overwrite=true 时先删除同名目标再复制（目录整体替换，符合“覆盖文件”的预期）
+   * - overwrite=false 且已存在同名项直接抛错，由前端提示
+   */
+  async copyItems(items, destDir, move) {
+    const list = Array.isArray(items) ? items : [];
+    if (!list.length) return '';
+    for (const it of list) {
+      const src = String((it && it.src) || '');
+      const name = String((it && it.name) || '').replace(/^\/+/, '');
+      if (!src || !name || name === '.' || name === '..' || name.includes('/')) {
+        throw new Error('非法的粘贴项：' + (it && it.name));
+      }
+      const target = this.posixJoin(destDir, name);
+      // 同一目录下同名覆盖等于覆盖自身：先删会把源一起删掉，直接跳过（不可先删再拷）
+      const norm = (p) => String(p || '').replace(/\/+$/, '');
+      if (norm(target) === norm(src)) continue;
+      // 把目录粘贴到它自己的子目录里会无限递归，直接拒绝
+      if (norm(src) !== '/' && (norm(target) + '/').startsWith(norm(src) + '/')) {
+        throw new Error('不能把文件夹粘贴到它自己的子目录中');
+      }
+      const occupied = await this.remoteExists(target);
+      if (occupied) {
+        if (!it.overwrite) throw new Error(`目标已存在同名文件或文件夹：${name}`);
+        await this.exec('rm -rf -- ' + shq(target), 60000);
+      }
+      // 复制到明确的完整目标路径：这样 name 可以与被复制项的名字不同（重命名粘贴）
+      await this.exec((move ? 'mv -f -- ' : 'cp -a -- ') + shq(src) + ' ' + shq(target), 60000);
+    }
+    return true;
   }
 
   async mkdir(remotePath) {

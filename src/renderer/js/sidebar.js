@@ -20,6 +20,17 @@ window.Sidebar = (function () {
       if (App.state.activeId === payload.sessionId) renderProcs(sess);
     });
 
+    // 服务器信息里的 IP / 端口：单击即可复制
+    ['#info-ip', '#info-port'].forEach((sel) => {
+      const el = $(sel);
+      if (!el) return;
+      el.addEventListener('click', () => {
+        const v = String(el.dataset.value || el.textContent || '').trim();
+        if (!v || v === '--') return;
+        U.copy(v);
+      });
+    });
+
     App.on('active:change', (sess) => renderAll(sess));
 
     $('#nic-select').addEventListener('change', (e) => {
@@ -29,15 +40,6 @@ window.Sidebar = (function () {
       sess.netHistory = [];
       drawChart(sess);
       renderNetLegend(sess);
-    });
-
-    // 磁盘分区较多时用下拉框选择
-    $('#disk-select').addEventListener('change', (e) => {
-      const sess = App.active;
-      if (!sess) return;
-      sess.diskPick = e.target.value;
-      const disk = ((sess.stats && sess.stats.disk) || []).find((d) => d.mount === sess.diskPick);
-      renderDiskLine(disk);
     });
 
     document.querySelectorAll('.proc-table th.sortable').forEach((th) => {
@@ -83,6 +85,22 @@ window.Sidebar = (function () {
     $('#info-kernel').textContent = info.kernel || '--';
     $('#info-arch').textContent = info.arch || '--';
     $('#info-user').textContent = info.loginUser || sess.config.user || '--';
+    // IP / 端口：点击即可复制，方便粘贴到别处；域名过长时优先在点号处折行
+    const ipEl = $('#info-ip');
+    const portEl = $('#info-port');
+    if (ipEl) {
+      const host = String(sess.config.host || '');
+      // 域名优先在点号处折行：<wbr> 不占字符，复制时不受影响
+      ipEl.innerHTML = host ? U.esc(host).replace(/\./g, '.<wbr>') : '--';
+      ipEl.dataset.value = host;
+      ipEl.title = '点击复制 IP：' + (host || '--');
+    }
+    if (portEl) {
+      const port = String(sess.config.port || 22);
+      portEl.textContent = port;
+      portEl.dataset.value = port;
+      portEl.title = '点击复制端口：' + port;
+    }
     $('#info-uptime').textContent = (info.uptime || '--').replace(/^up\s+/i, '');
     $('#info-uptime').title = info.uptime || '';
 
@@ -97,8 +115,6 @@ window.Sidebar = (function () {
     $('#swap-bar').style.width = '0%';
     $('#proc-body').innerHTML = '<tr class="placeholder"><td colspan="3">加载中…</td></tr>';
     $('#disk-body').innerHTML = '<tr class="placeholder"><td colspan="2">加载中…</td></tr>';
-    $('#disk-table').classList.remove('hidden');
-    $('#disk-picker').classList.add('hidden');
     $('#disk-extra').textContent = '';
     $('#nic-select').innerHTML = '<option value="">--</option>';
     $('#nic-select').dataset.sig = 'empty';
@@ -115,8 +131,11 @@ window.Sidebar = (function () {
     $('#srv-host').textContent = '请在上方连接一台服务器';
     $('#srv-avatar').textContent = '--';
     $('#srv-dot').className = 'dot offline';
-    ['info-os', 'info-kernel', 'info-arch', 'info-user', 'info-uptime', 'info-load'].forEach((id) => {
-      $('#' + id).textContent = '--';
+    ['info-os', 'info-kernel', 'info-arch', 'info-user', 'info-uptime', 'info-load', 'info-ip', 'info-port'].forEach((id) => {
+      const el = $('#' + id);
+      if (!el) return;
+      el.textContent = '--';
+      delete el.dataset.value;
     });
     $('#cpu-val').textContent = '--';
     $('#cpu-bar').style.width = '0%';
@@ -128,11 +147,6 @@ window.Sidebar = (function () {
     $('#swap-bar').style.width = '0%';
     $('#proc-body').innerHTML = '<tr class="placeholder"><td colspan="3">暂无数据</td></tr>';
     $('#disk-body').innerHTML = '<tr class="placeholder"><td colspan="2">暂无数据</td></tr>';
-    $('#disk-table').classList.remove('hidden');
-    $('#disk-picker').classList.add('hidden');
-    $('#disk-select').innerHTML = '';
-    $('#disk-select').dataset.sig = '';
-    $('#disk-line').innerHTML = '';
     $('#disk-extra').textContent = '';
     $('#nic-select').innerHTML = '<option value="">--</option>';
     $('#nic-select').dataset.sig = 'empty';
@@ -216,37 +230,15 @@ window.Sidebar = (function () {
       renderNetLegend(sess);
     }
 
-    // 磁盘：<=3 个分区直接列表；更多时改用下拉框，避免挤压服务器列表
+    // 磁盘：始终列出全部挂载点，超出的在面板内滚动查看（不再用下拉框）
     const disks = st.disk || [];
     const tbody = $('#disk-body');
-    const table = $('#disk-table');
-    const picker = $('#disk-picker');
-    const select = $('#disk-select');
     const extra = $('#disk-extra');
     if (!disks.length) {
-      table.classList.remove('hidden');
-      picker.classList.add('hidden');
       extra.textContent = '';
       tbody.innerHTML = '<tr class="placeholder"><td colspan="2">暂无数据</td></tr>';
-    } else if (disks.length > 3) {
-      table.classList.add('hidden');
-      picker.classList.remove('hidden');
-      extra.textContent = `${disks.length} 个分区`;
-      const sig = disks.map((d) => d.mount).join('\n');
-      if (select.dataset.sig !== sig) {
-        select.dataset.sig = sig;
-        select.innerHTML = disks
-          .map((d) => `<option value="${U.esc(d.mount)}">${U.esc(d.mount)} · ${U.esc(d.avail)} / ${U.esc(d.size)}</option>`)
-          .join('');
-      }
-      const picked = disks.find((d) => d.mount === sess.diskPick) || disks[0];
-      sess.diskPick = picked.mount;
-      select.value = picked.mount;
-      renderDiskLine(picked);
     } else {
-      table.classList.remove('hidden');
-      picker.classList.add('hidden');
-      extra.textContent = '';
+      extra.textContent = disks.length > 1 ? `${disks.length} 个分区` : '';
       tbody.innerHTML = disks
         .map((d) => {
           const pct = Math.min(100, d.usedPct || 0);
@@ -259,19 +251,6 @@ window.Sidebar = (function () {
         })
         .join('');
     }
-  }
-
-  function renderDiskLine(d) {
-    const el = $('#disk-line');
-    if (!el) return;
-    if (!d) {
-      el.innerHTML = '<div class="disk-line-main"><b>--</b><span>--</span></div>';
-      return;
-    }
-    const pct = Math.min(100, d.usedPct || 0);
-    const cls = pct > 90 ? 'hot' : pct > 75 ? 'warn' : '';
-    el.innerHTML = `<div class="disk-line-main"><b title="${U.esc(d.mount)}">${U.esc(d.mount)}</b><span>${U.esc(d.avail)} / ${U.esc(d.size)}</span></div>
-      <span class="disk-bar ${cls}"><i style="width:${pct}%"></i></span>`;
   }
 
   function pushSample(sess, st) {
@@ -317,18 +296,8 @@ window.Sidebar = (function () {
     if (unitEl) unitEl.textContent = netUnit() === 'mbps' ? 'Mbps' : 'MB/s';
   }
 
-  function renderProcs(sess) {
-    const rows = sess.procs || [];
-    const tbody = $('#proc-body');
-    document.querySelectorAll('.proc-table th.sortable').forEach((th) => {
-      th.classList.toggle('active', th.dataset.sort === sess.procSort);
-    });
-    if (!rows.length) {
-      tbody.innerHTML = '<tr class="placeholder"><td colspan="3">暂无数据</td></tr>';
-      return;
-    }
-    tbody.innerHTML = rows
-      .slice(0, 5)
+  function procHtml(rows) {
+    return rows
       .map(
         (p) => `<tr title="PID ${p.pid}">
           <td>${U.esc(p.name)}</td>
@@ -337,6 +306,58 @@ window.Sidebar = (function () {
         </tr>`
       )
       .join('');
+  }
+
+  /** 进程预览：按面板剩余高度「撑满」显示，多出来的直接裁掉，不出现滚动条。
+   *  先用 3 行探针测出真实行距，再一次性渲染到刚好放满，最后做一次溢出校正。 */
+  function renderProcs(sess) {
+    const rows = (sess && sess.procs) || [];
+    const tbody = $('#proc-body');
+    if (!tbody) return;
+    document.querySelectorAll('.proc-table th.sortable').forEach((th) => {
+      th.classList.toggle('active', th.dataset.sort === (sess && sess.procSort));
+    });
+    if (!rows.length) {
+      tbody.innerHTML = '<tr class="placeholder"><td colspan="3">暂无数据</td></tr>';
+      return;
+    }
+    const panel = document.querySelector('.side-body .proc-panel');
+    const cs = panel ? getComputedStyle(panel) : null;
+    const bottomEdge = panel ? panel.getBoundingClientRect().bottom - (parseFloat(cs.paddingBottom) || 0) : 0;
+
+    // 探针：3 行足够量出行距（border-collapse 下首行含底边框，用前两行的顶边差更准）
+    tbody.innerHTML = procHtml(rows.slice(0, Math.min(3, rows.length)));
+    const trs = tbody.children;
+    let pitch = 0;
+    if (trs.length >= 2) pitch = trs[1].getBoundingClientRect().top - trs[0].getBoundingClientRect().top;
+    else if (trs.length === 1) pitch = trs[0].getBoundingClientRect().height;
+    if (!(pitch > 8)) pitch = 21;
+
+    let limit = rows.length;
+    if (panel && bottomEdge > 0) {
+      const avail = bottomEdge - tbody.getBoundingClientRect().top;
+      limit = Math.max(1, Math.min(rows.length, Math.floor(avail / pitch + 0.002)));
+    }
+    tbody.innerHTML = procHtml(rows.slice(0, limit));
+    // 浮点 / 边框误差校正：超出 0.5px 就退掉最后一行
+    let guard = 0;
+    while (guard++ < 4 && limit > 1 && panel && tbody.getBoundingClientRect().bottom > bottomEdge + 0.5) {
+      tbody.removeChild(tbody.lastElementChild);
+      limit--;
+    }
+  }
+
+  /** 布局变化（收起下方面板 / 显示隐藏服务器信息 / 拖拽 / 窗口缩放）后重排右栏：
+   *  图表按固定尺寸重绘，进程预览按新的可用高度重算行数 */
+  function relayout() {
+    try {
+      drawChart(App.active);
+      renderNetLegend(App.active);
+    } catch (_) {}
+    const s = App.active;
+    if (s && s.procs && s.procs.length) {
+      try { renderProcs(s); } catch (_) {}
+    }
   }
 
   /* ---------------- 网络图表（左侧刻度 + 自适应量程） ---------------- */
@@ -483,5 +504,5 @@ window.Sidebar = (function () {
     line('rx', accent, hexRgba(accent, 0.2));
   }
 
-  return { init, reset, renderAll, drawChart, renderNetLegend };
+  return { init, reset, renderAll, drawChart, renderNetLegend, relayout };
 })();

@@ -1,7 +1,7 @@
 # LIULI Shell
 
 > **更易用的跨平台 SHELL 终端** · 作者 **LIULIWANJIA** · by LIULIWANJIA
-> 官网：<https://shell.minecft.cn>　|　源码：<https://gitee.com/liuliwanjiaweb/liuli-shell>　|　当前版本 **v1.13.9**
+> 官网：<https://shell.minecft.cn>　|　源码：<https://gitee.com/liuliwanjiaweb/liuli-shell>　|　当前版本 **v1.14.1**
 
 LIULI Shell 是一款跨平台 SSH 终端与服务器管理工具（Windows / Linux / macOS），界面参考 FinalShell，把日常运维需要的东西放进同一个三栏窗口：
 
@@ -27,8 +27,8 @@ LIULI Shell 是一款跨平台 SSH 终端与服务器管理工具（Windows / Li
 
 | 版本 | 下载地址 | 说明 |
 | --- | --- | --- |
-| **便携版（推荐）** | [Gitee Releases](https://gitee.com/liuliwanjiaweb/liuli-shell/releases) | `LIULI Shell 1.13.9 Portable.exe` · 约 93 MB · 免安装 |
-| **安装版** | [夸克网盘](https://pan.quark.cn/s/3b9930496416?pwd=YKXY)（提取码 `YKXY`） | `LIULI Shell Setup 1.13.9.exe` · 约 102 MB · NSIS 安装向导 |
+| **便携版（推荐）** | [Gitee Releases](https://gitee.com/liuliwanjiaweb/liuli-shell/releases) | `LIULI Shell 1.14.1 Portable.exe` · 约 93 MB · 免安装 |
+| **安装版** | [夸克网盘](https://pan.quark.cn/s/3b9930496416?pwd=YKXY)（提取码 `YKXY`） | `LIULI Shell Setup 1.14.1.exe` · 约 102 MB · NSIS 安装向导 |
 
 **安装与升级：**
 
@@ -151,4 +151,4 @@ npm run dist:mac              # macOS：dmg + zip（x64 / arm64，需在 macOS �
 
 ---
 
-版本 **v1.13.9** · 作者 **LIULIWANJIA** · 跨平台 SHELL 工具 · 人性化的 · 更易用的
+版本 **v1.14.1** · 作者 **LIULIWANJIA** · 跨平台 SHELL 工具 · 人性化的 · 更易用的

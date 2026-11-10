@@ -7,9 +7,14 @@
   <link rel="stylesheet" href="css/editor.css" />
 </head>
 <body>
+  <!-- 自绘顶栏：菜单直接放在顶部（无 LOGO / 无标题文字） -->
   <div class="etitle" id="etitle">
-    <span class="emark">❯_</span>
-    <span class="etitle-text">文件编辑器</span>
+    <div class="emenu" id="emenu">
+      <button class="emenu-btn" data-menu="file">文件</button>
+      <button class="emenu-btn" data-menu="edit">编辑</button>
+      <button class="emenu-btn" data-menu="view">视图</button>
+      <div class="emenu-drop" id="emenu-drop"></div>
+    </div>
     <span class="egrow"></span>
     <button class="ebtn" id="emin" title="最小化">─</button>
     <button class="ebtn" id="emax" title="最大化">□</button>
@@ -18,16 +23,52 @@
 
   <div class="etabs" id="etabs"></div>
 
-  <div class="ebody">
-    <div class="egutter" id="egutter">1</div>
-    <textarea id="etext" spellcheck="false" wrap="off" placeholder="双击主窗口中的文件即可编辑（仅支持 < 10MB 的 UTF-8 文本）"></textarea>
+  <div class="ebody" id="ebody">
+    <div class="egutter" id="egutter"></div>
+    <div class="ehl-layer" id="ehl"><div class="ehl-track" id="ehl-track"></div></div>
+    <textarea id="etext" spellcheck="false" wrap="soft" placeholder="双击主窗口中的文件即可编辑（仅支持 < 10MB 的 UTF-8 文本）"></textarea>
+
+    <!-- 查找 / 替换浮层（浮在编辑区右上角） -->
+    <div class="efind" id="efind">
+      <div class="efind-row">
+        <span class="efind-label">查找</span>
+        <input id="efind-q" type="text" spellcheck="false" autocomplete="off" placeholder="要查找的内容" />
+        <span class="efind-count" id="efind-count">0 / 0</span>
+        <button class="ebtn2 icon" id="efind-prev" title="上一个 (Shift+Enter)">↑</button>
+        <button class="ebtn2 icon" id="efind-next" title="下一个 (Enter)">↓</button>
+        <button class="ebtn2 icon" id="efind-close" title="关闭 (Esc)">✕</button>
+      </div>
+      <div class="efind-row">
+        <span class="efind-label">替换</span>
+        <input id="efind-r" type="text" spellcheck="false" autocomplete="off" placeholder="替换为（可留空）" />
+        <button class="ebtn2" id="efind-replace">替换</button>
+        <button class="ebtn2" id="efind-replaceAll">全部替换</button>
+      </div>
+      <label class="efind-case"><input type="checkbox" id="efind-case" /> 区分大小写</label>
+    </div>
   </div>
 
   <div class="efoot">
     <span id="estatus">等待打开文件…</span>
     <span class="egrow"></span>
+    <span class="efoot-pos" id="epos"></span>
     <button class="ebtn2" id="eclose">关闭当前标签</button>
     <button class="ebtn2 primary" id="esave">保存 (Ctrl+S)</button>
+  </div>
+
+  <!-- 通用输入浮层（定位行等） -->
+  <div class="edialog-mask" id="edialog-mask">
+    <div class="edialog">
+      <div class="edialog-title" id="edialog-title">定位行</div>
+      <div class="edialog-body">
+        <input id="edialog-input" type="text" spellcheck="false" autocomplete="off" />
+        <div class="edialog-hint" id="edialog-hint"></div>
+      </div>
+      <div class="edialog-foot">
+        <button class="ebtn2" id="edialog-cancel">取消</button>
+        <button class="ebtn2 primary" id="edialog-ok">确定</button>
+      </div>
+    </div>
   </div>
 
   <script src="js/editor.js"></script>
