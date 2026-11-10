@@ -110,6 +110,9 @@ window.Settings = (function () {
   };
 
   let cfg = null;
+  /* 界面缩放百分比：独立存储（不在 settings 里），启动时由主进程下发 */
+  let zoomPercent = 100;
+  const ZOOM_LEVELS = [100, 125, 150, 200];
 
   function readCfg() {
     const s = App.settings || {};
@@ -281,6 +284,20 @@ window.Settings = (function () {
             <button class="btn sm" id="wall-clear">恢复主题纯色</button>
             <span class="wall-name" id="wall-name">${cfg.wallpaper ? '已设置背景图' : '当前：主题纯色'}</span>
           </div>
+        </div>
+        <div class="set-group">
+          <h4>界面缩放</h4>
+          <p class="set-desc">整个窗口按比例放大，适合高分屏或离屏幕较远时使用。默认 100%。</p>
+          <div class="set-row">
+            <label>缩放比例</label>
+            <select id="set-zoom">
+              ${(ZOOM_LEVELS.includes(zoomPercent) ? ZOOM_LEVELS : ZOOM_LEVELS.concat([zoomPercent]).sort((a, b) => a - b))
+                .map((v) => `<option value="${v}"${zoomPercent === v ? ' selected' : ''}>${v}%${v === 100 ? '（默认）' : ''}</option>`)
+                .join('')}
+            </select>
+            <button class="btn sm" id="set-zoom-reset">恢复 100%</button>
+          </div>
+          <p class="set-note" id="set-zoom-note">切换后会先预览效果，3 秒内无法点击，确认显示正常再保存；不保存则自动回到原比例。该项<b>不写入配置文件</b>，也不参与云同步与导出，卸载或重装软件后自动恢复 100%。若界面已经大到看不清，按 <b>Ctrl + Shift + 0</b> 可随时复位。</p>
         </div>
       </section>
 
@@ -470,8 +487,13 @@ window.Settings = (function () {
     stabs.forEach((s) => s.classList.toggle('active', s.dataset.tab === tab));
   }
 
-  function open(tab) {
+  async function open(tab) {
     readCfg();
+    // 缩放值来自主进程（独立存储），渲染时就要是真实值，避免下拉显示 100% 与实际不符
+    try {
+      const z = await window.api.zoomGet();
+      if (z && z.percent) zoomPercent = Number(z.percent);
+    } catch (_) {}
     // 渲染时就把目标分类标记为激活，避免「菜单高亮」与「右侧板块」不一致
     render(tab || 'appearance');
     bindContent();
@@ -481,6 +503,125 @@ window.Settings = (function () {
 
   function close() {
     mask.classList.remove('show');
+  }
+
+  /* ---------------- 界面缩放 ----------------
+   * 流程：选择比例 → 立即预览（不落盘）→ 3 秒倒计时确认窗 → 保存 / 还原
+   * 缩放值由主进程存在安装目录，不进 liulishell-data.json。
+   */
+  function refit() {
+    setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+      if (window.Term) {
+        try { Term.fitAll(); } catch (_) {}
+      }
+    }, 60);
+  }
+
+  function syncZoomUi() {
+    const sel = $('#set-zoom');
+    if (sel) sel.value = String(zoomPercent);
+  }
+
+  function askZoomSave(prev, target) {
+    return new Promise((resolve) => {
+      let left = 3;
+      U.openSubModal({
+        title: '保存新的缩放比例？',
+        width: '440px',
+        body: `<div class="zoom-ask">
+            <p class="zoom-ask-line">界面已切换到 <b>${target}%</b>，原比例 ${prev}%。</p>
+            <p class="zoom-ask-tip">请确认显示是否正常。<b id="zoom-count">${left}</b> 秒后可点击；
+            点「恢复」或关闭窗口会自动回到 ${prev}%。</p>
+          </div>`,
+        okText: `保存 ${target}%`,
+        cancelText: `恢复 ${prev}%`,
+        okClass: 'primary'
+      }).then((v) => {
+        cleanup();
+        resolve(v !== null && v !== false);
+      });
+
+      const okBtn = U.qs('#sub-ok');
+      const cancelBtn = U.qs('#sub-cancel');
+      const countEl = U.qs('#zoom-count');
+      const bodyEl = U.qs('#sub-body');
+      const subMask = U.qs('#sub-mask');
+      const locked = (v) => {
+        if (okBtn) okBtn.disabled = v;
+        if (cancelBtn) cancelBtn.disabled = v;
+      };
+
+      locked(true);
+      if (subMask) subMask.onmousedown = null; // 倒计时期间点遮罩不关闭，避免误触
+      if (bodyEl) {
+        bodyEl.onkeydown = (e) => {
+          if (e.key !== 'Enter') return;
+          e.preventDefault();
+          if (left <= 0 && okBtn) okBtn.click();
+        };
+      }
+      const onEsc = (e) => {
+        if (e.key !== 'Escape') return;
+        e.preventDefault();
+        e.stopPropagation();
+        if (left <= 0 && cancelBtn) cancelBtn.click();
+      };
+      document.addEventListener('keydown', onEsc, true);
+
+      const timer = setInterval(() => {
+        left -= 1;
+        if (countEl) countEl.textContent = String(Math.max(0, left));
+        if (left <= 0) {
+          clearInterval(timer);
+          locked(false);
+        }
+      }, 1000);
+
+      function cleanup() {
+        clearInterval(timer);
+        document.removeEventListener('keydown', onEsc, true);
+      }
+    });
+  }
+
+  async function changeZoom(target) {
+    const prev = zoomPercent;
+    const next = Number(target) || 100;
+    if (next === prev) {
+      syncZoomUi();
+      return;
+    }
+    try {
+      await window.api.zoomPreview(next); // 先看一眼效果
+      refit();
+      const save = await askZoomSave(prev, next);
+      if (save) {
+        const r = await window.api.zoomSave(next);
+        zoomPercent = (r && r.percent) || next;
+        U.toast(`已保存界面缩放：${zoomPercent}%`, 'ok', 2600);
+      } else {
+        await window.api.zoomPreview(prev);
+        zoomPercent = prev;
+        U.toast(`已恢复界面缩放：${prev}%`, 'info', 2600);
+      }
+      refit();
+    } catch (err) {
+      U.toast(U.cleanError(err), 'error');
+      await window.api.zoomPreview(prev).catch(() => {});
+      zoomPercent = prev;
+    }
+    syncZoomUi();
+  }
+
+  /** 主进程用快捷键（Ctrl+Shift+0）复位后同步界面状态 */
+  function onZoomChanged(payload) {
+    const p = payload && Number(payload.percent);
+    if (!p) return;
+    zoomPercent = p;
+    syncZoomUi();
+    refit();
+    if (payload.reset) U.toast('界面缩放已复位为 100%', 'ok', 2600);
   }
 
   function bindContent() {
@@ -524,6 +665,16 @@ window.Settings = (function () {
       $('#wall-preview').style.backgroundImage = '';
       $('#wall-name').textContent = '当前：主题纯色';
     });
+
+    // 界面缩放（独立存储，不进配置文件）
+    const zoomSel = $('#set-zoom');
+    if (zoomSel) {
+      zoomSel.addEventListener('change', () => changeZoom(Number(zoomSel.value) || 100));
+    }
+    const zoomReset = $('#set-zoom-reset');
+    if (zoomReset) {
+      zoomReset.addEventListener('click', () => changeZoom(100));
+    }
 
     // 字体
     const fontPatch = () => ({
@@ -924,5 +1075,5 @@ window.Settings = (function () {
 
   document.addEventListener('DOMContentLoaded', init);
 
-  return { init, open, close, apply, persist, setPanel, comboOf, THEMES, DEFAULTS, readCfg, activateTab };
+  return { init, open, close, apply, persist, setPanel, comboOf, THEMES, DEFAULTS, readCfg, activateTab, onZoomChanged };
 })();

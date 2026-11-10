@@ -19,7 +19,8 @@ const EVENTS = [
   'win:maximized',
   'editor:open-file',
   'transfer:list',
-  'settings:changed'
+  'settings:changed',
+  'ui:zoom'
 ];
 
 const api = {
@@ -122,6 +123,11 @@ const api = {
   viewDevTools: () => ipcRenderer.invoke('view:devtools'),
   viewFullscreen: () => ipcRenderer.invoke('view:fullscreen'),
   viewZoom: (delta) => ipcRenderer.invoke('view:zoom', delta),
+  /* 界面缩放（独立存储，不写入配置文件） */
+  zoomGet: () => ipcRenderer.invoke('zoom:get'),
+  zoomPreview: (percent) => ipcRenderer.invoke('zoom:preview', percent),
+  zoomSave: (percent) => ipcRenderer.invoke('zoom:save', percent),
+  zoomReset: () => ipcRenderer.invoke('zoom:reset'),
   appQuit: () => ipcRenderer.invoke('app:quit'),
   clearData: (payload) => ipcRenderer.invoke('app:clearData', payload || {}),
   verifyClearData: (payload) => ipcRenderer.invoke('app:verifyClearData', payload || {}),

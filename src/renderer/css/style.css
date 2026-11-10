@@ -1129,3 +1129,10 @@ body.dragging-panel { user-select: none; }
 .recent-tip { padding: 6px 10px; border-top: 1px solid var(--line); color: var(--muted); font-size: 10px; }
 .empty-state .recent-box { color: var(--text); }
 .detail-head select[data-interval] { height: 24px; font-size: 11px; padding: 0 6px; min-width: 74px; }
+
+/* 界面缩放确认窗 */
+.zoom-ask { line-height: 1.72; }
+.zoom-ask-line { margin: 0 0 8px; font-size: 13px; }
+.zoom-ask-line b { color: var(--accent); font-size: 14px; }
+.zoom-ask-tip { margin: 0; font-size: 11.5px; color: var(--muted); }
+.zoom-ask-tip b { color: var(--accent); font-variant-numeric: tabular-nums; font-size: 12.5px; }

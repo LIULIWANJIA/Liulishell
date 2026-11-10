@@ -107,3 +107,15 @@ Function instfilesUpgradePre
 FunctionEnd
 
 !endif
+
+; ============================================================
+; 卸载时清掉「界面缩放」偏好
+;
+; 缩放值刻意不写进 %APPDATA%\LIULI Shell\liulishell-data.json，
+; 而是单独存 zoom.conf（优先安装目录），避免用户把界面放大到点不到设置项、
+; 重装后又继承同一个错误比例。这里再把可能落在 userData 的那份也删掉。
+; ============================================================
+!macro customUnInstall
+  Delete "$INSTDIR\zoom.conf"
+  Delete "$APPDATA\LIULI Shell\zoom.conf"
+!macroend

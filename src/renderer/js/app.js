@@ -59,6 +59,15 @@
     window.api.on('ui:export-config', exportConfig);
     window.api.on('ui:import-config', importConfig);
 
+    // 缩放变化（含 Ctrl+Shift+0 快捷键复位）：刷新设置项显示并重排终端
+    window.api.on('ui:zoom', (payload) => {
+      if (window.Settings && Settings.onZoomChanged) Settings.onZoomChanged(payload || {});
+      else {
+        window.dispatchEvent(new Event('resize'));
+        if (window.Term) { try { Term.fitAll(); } catch (_) {} }
+      }
+    });
+
     $('#btn-more').addEventListener('click', (e) => {
       const rect = e.currentTarget.getBoundingClientRect();
       U.ctxMenu(

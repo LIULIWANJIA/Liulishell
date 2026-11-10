@@ -25,12 +25,78 @@ const store = require('./store');
 const ssh = require('./ssh');
 const finalShell = require('./finalshell');
 const dirCache = require('./dircache');
+const zoomPref = require('./zoompref');
 
 let win = null;
 let editorWin = null;
 let downloadWin = null;
 let importWin = null;
 let webdavSyncing = false;
+/* 界面缩放百分比（独立存储，不写进 liulishell-data.json，卸载 / 重装即重置） */
+let zoomPercent = zoomPref.DEFAULT_PERCENT;
+
+/* ---------- 缩放：启动参数逃生口 ----------
+ * 极端情况下界面被放大到点不到设置项，用 `--reset-zoom` 或 `--zoom=125` 启动即可复位。
+ */
+function initZoom() {
+  const argv = process.argv.slice(1);
+  const reset = argv.some((a) => a === '--reset-zoom' || a === '--zoom-reset');
+  if (reset) {
+    zoomPref.clear();
+    zoomPercent = zoomPref.DEFAULT_PERCENT;
+    return;
+  }
+  const arg = argv.find((a) => /^--zoom=\d+$/.test(a));
+  if (arg) {
+    zoomPercent = zoomPref.normalize(arg.split('=')[1]);
+    zoomPref.writePercent(zoomPercent);
+    return;
+  }
+  const env = process.env.LIULI_ZOOM;
+  if (env && /^\d+$/.test(String(env).trim())) {
+    zoomPercent = zoomPref.normalize(env);
+    zoomPref.writePercent(zoomPercent);
+    return;
+  }
+  zoomPercent = zoomPref.readPercent();
+}
+
+/** 把当前缩放应用到某个窗口的 webContents（新开的子窗口也要一致） */
+function applyZoomTo(target) {
+  try {
+    const wc = target && target.webContents ? target.webContents : target;
+    if (!wc || wc.isDestroyed()) return;
+    wc.setZoomFactor(zoomPercent / 100);
+  } catch (_) {}
+}
+
+/** 子窗口：加载完成后再钉一次，避免 Chromium per-origin zoom 把预览值带出来 */
+function pinZoom(w) {
+  if (!w || !w.webContents) return w;
+  ['dom-ready', 'did-finish-load'].forEach((ev) => {
+    try {
+      w.webContents.on(ev, () => applyZoomTo(w));
+    } catch (_) {}
+  });
+  try {
+    w.once('ready-to-show', () => applyZoomTo(w));
+  } catch (_) {}
+  return w;
+}
+
+/** 应用并（可选）落盘，随后通知所有窗口刷新自身状态 */
+function setZoom(percent, persist) {
+  const p = zoomPref.normalize(percent);
+  zoomPercent = p;
+  if (persist) zoomPref.writePercent(p);
+  BrowserWindow.getAllWindows().forEach((w) => applyZoomTo(w));
+  BrowserWindow.getAllWindows().forEach((w) => {
+    try {
+      w.webContents.send('ui:zoom', { percent: zoomPercent });
+    } catch (_) {}
+  });
+  return { percent: zoomPercent, saved: persist, file: zoomPref.filePath() };
+}
 
 /* ---------- 配置文件加解密（AES-256-GCM + scrypt，高强度参数防暴力破解） ---------- */
 const CONFIG_SCRYPT = { N: 1 << 16, r: 8, p: 1, maxmem: 128 * 1024 * 1024 };
@@ -193,11 +259,38 @@ function createWindow() {
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: false,
-      spellcheck: false
+      spellcheck: false,
+      zoomFactor: zoomPercent / 100
     }
   });
 
-  win.once('ready-to-show', () => win.show());
+  win.once('ready-to-show', () => {
+    // 显示前再压一次：Chromium 会按 origin 记住上次 zoom level（预览值也会被记住），
+    // 页面加载后可能被它覆盖；窗口尚未显示时纠正，用户看不到中间态
+    applyZoomTo(win);
+    win.show();
+  });
+
+  /* Chromium 的 per-origin zoom 会在导航 / 加载完成后重新应用一次，
+   * 这里在几个节点上钉住我们自己的比例，确保以 zoom.conf 为准。 */
+  ['dom-ready', 'did-finish-load'].forEach((ev) => {
+    win.webContents.on(ev, () => applyZoomTo(win));
+  });
+
+  /* 随时可用的缩放逃生键：Ctrl / Cmd + Shift + 0 立即回到 100%
+   * 在 webContents 层拦，终端聚焦时也有效（不受渲染层滚动、输入框焦点影响） */
+  win.webContents.on('before-input-event', (event, input) => {
+    if (input.type !== 'keyDown') return;
+    const key = String(input.key || '');
+    const isZero = key === '0' || key === ')' || input.code === 'Digit0' || input.code === 'Numpad0';
+    if (input.shift && (input.control || input.meta) && isZero) {
+      event.preventDefault();
+      setZoom(zoomPref.DEFAULT_PERCENT, true);
+      try {
+        win.webContents.send('ui:zoom', { percent: zoomPercent, reset: true });
+      } catch (_) {}
+    }
+  });
   win.loadFile(path.join(__dirname, '..', 'renderer', 'index.html'));
 
   // 调试钩子（截图 / 注入脚本 / 渲染日志）只在未打包时生效，正式包忽略这些环境变量
@@ -289,9 +382,11 @@ function ensureDownloadWindow() {
     show: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
-      contextIsolation: true, nodeIntegration: false, sandbox: false, spellcheck: false
+      contextIsolation: true, nodeIntegration: false, sandbox: false, spellcheck: false,
+      zoomFactor: zoomPercent / 100
     }
   });
+  pinZoom(downloadWin);
   downloadWin.loadFile(path.join(__dirname, '..', 'renderer', 'downloads.html'));
   if (process.env.LIULI_DOWNLOADS_EVAL) {
     downloadWin.webContents.once('did-finish-load', () => {
@@ -330,9 +425,11 @@ function ensureFinalShellImportWindow() {
     show: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
-      contextIsolation: true, nodeIntegration: false, sandbox: false, spellcheck: false
+      contextIsolation: true, nodeIntegration: false, sandbox: false, spellcheck: false,
+      zoomFactor: zoomPercent / 100
     }
   });
+  pinZoom(importWin);
   importWin.loadFile(path.join(__dirname, '..', 'renderer', 'finalshell.html'));
   importWin.once('ready-to-show', () => importWin.show());
   importWin.on('closed', () => { importWin = null; });
@@ -361,9 +458,11 @@ function ensureEditorWindow() {
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: false,
-      spellcheck: false
+      spellcheck: false,
+      zoomFactor: zoomPercent / 100
     }
   });
+  pinZoom(editorWin);
   editorWin.loadFile(path.join(__dirname, '..', 'renderer', 'editor.html'));
   if (process.env.LIULI_EDITOR_EVAL) {
     editorWin.webContents.once('did-finish-load', () => {
@@ -516,6 +615,7 @@ app.whenReady().then(() => {
   // Windows / Linux 使用自绘顶栏，移除系统菜单栏
   if (process.platform === 'darwin') buildMenu();
   else Menu.setApplicationMenu(null);
+  try { initZoom(); } catch (_) { zoomPercent = zoomPref.DEFAULT_PERCENT; }
   try { defaultDownloadDir(); } catch (_) {}
   createWindow();
   app.on('activate', () => {
@@ -545,6 +645,11 @@ function crashLog(kind, err) {
 }
 process.on('uncaughtException', (err) => crashLog('uncaughtException', err));
 process.on('unhandledRejection', (err) => crashLog('unhandledRejection', err));
+
+app.on('before-quit', () => {
+  // 退出前统一压回保存值：预览过的比例不应残留到下次启动
+  BrowserWindow.getAllWindows().forEach((w) => applyZoomTo(w));
+});
 
 app.on('window-all-closed', () => {
   store.saveNow();
@@ -727,6 +832,22 @@ ipcMain.handle('view:zoom', (_e, delta) => {
   const next = U_clamp(win.webContents.getZoomLevel() + Number(delta || 0), -2, 3);
   win.webContents.setZoomLevel(next);
   return next;
+});
+
+/* ---------- 界面缩放设置 ----------
+ * zoom:preview 只临时生效（用于「先看一眼效果」），zoom:save 才写盘。
+ * 写盘位置见 zoompref.js：优先安装目录，卸载 / 重装即回到 100%。
+ */
+ipcMain.handle('zoom:get', () => ({
+  percent: zoomPercent,
+  file: zoomPref.filePath(),
+  levels: zoomPref.LEVELS
+}));
+ipcMain.handle('zoom:preview', (_e, percent) => setZoom(percent, false));
+ipcMain.handle('zoom:save', (_e, percent) => setZoom(percent, true));
+ipcMain.handle('zoom:reset', () => {
+  zoomPref.clear();
+  return setZoom(zoomPref.DEFAULT_PERCENT, false);
 });
 ipcMain.handle('app:quit', () => app.quit());
 
