@@ -36,7 +36,7 @@ LIULI Shell 是一款跨平台 SSH 终端与服务器管理工具，界面参考
 | 版本 | 文件 | 下载 |
 |---|---|---|
 | **便携版（推荐）** | `LIULI Shell 1.14.1 Portable.exe` · 约 93 MB · 免安装，双击即用 | [GitHub Releases](https://github.com/LIULIWANJIA/Liulishell/releases) · [Gitee Releases](https://gitee.com/liuliwanjiaweb/liuli-shell/releases) |
-| **安装版** | `LIULI Shell 1.14.1 Setup.exe` · NSIS 安装向导 | [GitHub Releases](https://github.com/LIULIWANJIA/Liulishell/releases) · [Gitee Releases](https://gitee.com/liuliwanjiaweb/liuli-shell/releases) · [夸克网盘](https://pan.quark.cn/s/3b9930496416?pwd=YKXY)（提取码 `YKXY`） |
+| **安装版** | `LIULI Shell 1.14.1 Setup.exe` · NSIS 安装向导 | [GitHub Releases](https://github.com/LIULIWANJIA/Liulishell/releases) · [夸克网盘](https://pan.quark.cn/s/3b9930496416?pwd=YKXY)（提取码 `YKXY`） |
 
 > 便携版配置写在 exe 同级的 `data` 目录；安装版配置在 `%APPDATA%\LIULI Shell`。升级 / 重装 / 卸载不会删除数据。
 
