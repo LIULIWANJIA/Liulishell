@@ -621,6 +621,13 @@ find_appimage() { ls -t dist/*.AppImage 2>/dev/null | head -1; }
 install_deb() {
   local deb; deb="$(find_deb)"
   [ -n "$deb" ] || { bad "没找到 .deb 产物，先打包再安装"; return 1; }
+  # apt 会把「不含路径分隔符」的参数当软件包名解析（"dist/xxx.deb" 会被当成包名 dist），
+  # 必须转成以 / 或 ./ 开头的路径，才能让 apt 识别为本地 .deb 文件。
+  case "$deb" in
+    /*) : ;;
+    ./*) : ;;
+    *) deb="./$deb" ;;
+  esac
   ensure_privilege || return 1
   log "安装 $deb"
   if command -v apt-get >/dev/null 2>&1; then
