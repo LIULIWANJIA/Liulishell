@@ -6,7 +6,7 @@
   "main": "src/main/main.js",
   "author": "LIULI",
   "homepage": "https://shell.minecft.cn",
-  "license": "MIT",
+  "license": "SEE LICENSE IN LICENSE",
   "private": true,
   "scripts": {
     "start": "electron .",
