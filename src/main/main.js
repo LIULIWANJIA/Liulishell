@@ -1356,62 +1356,10 @@ ipcMain.handle('webdav:test', async () => {
   }
 });
 
-async function verifyClearCredentials(payload) {
-  const cfg = await store.webdavConfig();
-  if (!cfg.url) return;
-  if (!cfg.syncUser) {
-    throw new Error('WebDAV 配置不完整（缺少同步用户名），请先在云同步中关闭 WebDAV');
-  }
-  const syncUser = String((payload && payload.syncUser) || '').trim();
-  const syncPass = String((payload && payload.syncPass) || '');
-  if (!syncPass) throw new Error('请输入配置加密密码');
-  // 同步用户名以用户输入为准（而不是本地保存值），这样即使本地配置被改乱，
-  // 只要能提供正确的云同步账户 + 能解密云端配置的密码，仍可清空。
-  const remotePath = syncUser ? store.webdavRemotePath(syncUser) : cfg.remotePath;
-  if (!remotePath) throw new Error('请填写正确的同步用户名');
-
-  const fileUrl = davUrl(cfg.url, remotePath);
-  let remoteText = '';
-  try {
-    const res = await davRequest(cfg, fileUrl, 'GET');
-    if (res.status === 401 || res.status === 403) {
-      throw new Error('WebDAV 认证失败，请检查用户名 / 密码');
-    }
-    if (res.status !== 404) {
-      if (!res.ok) throw new Error(`读取云端配置失败（HTTP ${res.status}）`);
-      remoteText = (await res.text()) || '';
-    }
-  } catch (err) {
-    if (/fetch failed|ENOTFOUND|ECONNREFUSED|timed out|TimeoutError/i.test(String(err.message))) {
-      throw new Error('无法连接 WebDAV 服务器，无法离线校验；请联网后重试');
-    }
-    throw err;
-  }
-
-  // 1) 云端已有配置：用输入的密码解密，成功即证明密码正确（与本地保存的密码无关）
-  if (remoteText && remoteText.trim()) {
-    try {
-      await decryptConfigFileAsync(remoteText, syncPass);
-      return; // 解密成功 → 凭据正确
-    } catch (_) {
-      throw new Error('配置加密密码不正确：与云端配置文件无法解密');
-    }
-  }
-
-  // 2) 云端还没有配置文件（首次同步前就清空）：退化为本地比对
-  if (syncPass !== cfg.syncPass) {
-    throw new Error('配置加密密码不正确（云端暂无配置文件，请按本地保存的密码验证）');
-  }
-}
-
-ipcMain.handle('app:verifyClearData', async (_e, payload) => {
-  await verifyClearCredentials(payload || {});
-  return { ok: true };
-});
-
 ipcMain.handle('app:clearData', async (_e, payload) => {
   if (webdavSyncing) throw new Error('云同步正在进行，请等待同步结束后再清空');
-  await verifyClearCredentials(payload || {});
+  // 不再校验密码：由前端「二次确认 + 3 秒倒计时」把关。
+  // store.clearAllData() 内部会先关闭并清除 WebDAV 配置，再重置为出厂状态。
   const state = store.clearAllData();
   dirCache.clear();
   homeMemo.clear();

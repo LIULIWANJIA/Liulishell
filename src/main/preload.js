@@ -130,7 +130,6 @@ const api = {
   zoomReset: () => ipcRenderer.invoke('zoom:reset'),
   appQuit: () => ipcRenderer.invoke('app:quit'),
   clearData: (payload) => ipcRenderer.invoke('app:clearData', payload || {}),
-  verifyClearData: (payload) => ipcRenderer.invoke('app:verifyClearData', payload || {}),
   openExternal: (url) => ipcRenderer.invoke('app:openExternal', url),
 
   /* 工具 */

@@ -991,55 +991,20 @@ window.Settings = (function () {
     const clearBtn = $('#data-clear');
     if (clearBtn) {
       clearBtn.addEventListener('click', async () => {
-        const wd = (App.state.data.settings.webdav || {});
-        const needVerify = !!String(wd.url || '').trim();
-        if (needVerify && (!String(wd.syncUser || '').trim() || !wd.hasSyncPass)) {
-          return U.toast(
-            'WebDAV 配置不完整（缺少同步用户名或配置加密密码），请先在「云同步」中关闭 WebDAV 后再清空',
-            'error',
-            5200
-          );
-        }
+        // 第一次确认：说明后果
         const ok = await U.confirmSub(
           '清空软件数据',
-          '将清空服务器配置、分组、密钥库、收藏文件夹、快捷命令、命令历史与全部设置。\n\n确定继续吗？',
+          '将清空服务器配置、分组、密钥库、收藏文件夹、快捷命令、命令历史与全部设置。\n\n清空前会先关闭并清除 WebDAV 云同步配置，不会把空服务器列表同步到云端。\n\n确定继续吗？',
           '继续'
         );
         if (!ok) return;
-        const creds = {};
-        if (needVerify) {
-          const verified = await U.openSubModal({
-            title: '验证 WebDAV 账户',
-            width: '440px',
-            okText: '验证',
-            body: `<div class="field"><label>同步用户名</label>
-                <input id="clear-syncuser" type="text" value="${U.esc(wd.syncUser || '')}" autocomplete="off" /></div>
-              <div class="field" style="margin-top:8px"><label>配置加密密码</label>
-                <input id="clear-syncpass" type="password" placeholder="用于加密云端配置的密码" autocomplete="new-password" /></div>
-              <div class="hint" style="margin-top:10px;color:#8b95a5;line-height:1.6">
-                验证通过后才能继续清空。请填入<b>当前云端配置真正使用的同步用户名与加密密码</b>——会用它去解密云端文件核对，因此即使本地保存的密码已改错，只要填对云端密码即可通过。清空时会先关闭并清除 WebDAV 配置，不会把空服务器列表同步到云端。
-              </div>`,
-            onOk: async () => {
-              const syncUser = $('#clear-syncuser').value.trim();
-              const syncPass = $('#clear-syncpass').value;
-              if (!syncUser) throw new Error('请输入同步用户名');
-              if (!syncPass) throw new Error('请输入配置加密密码');
-              await window.api.verifyClearData({ syncUser, syncPass });
-              creds.syncUser = syncUser;
-              creds.syncPass = syncPass;
-              return true;
-            }
-          });
-          if (!verified) return;
-        }
-        const sure = await U.confirmSub(
-          '再次确认清空',
-          '清空后无法恢复；服务器列表不会同步到云端。\n\n确认清空全部软件数据？',
-          '确认清空'
-        );
+
+        // 第二次确认：3 秒倒计时，倒计时结束才能点「确认清空」
+        const sure = await confirmClearWithCountdown();
         if (!sure) return;
+
         try {
-          const res = await window.api.clearData(creds);
+          const res = await window.api.clearData({});
           App.setData(res.state);
           readCfg();
           apply();
@@ -1050,6 +1015,64 @@ window.Settings = (function () {
         }
       });
     }
+  }
+
+  /** 清空数据二次确认：3 秒倒计时，期间按钮禁用、不可关闭，倒计时结束才可点「确认清空」 */
+  function confirmClearWithCountdown() {
+    return new Promise((resolve) => {
+      let left = 3;
+      U.openSubModal({
+        title: '再次确认清空',
+        width: '460px',
+        okText: '确认清空',
+        cancelText: '取消',
+        okClass: 'btn danger',
+        body: `<div class="zoom-ask">
+            <p class="zoom-ask-line">此操作<b>不可恢复</b>，将清空全部软件数据。</p>
+            <p class="zoom-ask-tip"><b id="clear-count">${left}</b> 秒后可点击「确认清空」；期间无法关闭本窗口。</p>
+          </div>`
+      }).then((v) => {
+        cleanup();
+        resolve(v !== null && v !== false);
+      });
+
+      const okBtn = U.qs('#sub-ok');
+      const cancelBtn = U.qs('#sub-cancel');
+      const countEl = U.qs('#clear-count');
+      const subMask = U.qs('#sub-mask');
+      const closeBtn = U.qs('#sub-close');
+      const bodyEl = U.qs('#sub-body');
+
+      const locked = (v) => {
+        if (okBtn) okBtn.disabled = v;
+        if (cancelBtn) cancelBtn.disabled = v;
+      };
+      locked(true);
+      if (subMask) subMask.onmousedown = null; // 倒计时期间点遮罩不关闭
+      if (closeBtn) closeBtn.onclick = null;
+      if (bodyEl) bodyEl.onkeydown = null;
+
+      const onEsc = (e) => {
+        if (e.key !== 'Escape') return;
+        e.preventDefault();
+        e.stopPropagation();
+      };
+      document.addEventListener('keydown', onEsc, true);
+
+      const timer = setInterval(() => {
+        left -= 1;
+        if (countEl) countEl.textContent = String(Math.max(0, left));
+        if (left <= 0) {
+          clearInterval(timer);
+          locked(false);
+        }
+      }, 1000);
+
+      function cleanup() {
+        clearInterval(timer);
+        document.removeEventListener('keydown', onEsc, true);
+      }
+    });
   }
 
   function init() {
