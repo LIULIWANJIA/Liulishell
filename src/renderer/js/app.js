@@ -292,13 +292,21 @@
     bind($('#split-left'), 'left');
     bind($('#split-right'), 'right');
     bind($('#split-h'), 'bottom');
+    // 命令编辑器顶部 / 右侧信息栏底部：都能上下拖动调高度，且写同一个 --bottom-h，天然同步
+    bind($('#ce-resize'), 'bottom');
+    bind($('#srv-resize'), 'bottom');
 
-    $('#split-h').addEventListener('dblclick', () => {
-      root.style.setProperty('--bottom-h', '360px');
-      $('#bottom-pane').classList.remove('collapsed');
-      $('#btn-collapse-bottom').textContent = '▾';
-      saveLayout();
-      Term.fitActive();
+    // 双击任一把手复位到默认高度
+    ['#split-h', '#ce-resize', '#srv-resize'].forEach((sel) => {
+      const el = $(sel);
+      if (!el) return;
+      el.addEventListener('dblclick', () => {
+        root.style.setProperty('--bottom-h', '360px');
+        $('#bottom-pane').classList.remove('collapsed');
+        $('#btn-collapse-bottom').textContent = '▾';
+        saveLayout();
+        Term.fitActive();
+      });
     });
 
     window.addEventListener('mousemove', onMove);

@@ -134,7 +134,15 @@ window.Snippets = (function () {
         if (dragId) return; // 拖动结束后的这次 click 不触发执行
         const data = board.items.find((x) => x.id === item.dataset.id);
         if (!data) return;
-        Term.runSnippet(data.command, data.autoRun);
+        // 全局开关「允许单击命令直接运行」关闭时，单击一律只填入编辑器，不直接执行
+        const allowRun = App.settings.snippetClickRun !== false;
+        if (data.autoRun && allowRun) {
+          Term.runSnippet(data.command, true);
+        } else if (!data.autoRun) {
+          Term.runSnippet(data.command, false); // 该命令本身是「仅填入」模式
+        } else {
+          fillEditor(data.command); // 原本会直接运行，但被全局开关禁用 → 填编辑器
+        }
       });
       item.addEventListener('contextmenu', (e) => {
         e.preventDefault();

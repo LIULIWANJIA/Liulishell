@@ -989,10 +989,23 @@ function clearAllData() {
 async function exportBundle() {
   const d = load();
   const conns = [];
+  const proxies = [];
+  for (const p of d.settings.proxies || []) {
+    const sec = (d.settings.proxySecrets || {})[p.id];
+    proxies.push({
+      name: p.name,
+      type: p.type === 'socks5' ? 'socks5' : 'http',
+      host: p.host,
+      port: Number(p.port) || 8080,
+      user: p.user || '',
+      password: sec ? await decrypt(sec) : ''
+    });
+  }
   for (const c of d.connections) {
     const sec = await secretsOf(c);
     const g = d.groups.find((x) => x.id === c.group);
     const keyRec = c.keyId ? d.keys.find((k) => k.id === c.keyId) : null;
+    const proxyRec = c.proxyId ? (d.settings.proxies || []).find((p) => p.id === c.proxyId) : null;
     conns.push({
       name: c.name,
       group: g ? g.name : '默认分组',
@@ -1007,7 +1020,9 @@ async function exportBundle() {
       password: sec.password,
       privateKey: sec.privateKey,
       passphrase: sec.passphrase,
-      clearMotd: c.clearMotd !== false
+      clearMotd: c.clearMotd !== false,
+      proxyEnabled: !!c.proxyEnabled,
+      proxyName: proxyRec ? proxyRec.name : ''
     });
   }
   // 密钥库一并导出（重名密钥在下一次导入时复用）
@@ -1048,6 +1063,7 @@ async function exportBundle() {
     groups: d.groups.map((g) => ({ name: g.name, path: groupPath(d.groups, g.id) })),
     connections: conns,
     keys,
+    proxies,
     snippetBoards,
     favorites,
     favoriteGroups
@@ -1103,6 +1119,27 @@ async function importBundle(bundle) {
     keyNameToId.set(name, rec.id);
   }
 
+  // 再导入代理：按名称复用，重名则跳过；连接按代理名称关联
+  d.settings.proxies = Array.isArray(d.settings.proxies) ? d.settings.proxies : [];
+  d.settings.proxySecrets = d.settings.proxySecrets || {};
+  const proxyNameToId = new Map(d.settings.proxies.map((p) => [p.name, p.id]));
+  for (const p of (bundle && bundle.proxies) || []) {
+    const name = String((p && p.name) || '').trim();
+    if (!name || !p.host) continue;
+    if (proxyNameToId.has(name)) continue;
+    const id = 'p-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6);
+    d.settings.proxies.push({
+      id,
+      name,
+      type: p.type === 'socks5' ? 'socks5' : 'http',
+      host: String(p.host || '').trim(),
+      port: Number(p.port) || 8080,
+      user: String(p.user || '').trim()
+    });
+    if (p.password) d.settings.proxySecrets[id] = await encrypt(String(p.password));
+    proxyNameToId.set(name, id);
+  }
+
   let added = 0;
   let skipped = 0;
   for (const c of (bundle && bundle.connections) || []) {
@@ -1122,6 +1159,7 @@ async function importBundle(bundle) {
       ? ensureGroupPath(d, pathNames)
       : (d.groups.find((g) => !g.parentId && g.name === (c.group || '默认分组')) || d.groups[0]).id;
     const boundKeyId = c.keyName ? keyNameToId.get(c.keyName) || '' : '';
+    const boundProxyId = c.proxyName ? proxyNameToId.get(c.proxyName) || '' : '';
     d.connections.push({
       id: 'c-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6),
       createdAt: Date.now(),
@@ -1136,7 +1174,9 @@ async function importBundle(bundle) {
       password: c.password ? await encrypt(c.password) : '',
       privateKey: c.privateKey ? await encrypt(c.privateKey) : '',
       passphrase: c.passphrase ? await encrypt(c.passphrase) : '',
-      clearMotd: c.clearMotd !== false
+      clearMotd: c.clearMotd !== false,
+      proxyEnabled: !!c.proxyEnabled,
+      proxyId: boundProxyId
     });
     added++;
   }
@@ -1557,5 +1597,6 @@ module.exports = {
   commitSyncBaseline,
   saveWebdav,
   markWebdavSync,
-  webdavConfig
+  webdavConfig,
+  webdavRemotePath
 };

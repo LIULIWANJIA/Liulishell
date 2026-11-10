@@ -215,6 +215,7 @@
 
     <!-- ================= 右：服务器信息 ================= -->
     <aside class="sidebar-right" id="sidebar-right">
+      <div class="srv-resize" id="srv-resize" title="拖动调整高度"></div>
       <div class="srv-head">
         <div class="srv-avatar" id="srv-avatar">--</div>
         <div class="srv-meta">
@@ -275,6 +276,7 @@
 
     <!-- 命令编辑器：始终悬浮在窗口右下角；隐藏服务器信息面板时不受影响 -->
     <div class="cmd-editor" id="cmd-editor">
+      <div class="ce-resize" id="ce-resize" title="拖动调整高度"></div>
       <div class="ce-head">
         <span class="ce-title">命令编辑器</span>
         <span class="ce-hint">Ctrl + Enter</span>
@@ -302,13 +304,13 @@
         <nav class="settings-nav">
           <button class="snav active" data-tab="appearance">外观与主题</button>
           <button class="snav" data-tab="font">字体</button>
-          <button class="snav" data-tab="units">速率单位</button>
           <button class="snav" data-tab="mouse">鼠标按键</button>
           <button class="snav" data-tab="shortcuts">快捷键</button>
           <button class="snav" data-tab="transfer">传输 / 代理</button>
           <button class="snav" data-tab="webdav">云同步</button>
+          <button class="snav" data-tab="startup">启动 / 行为</button>
+          <button class="snav" data-tab="units">速率单位</button>
           <button class="snav" data-tab="panels">板块显示</button>
-          <button class="snav" data-tab="startup">启动</button>
           <button class="snav" data-tab="data">数据与重置</button>
         </nav>
         <div class="settings-content" id="settings-content"></div>

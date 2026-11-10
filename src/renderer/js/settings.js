@@ -106,7 +106,8 @@ window.Settings = (function () {
       rightInfo: true, cmdEditor: true, files: true, snippets: true
     },
     startDockedRight: true,
-    dirSync: true
+    dirSync: true,
+    snippetClickRun: true
   };
 
   let cfg = null;
@@ -128,7 +129,8 @@ window.Settings = (function () {
       shortcuts: merge(DEFAULTS.shortcuts, s.shortcuts),
       panels: merge(DEFAULTS.panels, s.panels),
       startDockedRight: s.startDockedRight !== false,
-      dirSync: s.dirSync !== false
+      dirSync: s.dirSync !== false,
+      snippetClickRun: s.snippetClickRun !== false
     };
     return cfg;
   }
@@ -312,67 +314,6 @@ window.Settings = (function () {
         </div>
       </section>
 
-      <section class="stab" data-tab="units">
-        <div class="set-group">
-          <h4>全局速率单位</h4>
-          <p class="set-desc">修改后影响整个软件的速率显示；下面的具体项可单独覆盖。默认 Mbps。</p>
-          <div class="set-row">
-            <label>全局单位</label>
-            <select id="set-unit-global">
-              <option value="mbps"${cfg.units.global === 'mbps' ? ' selected' : ''}>Mbps（兆比特 / 秒）</option>
-              <option value="mbytes"${cfg.units.global === 'mbytes' ? ' selected' : ''}>MB/s（兆字节 / 秒）</option>
-            </select>
-          </div>
-        </div>
-        <div class="set-group">
-          <h4>具体项</h4>
-          <p class="set-desc">未单独设置时跟随全局单位。</p>
-          ${[
-            ['chart', '服务器监控图表'],
-            ['netDetail', '网络连接详情'],
-            ['downloads', '下载管理器']
-          ]
-            .map(
-              ([k, label]) => `<div class="set-row"><label>${label}</label><select data-unit="${k}">
-                ${optionList([['global', '跟随全局'], ['mbps', 'Mbps'], ['mbytes', 'MB/s']], cfg.units[k] || 'global')}
-              </select></div>`
-            )
-            .join('')}
-        </div>
-      </section>
-
-      <section class="stab" data-tab="webdav">
-        <div class="set-group">
-          <h4>WebDAV 云同步</h4>
-          <p class="set-desc">把服务器配置、密钥和快捷命令加密后同步到 WebDAV。同步为双向合并：本地新增会上传，本地删除会同步到云端，云端删除也会同步回本机（以「上次同步」为基线判断增删），任何一步失败都不会清空本地数据。</p>
-          <div class="set-row"><label>服务器地址</label><input id="wd-url" type="text" placeholder="https://dav.example.com/dav/" value="${U.esc(wd.url || '')}" style="flex:1" /></div>
-          <div class="set-row"><label>用户名</label><input id="wd-user" type="text" placeholder="WebDAV 认证用户名，可留空" value="${U.esc(wd.username || '')}" style="flex:1" /></div>
-          <div class="set-row"><label>密码</label><input id="wd-pass" type="password" placeholder="${wd.hasPassword ? '已保存，留空表示不修改' : 'WebDAV 密码（可留空）'}" autocomplete="new-password" style="flex:1" /></div>
-          <div class="set-row"><label>同步用户名</label><input id="wd-syncuser" type="text" placeholder="例如：useradminaaa" value="${U.esc(wd.syncUser || '')}" style="flex:1" /></div>
-          <div class="set-row"><label>配置加密密码</label><input id="wd-syncpass" type="password" placeholder="${wd.hasSyncPass ? '已保存，留空表示不修改' : '至少 6 位，用于加密云端配置'}" autocomplete="new-password" style="flex:1" /></div>
-          <div class="set-row"><label>确认加密密码</label><input id="wd-syncpass2" type="password" placeholder="首次设置时再输入一次" autocomplete="new-password" style="flex:1" /></div>
-          <div class="set-note sync-warn">Tips：请注意，同步用户名和密码忘记后，将再也找不回原来的同步配置。</div>
-          <div class="set-row" style="margin-bottom:0">
-            <label></label>
-            <button class="btn sm" id="wd-save">保存配置</button>
-            <button class="btn sm" id="wd-test">测试连接</button>
-            <button class="btn sm primary" id="wd-sync">立即同步</button>
-          </div>
-          <div class="sync-result idle" id="wd-status" aria-live="polite">
-            <div class="sr-head"><i class="sr-dot"></i><span class="sr-title">${
-              wd.lastSyncAt ? '上次同步成功：' + U.fmtTime(wd.lastSyncAt) : '尚未同步'
-            }</span></div>
-            <ul class="sr-list"><li>点击「立即同步」开始：先读取云端配置并合并，再把合并结果加密上传。</li></ul>
-          </div>
-        </div>
-        <div class="set-group">
-          <h4>同步规则</h4>
-          <div class="set-preview">连接按主机 + 端口 + 用户名识别，服务器分组按层级路径（最多三级）识别，收藏文件夹、收藏分组、密钥（按名称）、快捷命令（按板块 + 命令）同样参与同步。<br>
-          每次同步成功后会把「本次同步到的内容清单」记为基线，下次同步据此判断哪一侧新增、哪一侧删除，因此删除操作也会被正确同步，而不是被云端旧配置重新写回。<br>
-          同步失败（网络、认证、密码错误）只提示错误，不会改动或清空当前服务器列表。</div>
-        </div>
-      </section>
-
       <section class="stab" data-tab="mouse">
         <div class="set-group">
           <h4>鼠标按键</h4>
@@ -422,15 +363,35 @@ window.Settings = (function () {
         </div>
       </section>
 
-      <section class="stab" data-tab="panels">
+      <section class="stab" data-tab="webdav">
         <div class="set-group">
-          <h4>板块显示 / 隐藏</h4>
-          <p class="set-desc">取消勾选即隐藏对应板块。隐藏右侧服务器信息时，终端向右扩展，右下角命令编辑器保持独立显示。</p>
-          <div class="panel-grid">
-            ${PANELS.map(
-              (p) => `<label><input type="checkbox" data-panel="${p.k}"${cfg.panels[p.k] ? ' checked' : ''} />${U.esc(p.label)}</label>`
-            ).join('')}
+          <h4>WebDAV 云同步</h4>
+          <p class="set-desc">把服务器配置、密钥和快捷命令加密后同步到 WebDAV。同步为双向合并：本地新增会上传，本地删除会同步到云端，云端删除也会同步回本机（以「上次同步」为基线判断增删），任何一步失败都不会清空本地数据。</p>
+          <div class="set-row"><label>服务器地址</label><input id="wd-url" type="text" placeholder="https://dav.example.com/dav/" value="${U.esc(wd.url || '')}" style="flex:1" /></div>
+          <div class="set-row"><label>用户名</label><input id="wd-user" type="text" placeholder="WebDAV 认证用户名，可留空" value="${U.esc(wd.username || '')}" style="flex:1" /></div>
+          <div class="set-row"><label>密码</label><input id="wd-pass" type="password" placeholder="${wd.hasPassword ? '已保存，留空表示不修改' : 'WebDAV 密码（可留空）'}" autocomplete="new-password" style="flex:1" /></div>
+          <div class="set-row"><label>同步用户名</label><input id="wd-syncuser" type="text" placeholder="例如：useradminaaa" value="${U.esc(wd.syncUser || '')}" style="flex:1" /></div>
+          <div class="set-row"><label>配置加密密码</label><input id="wd-syncpass" type="password" placeholder="${wd.hasSyncPass ? '已保存，留空表示不修改' : '至少 6 位，用于加密云端配置'}" autocomplete="new-password" style="flex:1" /></div>
+          <div class="set-row"><label>确认加密密码</label><input id="wd-syncpass2" type="password" placeholder="首次设置时再输入一次" autocomplete="new-password" style="flex:1" /></div>
+          <div class="set-note sync-warn">Tips：请注意，同步用户名和密码忘记后，将再也找不回原来的同步配置。</div>
+          <div class="set-row" style="margin-bottom:0">
+            <label></label>
+            <button class="btn sm" id="wd-save">保存配置</button>
+            <button class="btn sm" id="wd-test">测试连接</button>
+            <button class="btn sm primary" id="wd-sync">立即同步</button>
           </div>
+          <div class="sync-result idle" id="wd-status" aria-live="polite">
+            <div class="sr-head"><i class="sr-dot"></i><span class="sr-title">${
+              wd.lastSyncAt ? '上次同步成功：' + U.fmtTime(wd.lastSyncAt) : '尚未同步'
+            }</span></div>
+            <ul class="sr-list"><li>点击「立即同步」开始：先读取云端配置并合并，再把合并结果加密上传。</li></ul>
+          </div>
+        </div>
+        <div class="set-group">
+          <h4>同步规则</h4>
+          <div class="set-preview">连接按主机 + 端口 + 用户名识别，服务器分组按层级路径（最多三级）识别，收藏文件夹、收藏分组、密钥（按名称）、快捷命令（按板块 + 命令）同样参与同步。<br>
+          每次同步成功后会把「本次同步到的内容清单」记为基线，下次同步据此判断哪一侧新增、哪一侧删除，因此删除操作也会被正确同步，而不是被云端旧配置重新写回。<br>
+          同步失败（网络、认证、密码错误）只提示错误，不会改动或清空当前服务器列表。</div>
         </div>
       </section>
 
@@ -453,8 +414,57 @@ window.Settings = (function () {
           <div class="set-row"><label></label><button class="btn sm" id="set-resetpos">重置窗口位置</button></div>
         </div>
         <div class="set-group">
+          <h4>快捷命令</h4>
+          <div class="set-row">
+            <label>单击运行</label>
+            <label class="check-inline"><input type="checkbox" id="set-clickrun"${cfg.snippetClickRun ? ' checked' : ''} /> 允许单击命令直接运行</label>
+          </div>
+          <p class="set-desc">开启后，标记为「点击直接执行」的命令单击即运行（默认）。关闭后，单击任何命令都只填入命令编辑器，需手动确认再发送，避免误触。</p>
+        </div>
+        <div class="set-group">
           <h4>设置存储</h4>
           <div class="set-preview">配置文件：<code class="set-path">${U.esc(U.dataFile || '（未知路径）')}</code><br>作者：LIULIWANJIA · ${U.versionText()}${U.isPortable ? '（便携版）' : ''}</div>
+        </div>
+      </section>
+
+      <section class="stab" data-tab="units">
+        <div class="set-group">
+          <h4>全局速率单位</h4>
+          <p class="set-desc">修改后影响整个软件的速率显示；下面的具体项可单独覆盖。默认 Mbps。</p>
+          <div class="set-row">
+            <label>全局单位</label>
+            <select id="set-unit-global">
+              <option value="mbps"${cfg.units.global === 'mbps' ? ' selected' : ''}>Mbps（兆比特 / 秒）</option>
+              <option value="mbytes"${cfg.units.global === 'mbytes' ? ' selected' : ''}>MB/s（兆字节 / 秒）</option>
+            </select>
+          </div>
+        </div>
+        <div class="set-group">
+          <h4>具体项</h4>
+          <p class="set-desc">未单独设置时跟随全局单位。</p>
+          ${[
+            ['chart', '服务器监控图表'],
+            ['netDetail', '网络连接详情'],
+            ['downloads', '下载管理器']
+          ]
+            .map(
+              ([k, label]) => `<div class="set-row"><label>${label}</label><select data-unit="${k}">
+                ${optionList([['global', '跟随全局'], ['mbps', 'Mbps'], ['mbytes', 'MB/s']], cfg.units[k] || 'global')}
+              </select></div>`
+            )
+            .join('')}
+        </div>
+      </section>
+
+      <section class="stab" data-tab="panels">
+        <div class="set-group">
+          <h4>板块显示 / 隐藏</h4>
+          <p class="set-desc">取消勾选即隐藏对应板块。隐藏右侧服务器信息时，终端向右扩展，右下角命令编辑器保持独立显示。</p>
+          <div class="panel-grid">
+            ${PANELS.map(
+              (p) => `<label><input type="checkbox" data-panel="${p.k}"${cfg.panels[p.k] ? ' checked' : ''} />${U.esc(p.label)}</label>`
+            ).join('')}
+          </div>
         </div>
       </section>
 
@@ -972,6 +982,7 @@ window.Settings = (function () {
     // 启动
     $('#set-dirsync').addEventListener('change', (e) => persist({ dirSync: e.target.checked }));
     $('#set-dock').addEventListener('change', (e) => persist({ startDockedRight: e.target.checked }));
+    $('#set-clickrun').addEventListener('change', (e) => persist({ snippetClickRun: e.target.checked }));
     $('#set-resetpos').addEventListener('click', async () => {
       await window.api.resetWindowPos();
       U.toast('已重置，下次启动将重新贴靠屏幕右侧', 'ok');
@@ -1006,7 +1017,7 @@ window.Settings = (function () {
               <div class="field" style="margin-top:8px"><label>配置加密密码</label>
                 <input id="clear-syncpass" type="password" placeholder="用于加密云端配置的密码" autocomplete="new-password" /></div>
               <div class="hint" style="margin-top:10px;color:#8b95a5;line-height:1.6">
-                验证通过后才能继续清空。清空时会先关闭并清除 WebDAV 配置，不会把空服务器列表同步到云端。
+                验证通过后才能继续清空。请填入<b>当前云端配置真正使用的同步用户名与加密密码</b>——会用它去解密云端文件核对，因此即使本地保存的密码已改错，只要填对云端密码即可通过。清空时会先关闭并清除 WebDAV 配置，不会把空服务器列表同步到云端。
               </div>`,
             onOk: async () => {
               const syncUser = $('#clear-syncuser').value.trim();
