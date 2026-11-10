@@ -12,9 +12,10 @@ Thumbs.db
 .vscode/
 .idea/
 
-# 官网下载已改为外链，不再把安装包放进仓库；
-# 安装包体积也超过 Gitee 单文件限制，请上传到「发行版（Releases）」或网盘
-website/downloads/
+# 官网静态站单独维护，不纳入本仓库（本地保留，不提交 / 不推送）
+website/
+
+# 安装包体积超过 Gitee 单文件限制，请上传到「发行版（Releases）」或网盘，不进仓库
 *.exe
 *.AppImage
 *.deb

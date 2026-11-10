@@ -13,9 +13,9 @@ LIULI Shell 是一款跨平台 SSH 终端与服务器管理工具（Windows / Li
 
 技术栈：Electron + xterm.js + ssh2（原生 SFTP 与 shell channel，无外部命令依赖）。
 
-![界面预览](website/assets/theme-warm.png)
+![界面预览](docs/assets/theme-warm.png)
 
-更多界面：[隐藏信息栏布局](website/assets/layout-current.png) · [设置中心](website/assets/settings-current.png) · [快捷命令](website/assets/snippets-current.png)
+更多界面：[隐藏信息栏布局](docs/assets/layout-current.png) · [设置中心](docs/assets/settings-current.png) · [快捷命令](docs/assets/snippets-current.png)
 
 ---
 
@@ -144,7 +144,7 @@ npm run dist:mac              # macOS：dmg + zip（x64 / arm64，需在 macOS �
 
 ## 三、项目说明
 
-- 官网单页静态站：`website/index.html`（下载走外链，仓库不再存放安装包）。
+- 官网单页静态站单独维护，`website/` 不纳入本仓库；下载走外链，仓库不再存放安装包。
 - 界面布局、设置项、功能清单、云同步合并策略、数据安全与已知限制等**详细设计文档**见 [项目设计.md](项目设计.md)。
 - 配置位置：Windows `%APPDATA%\LIULI Shell`，Linux `~/.config/LIULI Shell/`。密码、私钥、口令用 `safeStorage` 加密落盘，渲染进程拿不到明文。
 - 数据文件写入前自动备份；损坏时自动改名留档并从 `.bak` 恢复。
