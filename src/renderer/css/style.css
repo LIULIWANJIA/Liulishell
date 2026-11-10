@@ -348,9 +348,9 @@ body.theme-dark .group.lv1.open > .group-head:hover { background: rgba(var(--acc
 .splitter.v { width: 1px; cursor: col-resize; }
 .splitter.v::after { content: ""; position: absolute; top: 0; bottom: 0; left: -4px; right: -4px; }
 .splitter.v:hover, .splitter.v.dragging { background: var(--accent); }
-.splitter.h { height: 1px; cursor: row-resize; }
-.splitter.h::after { content: ""; position: absolute; left: 0; right: 0; top: -5px; bottom: -5px; }
-.splitter.h:hover, .splitter.h.dragging { background: var(--accent); }
+.splitter.h { height: 8px; cursor: row-resize; background: transparent; }
+.splitter.h::after { content: ""; position: absolute; left: 0; right: 0; top: -4px; bottom: -4px; }
+.splitter.h:hover, .splitter.h.dragging { background: transparent; }
 body.resizing { user-select: none; cursor: grabbing; }
 
 /* ===================== 中栏 ===================== */

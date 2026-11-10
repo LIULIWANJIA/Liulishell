@@ -6,7 +6,7 @@
 
 技术栈：Electron + xterm.js + ssh2（原生 SFTP 与 shell channel，无外部命令依赖）。
 
-当前版本 **v1.13.7** · Windows 提供现成安装包 · Linux / macOS 请按下方教程自行构建。
+当前版本 **v1.13.8** · Windows 提供现成安装包 · Linux / macOS 请按下方教程自行构建。
 
 ## 下载
 
@@ -310,4 +310,4 @@ npm run dist:mac            # macOS：dmg + zip（x64 / arm64，需在 macOS 上
 - 独立编辑器仅支持 UTF-8 文本且小于 10MB；保存为直接覆写，不保留历史版本。
 - 网络「上传 / 下载」来自 `ss -i` 字节统计（需 root 才能看到进程归属）。
 - 目录树为懒加载，单层超过 350 项时折叠展示。
-- 版本 **v1.13.7**，作者 **LIULIWANJIA**。
+- 版本 **v1.13.8**，作者 **LIULIWANJIA**。
