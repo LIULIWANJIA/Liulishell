@@ -610,23 +610,25 @@ window.Settings = (function () {
         : '<div class="key-empty">还没有代理，点击下方「添加代理」</div>';
     };
     const openProxyEditor = (proxy) => {
+      const type = proxy ? proxy.type : 'socks5'; // 新建默认 SOCKS5
       U.openSubModal({
         title: proxy ? '编辑代理' : '添加代理',
         width: '480px',
         okText: '保存',
         body: `<div class="form-row"><div class="field" style="flex:2"><label>名称</label><input id="px-name" type="text" value="${U.esc(proxy ? proxy.name : '')}" placeholder="例如：办公代理" /></div>
-          <div class="field"><label>类型</label><select id="px-type"><option value="http"${proxy && proxy.type === 'http' ? ' selected' : ''}>HTTP</option><option value="socks5"${proxy && proxy.type === 'socks5' ? ' selected' : ''}>SOCKS5</option></select></div></div>
+          <div class="field"><label>类型</label><select id="px-type"><option value="http"${type === 'http' ? ' selected' : ''}>HTTP</option><option value="socks5"${type === 'socks5' ? ' selected' : ''}>SOCKS5</option></select></div></div>
           <div class="form-row"><div class="field" style="flex:2"><label>主机</label><input id="px-host" type="text" value="${U.esc(proxy ? proxy.host : '')}" placeholder="127.0.0.1" /></div>
-          <div class="field" style="flex:0 0 100px"><label>端口</label><input id="px-port" type="number" value="${proxy ? proxy.port : (proxy && proxy.type === 'socks5' ? 1080 : 8080)}" /></div></div>
+          <div class="field" style="flex:0 0 100px"><label>端口</label><input id="px-port" type="number" value="${proxy ? proxy.port : type === 'socks5' ? 1080 : 8080}" /></div></div>
           <div class="form-row"><div class="field"><label>用户名（可选）</label><input id="px-user" type="text" value="${U.esc(proxy ? proxy.user : '')}" /></div></div>
           <div class="form-row" style="margin-bottom:0"><div class="field"><label>密码（可选）</label><input id="px-pass" type="password" placeholder="${proxy && proxy.hasAuth ? '已保存，留空表示不修改' : '代理认证密码'}" autocomplete="new-password" /></div></div>`,
         onOk: async () => {
+          const typeNow = $('#px-type').value;
           const payload = {
             id: proxy ? proxy.id : undefined,
             name: $('#px-name').value.trim(),
-            type: $('#px-type').value,
+            type: typeNow,
             host: $('#px-host').value.trim(),
-            port: Number($('#px-port').value) || 8080,
+            port: Number($('#px-port').value) || (typeNow === 'socks5' ? 1080 : 8080),
             user: $('#px-user').value.trim()
           };
           if (!payload.host) throw new Error('请填写代理主机');
@@ -638,6 +640,16 @@ window.Settings = (function () {
           return true;
         }
       });
+      // 切换类型时，端口还是默认值就跟着改（1080 / 8080），免去手改
+      const typeSel = $('#px-type');
+      const portInput = $('#px-port');
+      if (typeSel && portInput) {
+        typeSel.addEventListener('change', () => {
+          const next = typeSel.value === 'socks5' ? 1080 : 8080;
+          const cur = String(portInput.value || '').trim();
+          if (!cur || cur === '1080' || cur === '8080') portInput.value = next;
+        });
+      }
     };
     renderProxies();
     $('#proxy-add').addEventListener('click', () => openProxyEditor(null));

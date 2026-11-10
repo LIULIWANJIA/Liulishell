@@ -63,6 +63,8 @@ window.Snippets = (function () {
     });
   }
 
+  let dragId = null;
+
   function render() {
     const list = boards();
     if (!activeBoard && list.length) activeBoard = list[0].id;
@@ -72,9 +74,9 @@ window.Snippets = (function () {
     tabs.innerHTML = list
       .map(
         (b) =>
-          `<button class="board-tab${board && b.id === board.id ? ' active' : ''}" data-bid="${b.id}">${U.esc(
+          `<button class="board-tab${board && b.id === board.id ? ' active' : ''}" data-bid="${b.id}" title="${U.esc(
             b.name
-          )}</button>`
+          )}（${(b.items || []).length} 条）">${U.esc(b.name)}</button>`
       )
       .join('');
 
@@ -116,18 +118,20 @@ window.Snippets = (function () {
       wrap.innerHTML = '<div class="snip-empty">该板块还没有命令，点击「＋ 快捷命令」添加</div>';
       return;
     }
+    // 按钮固定宽度，只显示名称；完整命令放在 title 里，拖动可排序
     wrap.innerHTML = board.items
       .map(
-        (it) => `<div class="snip-item" data-id="${it.id}" title="${U.esc(it.command)}">
+        (it) => `<div class="snip-item${it.autoRun ? '' : ' manual'}" data-id="${it.id}" draggable="true" title="${U.esc(
+          it.command
+        )}">
           <span class="s-name">${U.esc(it.name)}</span>
-          <span class="s-cmd">${U.esc(it.command)}</span>
-          <span class="s-flag ${it.autoRun ? '' : 'manual'}">${it.autoRun ? '执行' : '填入'}</span>
         </div>`
       )
       .join('');
 
     wrap.querySelectorAll('.snip-item').forEach((item) => {
       item.addEventListener('click', () => {
+        if (dragId) return; // 拖动结束后的这次 click 不触发执行
         const data = board.items.find((x) => x.id === item.dataset.id);
         if (!data) return;
         Term.runSnippet(data.command, data.autoRun);
@@ -139,14 +143,7 @@ window.Snippets = (function () {
         U.ctxMenu(
           [
             { label: '立即执行', onClick: () => Term.runSnippet(data.command, true) },
-            {
-              label: '填入命令框',
-              onClick: () => {
-                const input = $('#cmd-input');
-                input.value = data.command;
-                input.focus();
-              }
-            },
+            { label: '填入命令编辑器', onClick: () => fillEditor(data.command) },
             { sep: true },
             { label: '编辑', onClick: () => openEditor(data) },
             {
@@ -159,7 +156,67 @@ window.Snippets = (function () {
           e.clientY
         );
       });
+
+      /* ---- 拖动排序 ---- */
+      item.addEventListener('dragstart', (e) => {
+        dragId = item.dataset.id;
+        e.dataTransfer.effectAllowed = 'move';
+        try {
+          e.dataTransfer.setData('text/plain', dragId);
+        } catch (_) {}
+        setTimeout(() => item.classList.add('dragging'), 0);
+      });
+      item.addEventListener('dragend', () => {
+        dragId = null;
+        wrap.querySelectorAll('.snip-item').forEach((n) => n.classList.remove('dragging', 'drop-before', 'drop-after'));
+      });
+      item.addEventListener('dragover', (e) => {
+        if (!dragId || dragId === item.dataset.id) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        const r = item.getBoundingClientRect();
+        const after = e.clientX > r.left + r.width / 2;
+        item.classList.toggle('drop-after', after);
+        item.classList.toggle('drop-before', !after);
+      });
+      item.addEventListener('dragleave', () => item.classList.remove('drop-before', 'drop-after'));
+      item.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        const targetId = item.dataset.id;
+        item.classList.remove('drop-before', 'drop-after');
+        if (!dragId || dragId === targetId) return;
+        const r = item.getBoundingClientRect();
+        const after = e.clientX > r.left + r.width / 2;
+        const items = board.items.slice();
+        const from = items.findIndex((x) => x.id === dragId);
+        if (from < 0) return;
+        const [moved] = items.splice(from, 1);
+        let to = items.findIndex((x) => x.id === targetId);
+        if (to < 0) to = items.length;
+        if (after) to += 1;
+        items.splice(to, 0, moved);
+        board.items = items;
+        dragId = null;
+        await persist();
+        render();
+      });
     });
+  }
+
+  /** 把命令填进右下角命令编辑器（已有内容则另起一行，不覆盖手写内容） */
+  function fillEditor(command) {
+    const ta = $('#editor-text');
+    if (!ta) return U.toast('找不到命令编辑器，请先在设置里显示它', 'error');
+    const text = String(command || '');
+    const cur = String(ta.value || '');
+    if (!cur.trim()) ta.value = text;
+    else if (cur.endsWith('\n')) ta.value = cur + text;
+    else ta.value = cur + '\n' + text;
+    ta.focus();
+    try {
+      ta.setSelectionRange(ta.value.length, ta.value.length);
+    } catch (_) {}
+    U.toast('已填入命令编辑器', 'ok', 1400);
   }
 
   function sendEditor() {

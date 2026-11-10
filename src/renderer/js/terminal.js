@@ -294,15 +294,22 @@ window.Term = (function () {
     </div>`;
   }
 
-  /** 配置里缺少凭据时返回提示文案（用于连接前弹窗） */
-  function missingCredential(cfg) {
+  /**
+   * 配置里缺少凭据时返回提示文案（用于连接前弹窗）
+   * opts 里带 authType 时以本次选择的登录方式为准：
+   * 例如配置存的是空密码，但在凭据浮窗里改用密钥重连，就不该再提示“没有保存密码”。
+   */
+  function missingCredential(cfg, opts) {
     if (!cfg) return '';
-    if (cfg.authType === 'key') {
-      if (!cfg.keyId && !cfg.hasPrivateKey && !cfg.keyPath) return '该服务器还没有保存私钥';
-      return '';
+    const authType = (opts && opts.authType) || cfg.authType;
+    if (authType === 'key') {
+      const has =
+        (opts && (opts.keyId || opts.privateKey || opts.passphrase || opts.keyPath)) ||
+        cfg.keyId || cfg.hasPrivateKey || cfg.keyPath;
+      return has ? '' : '该服务器还没有可用密钥';
     }
-    if (!cfg.hasPassword) return '该服务器还没有保存登录密码';
-    return '';
+    const hasPass = (opts && opts.password) || cfg.hasPassword;
+    return hasPass ? '' : '该服务器还没有保存登录密码';
   }
 
   async function connect(configId, opts, beforeId) {
@@ -310,8 +317,9 @@ window.Term = (function () {
     if (!cfg) return U.toast('配置不存在', 'error');
 
     // 密码 / 私钥为空：直接弹凭据输入框，不去建一个必然失败的标签
-    const hasCred = !!(opts && (opts.password || opts.privateKey || opts.passphrase));
-    const missing = missingCredential(cfg);
+    // 本次调用自带凭据（含从密钥库选中的 keyId）时不拦，直接尝试连接
+    const hasCred = !!(opts && (opts.password || opts.privateKey || opts.passphrase || opts.keyId));
+    const missing = missingCredential(cfg, opts);
     if (missing && !hasCred && window.AuthPrompt) {
       AuthPrompt.open({ configId: cfg.id, reason: missing + '，请先输入后再连接。' });
       return null;

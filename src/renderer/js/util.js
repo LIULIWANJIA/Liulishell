@@ -79,12 +79,21 @@ window.U = (function () {
     cancelBtn.textContent = opts.cancelText || '取消';
     cancelBtn.style.display = opts.hideCancel ? 'none' : '';
     qs('#modal').style.width = opts.width || '520px';
+    // 弹窗可能在设置面板（z 140）、凭据浮窗等更高层之上打开，
+    // 固定 z-index:100 会被遮住导致控件点不到，这里按当前最上层动态抬高
+    let base = 100;
+    document.querySelectorAll('#settings-mask.show, #sub-mask.show, #ap-backdrop.show, .fe-mask.show, .fav-overlay.show').forEach((m) => {
+      const z = parseInt(getComputedStyle(m).zIndex, 10) || 0;
+      if (z > base) base = z;
+    });
+    mask.style.zIndex = String(base + 20);
     mask.classList.add('show');
 
     return new Promise((resolve) => {
       modalResolver = resolve;
       const finish = (value, ok) => {
         mask.classList.remove('show');
+        mask.style.zIndex = '';
         modalResolver = null;
         okBtn.disabled = false;
         resolve(ok ? value : null);

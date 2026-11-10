@@ -254,7 +254,7 @@
         const w = U.clamp(window.innerWidth - e.clientX, 226, Math.min(380, window.innerWidth * 0.5));
         root.style.setProperty('--right-w', w + 'px');
       } else if (mode === 'bottom') {
-        const h = U.clamp(window.innerHeight - e.clientY, 90, window.innerHeight - 220);
+        const h = U.clamp(window.innerHeight - e.clientY, 120, window.innerHeight - 150);
         root.style.setProperty('--bottom-h', h + 'px');
         $('#bottom-pane').classList.remove('collapsed');
         $('#btn-collapse-bottom').textContent = '▾';
@@ -285,7 +285,7 @@
     bind($('#split-h'), 'bottom');
 
     $('#split-h').addEventListener('dblclick', () => {
-      root.style.setProperty('--bottom-h', '280px');
+      root.style.setProperty('--bottom-h', '360px');
       $('#bottom-pane').classList.remove('collapsed');
       $('#btn-collapse-bottom').textContent = '▾';
       saveLayout();
@@ -296,7 +296,7 @@
     window.addEventListener('mouseup', onUp);
   }
 
-  const LAYOUT_VERSION = 4;
+  const LAYOUT_VERSION = 5;
 
   function saveLayout() {
     const root = getComputedStyle(document.documentElement);
@@ -304,7 +304,7 @@
       v: LAYOUT_VERSION,
       leftW: parseInt(root.getPropertyValue('--left-w'), 10) || 214,
       rightW: parseInt(root.getPropertyValue('--right-w'), 10) || 252,
-      bottomH: parseInt(root.getPropertyValue('--bottom-h'), 10) || 280,
+      bottomH: parseInt(root.getPropertyValue('--bottom-h'), 10) || 360,
       infoHidden: $('#app').classList.contains('info-hidden'),
       bottomCollapsed: $('#bottom-pane').classList.contains('collapsed')
     };
@@ -322,9 +322,12 @@
       $('#app').classList.remove('info-hidden');
       if (window.Settings) Settings.setPanel('rightInfo', true);
     }
-    if (!fresh && l.leftW) root.style.setProperty('--left-w', U.clamp(l.leftW, 190, 320) + 'px');
-    if (!fresh && l.rightW) root.style.setProperty('--right-w', U.clamp(l.rightW, 226, 380) + 'px');
-    if (!fresh && l.bottomH) root.style.setProperty('--bottom-h', U.clamp(l.bottomH, 90, window.innerHeight - 220) + 'px');
+    if (l.leftW) root.style.setProperty('--left-w', U.clamp(l.leftW, 190, 320) + 'px');
+    if (l.rightW) root.style.setProperty('--right-w', U.clamp(l.rightW, 226, 380) + 'px');
+    // 版本变更时不再沿用旧高度，改用新的默认高度
+    if (!fresh && l.bottomH) {
+      root.style.setProperty('--bottom-h', U.clamp(l.bottomH, 120, window.innerHeight - 150) + 'px');
+    }
     if (l.bottomCollapsed) {
       $('#bottom-pane').classList.add('collapsed');
       $('#app').classList.add('bottom-collapsed');

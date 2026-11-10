@@ -288,14 +288,14 @@ window.Connections = (function () {
       head.addEventListener('click', toggle);
       head.addEventListener('contextmenu', (e) => {
         e.preventDefault();
-        const ids = descendantIds(tree, gid);
-        const items = conns.filter((c) => ids.has(c.group));
+        // 只连接「本分组」下的配置，不包含子分组里的服务器
+        const items = conns.filter((c) => c.group === gid);
         U.ctxMenu(
           [
             {
-              label: `连接全部（${items.length}）`,
+              label: `连接本组服务器（${items.length}）`,
               onClick: () => {
-                if (!items.length) return U.toast('该分组下没有连接', 'info');
+                if (!items.length) return U.toast('该分组下没有服务器配置', 'info');
                 items.forEach((c) => Term.connect(c.id));
               }
             },
@@ -426,8 +426,9 @@ window.Connections = (function () {
       <div id="auth-password" class="${isKey ? 'hidden' : ''}">
         <div class="form-row"><div class="field"><label>密码</label>
           <input id="f-password" type="password" autocomplete="new-password" placeholder="${
-            conn && conn.hasPassword ? '已保存，留空表示不修改' : '登录密码'
+            conn && conn.hasPassword ? '已保存，留空表示不修改' : '可留空，连接时再输入'
           }">
+          <div class="field-hint">允许留空保存：连接时会弹出凭据浮窗，输入后可直接选择是否写回配置。</div>
         </div></div>
       </div>
       <div id="auth-key" class="${isKey ? '' : 'hidden'}">
@@ -501,8 +502,8 @@ window.Connections = (function () {
 
         if (authType === 'password') {
           const pwd = $('#f-password').value;
+          // 允许空密码保存：留空即表示“还没有凭据”，连接时会弹浮窗补输入
           if (pwd) payload.password = pwd;
-          if (!isEdit && !pwd) throw new Error('请填写登录密码');
         } else {
           const keyId = $('#f-key-sel').value;
           const keyText = $('#f-key').value.trim();
@@ -514,9 +515,6 @@ window.Connections = (function () {
             if (pickedKeyPath) payload.keyPath = pickedKeyPath;
             if (keyText) payload.privateKey = keyText;
             if (passphrase) payload.passphrase = passphrase;
-            if (!isEdit && !keyText && !pickedKeyPath) {
-              throw new Error('请从密钥库选择密钥，或粘贴私钥内容 / 选择私钥文件');
-            }
           }
         }
 
