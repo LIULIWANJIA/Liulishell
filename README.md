@@ -1,12 +1,16 @@
+<div align="center">
+
 # LIULI Shell
 
-> **开源、易用、免费、跨平台** 的 SSH 终端与服务器管理工具
+<img src="https://shell.minecft.cn/assets/icon.png" width="120" alt="LIULI Shell LOGO" />
 
-![LOGO](https://shell.minecft.cn/assets/icon.png)
+> **开源、易用、免费、跨平台** 的 SSH 终端与服务器管理工具
 
 [官网](https://shell.minecft.cn) · [GitHub 仓库](https://github.com/LIULIWANJIA/Liulishell) · [Gitee 仓库](https://gitee.com/liuliwanjiaweb/liuli-shell) · [发行版下载](#发行版下载)
 
 当前版本：**v1.14.1** | Windows · Linux · macOS
+
+</div>
 
 ---
 
@@ -125,4 +129,8 @@ npm run dist:mac        # x64 + arm64 一起产出 .dmg / .zip
 
 ---
 
+<div align="center">
+
 **LIULIWANJIA 官方正版 Liulishell** · [官网](https://shell.minecft.cn) · [GitHub](https://github.com/LIULIWANJIA/Liulishell) · [Gitee](https://gitee.com/liuliwanjiaweb/liuli-shell)
+
+</div>
