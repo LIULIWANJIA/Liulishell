@@ -137,6 +137,71 @@
   .card h3 { margin: 0 0 7px; font-size: 14px; }
   .card p { margin: 0; color: var(--text-2); font-size: 12px; line-height: 1.75; }
 
+  /* FinalShell 迁移专题 */
+  .migrate { background: linear-gradient(180deg, rgba(230, 239, 236, .6), rgba(255, 255, 255, 0)); }
+  .migrate-grid { display: grid; grid-template-columns: 1fr 1.04fr; gap: 34px; align-items: center; }
+  .migrate-copy h2 { margin: 12px 0 12px; font-size: clamp(24px, 2.8vw, 34px); letter-spacing: -.8px; line-height: 1.2; }
+  .migrate-copy .lead2 { margin: 0 0 20px; color: var(--text-2); font-size: 13px; line-height: 1.85; }
+  .migrate-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 13px; }
+  .migrate-list li { display: flex; gap: 12px; align-items: flex-start; }
+  .mk {
+    flex: 0 0 auto; width: 26px; height: 26px; border-radius: 8px;
+    background: var(--accent-soft); color: var(--accent);
+    display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700;
+  }
+  .migrate-list b { display: block; font-size: 12.5px; margin-bottom: 2px; }
+  .migrate-list span { display: block; font-size: 11.5px; color: var(--text-2); line-height: 1.7; }
+  .migrate-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 24px; }
+  .migrate-step { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 13px 15px; }
+  .migrate-step i {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 20px; height: 20px; border-radius: 6px; margin-bottom: 9px;
+    background: var(--accent); color: #fff; font-size: 10.5px; font-style: normal; font-weight: 700;
+  }
+  .migrate-step b { display: block; font-size: 12px; margin-bottom: 3px; }
+  .migrate-step span { font-size: 10.5px; color: var(--muted); line-height: 1.6; }
+
+  /* 导入窗口示意（纯 HTML/CSS，非截图） */
+  .mock-win {
+    background: var(--panel); border: 1px solid var(--line-strong);
+    border-radius: 16px; overflow: hidden; box-shadow: var(--shadow);
+  }
+  .mock-bar {
+    height: 34px; display: flex; align-items: center; gap: 6px; padding: 0 12px;
+    background: var(--panel-2); border-bottom: 1px solid var(--line);
+    color: var(--muted); font-size: 10.5px;
+  }
+  .mock-body { padding: 18px; }
+  .mock-body h3 { margin: 0 0 4px; font-size: 15px; }
+  .mock-sub { margin: 0 0 14px; color: var(--muted); font-size: 10.5px; line-height: 1.6; }
+  .mock-drop {
+    border: 1.5px dashed var(--line-strong); border-radius: 10px;
+    background: var(--panel-2); padding: 16px 12px; text-align: center;
+  }
+  .mock-drop b { display: block; font-size: 12px; margin-bottom: 3px; }
+  .mock-drop span { font-size: 10.5px; color: var(--muted); }
+  .mock-btns { display: flex; gap: 8px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
+  .mock-chip {
+    display: inline-flex; align-items: center; height: 27px; padding: 0 11px;
+    border-radius: 7px; border: 1px solid var(--line-strong);
+    background: var(--panel); font-size: 10.5px; color: var(--text-2); white-space: nowrap;
+  }
+  .mock-chip.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+  .mock-plan {
+    margin-top: 14px; padding: 10px 12px; border-radius: 9px;
+    background: var(--accent-soft); color: #1d4b43; font-size: 10.5px; line-height: 1.7;
+  }
+  .mock-plan b { color: var(--accent); }
+  .mock-row { margin-top: 12px; display: flex; align-items: center; gap: 8px; font-size: 10.5px; color: var(--text-2); }
+  .mock-row label { flex: 0 0 auto; color: var(--muted); }
+  .mock-sel {
+    flex: 1 1 auto; min-width: 0; padding: 6px 9px; border: 1px solid var(--line-strong);
+    border-radius: 7px; background: var(--panel); font-size: 10.5px; color: var(--text-2);
+  }
+  .mock-foot { margin-top: 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .mock-result { font-size: 10.5px; color: var(--ok); line-height: 1.6; }
+  .mock-note { margin: 10px 0 0; color: var(--muted); font-size: 10px; line-height: 1.7; }
+
   /* 主界面展示 */
   .shot-hero { display: grid; grid-template-columns: 1.5fr .5fr; gap: 14px; align-items: stretch; }
   .shot-frame {
@@ -305,9 +370,11 @@
 
   @media (max-width: 980px) {
     .hero-grid, .download-grid, .shot-hero, .shot-row, .theme-show,
-    .settings-layout, .dev-grid { grid-template-columns: 1fr; }
+    .settings-layout, .dev-grid, .migrate-grid { grid-template-columns: 1fr; }
     .grid { grid-template-columns: repeat(2, 1fr); }
     .stats { grid-template-columns: repeat(2, 1fr); }
+    .migrate-grid { gap: 22px; }
+    .mock-win { max-width: 620px; }
     .window { transform: none; }
     .theme-tabs { flex-direction: row; overflow-x: auto; padding-bottom: 4px; }
     .theme-tab { min-width: 150px; }
@@ -332,7 +399,9 @@
   }
   @media (max-width: 620px) {
     .wrap { width: calc(100% - 28px); }
-    .grid, .settings-grid { grid-template-columns: 1fr; }
+    .grid, .settings-grid, .migrate-steps { grid-template-columns: 1fr; }
+    .migrate-steps { gap: 9px; }
+    .mock-body { padding: 14px; }
     .hero { padding-top: 42px; }
     .hero-actions .btn { flex: 1 1 auto; }
     .topbar-inner { gap: 8px; }
@@ -361,6 +430,7 @@
       <nav class="nav" id="site-nav">
         <a href="#download">下载</a>
         <a href="#dev">快速构建</a>
+        <a href="#migrate">FinalShell 导入</a>
         <a href="#features">功能</a>
         <a href="#shots">界面</a>
         <a href="#settings">设定</a>
@@ -520,6 +590,90 @@ npx electron-builder --mac dmg zip --arm64    <span class="c-cm"># 只打 Apple 
         <div class="source-note">
           <div><b>Gitee 源码地址</b> <code>https://gitee.com/liuliwanjiaweb/liuli-shell</code></div>
           <p>克隆地址：<code>https://gitee.com/liuliwanjiaweb/liuli-shell.git</code>。国内网络访问 Gitee 更快；遇到 Electron 下载慢时再配合镜像变量即可。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FinalShell 配置导入（独立专题板块） ============ -->
+    <section class="migrate" id="migrate">
+      <div class="wrap">
+        <div class="migrate-grid">
+          <div class="migrate-copy">
+            <div class="kicker">Migration · 从 FinalShell 平滑迁移</div>
+            <h2>换工具，服务器配置不用重敲</h2>
+            <p class="lead2">
+              之前在 FinalShell 里攒了几十上百台机器？把 JSON 配置或整个配置文件夹拖进来，
+              LIULI Shell 会读回主机、端口、用户名和密码，按原来的目录层级重建分组。一次导入，旧机器平滑过渡。
+            </p>
+            <ul class="migrate-list">
+              <li>
+                <span class="mk">1</span>
+                <div><b>密码自动解密并重新加密保存</b><span>识别 FinalShell 的加密密码字段，导入后按本软件的加密方式落盘；个别解不开的会留空并明确提示，不会静默丢失。</span></div>
+              </li>
+              <li>
+                <span class="mk">2</span>
+                <div><b>目录层级原样还原，最多三级</b><span>文件夹为一级、子文件夹二级、孙文件夹三级；更深的目录自动归入对应的一级分组，不会把服务器列表撑成一条长链。</span></div>
+              </li>
+              <li>
+                <span class="mk">3</span>
+                <div><b>先预览统计，再决定是否导入</b><span>选择来源后立刻算出「预计新建多少一级 / 二级 / 三级分组、共多少台配置」，确认无误再点开始导入；重复配置自动跳过。</span></div>
+              </li>
+              <li>
+                <span class="mk">4</span>
+                <div><b>导入失败也不动原有数据</b><span>可指定目标分组，不选则自动建「FinalShell 导入」分组；新分组默认折叠，导入结束即时刷新列表，失败不会清空已有配置。</span></div>
+              </li>
+            </ul>
+          </div>
+
+          <div class="mock-win" aria-label="导入 FinalShell 配置窗口示意">
+            <div class="mock-bar">
+              <span class="lights"><i></i><i></i><i></i></span>
+              导入 FinalShell 配置 · LIULI Shell
+            </div>
+            <div class="mock-body">
+              <h3>导入 FinalShell 配置</h3>
+              <p class="mock-sub">拖入文件即可，支持一次选择多个 JSON 或整个配置文件夹。</p>
+
+              <div class="mock-drop">
+                <b>拖入 JSON 文件或文件夹</b>
+                <span>也可以点击下面按钮选择</span>
+                <div class="mock-btns">
+                  <span class="mock-chip primary">选择 JSON 文件</span>
+                  <span class="mock-chip">选择文件夹</span>
+                </div>
+              </div>
+
+              <div class="mock-plan">
+                预计：创建 <b>2</b> 个新一级分组　<b>3</b> 个新二级分组　<b>1</b> 个新三级分组　共 <b>14</b> 个服务器配置
+              </div>
+
+              <div class="mock-row">
+                <label>目标分组</label>
+                <span class="mock-sel">自动：FinalShell 导入（直接 JSON）</span>
+              </div>
+              <p class="mock-note">文件夹按层级自动创建分组（最多三级），三级以下文件夹内的 JSON 归入对应的一级分组，不受目标分组影响。</p>
+
+              <div class="mock-foot">
+                <span class="mock-chip primary">开始导入</span>
+                <span class="mock-result">导入完成：新增 14，跳过 2 个重复 · 新建分组：一级 2 / 二级 3 / 三级 1</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="migrate-steps">
+          <div class="migrate-step">
+            <i>1</i><b>选择来源</b>
+            <span>拖入或选择多个 FinalShell JSON，也可以直接选整个配置文件夹批量导入。</span>
+          </div>
+          <div class="migrate-step">
+            <i>2</i><b>查看导入计划</b>
+            <span>自动识别配置、解密密码，统计将新建的一级 / 二级 / 三级分组与配置总数。</span>
+          </div>
+          <div class="migrate-step">
+            <i>3</i><b>一键导入</b>
+            <span>指定目标分组或自动建组，去重落库、即时刷新，新分组默认折叠不打断当前工作。</span>
+          </div>
         </div>
       </div>
     </section>
