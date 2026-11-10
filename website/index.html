@@ -235,7 +235,10 @@
   .setting-card strong { color: var(--text); font-weight: 600; }
 
   /* 主题预览切换 */
-  .theme-show { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 14px; align-items: start; margin-top: 20px; }
+  .theme-head { margin-top: 26px; margin-bottom: 14px; }
+  .theme-head h3 { margin: 6px 0 5px; font-size: 17px; letter-spacing: -.3px; }
+  .theme-head p { margin: 0; color: var(--text-2); font-size: 12px; line-height: 1.7; }
+  .theme-show { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 14px; align-items: start; margin-top: 0; }
   .theme-tabs { display: flex; flex-direction: column; gap: 8px; }
   .theme-tab {
     display: flex; flex-direction: column; gap: 3px; text-align: left; width: 100%;
@@ -436,7 +439,7 @@
         <a href="#settings">设定</a>
         <a href="#manual">手动打包</a>
       </nav>
-      <a class="btn primary" href="https://pan.quark.cn/s/3b9930496416?pwd=YKXY" target="_blank" rel="noopener noreferrer">下载 v1.13.8 <span class="ext">↗</span></a>
+      <a class="btn primary" href="https://pan.quark.cn/s/3b9930496416?pwd=YKXY" target="_blank" rel="noopener noreferrer">下载 v1.13.9 <span class="ext">↗</span></a>
       <button class="nav-toggle" id="nav-toggle" type="button" aria-label="打开菜单" aria-expanded="false">
         <i></i><i></i><i></i>
       </button>
@@ -461,7 +464,7 @@
               <a class="btn big" href="#dev">源码快速构建</a>
             </div>
             <div class="meta">
-              <span><i></i>v1.13.8</span>
+              <span><i></i>v1.13.9</span>
               <span>Windows 10 / 11 x64</span>
               <span>便携版免安装 · 优先推荐</span>
               <span>升级保留配置</span>
@@ -478,7 +481,7 @@
         <div class="stats">
           <div class="stat"><b>3 栏</b><span>服务器 · 终端 · 监控</span></div>
           <div class="stat"><b>SFTP</b><span>快速文件管理器 + 编辑器</span></div>
-          <div class="stat"><b>5 套</b><span>主题，终端同步换色</span></div>
+          <div class="stat"><b>8 套</b><span>主题，终端同步换色</span></div>
           <div class="stat"><b>WebDAV</b><span>加密同步与双向合并</span></div>
         </div>
       </div>
@@ -491,7 +494,7 @@
           <div>
             <div class="kicker">Download</div>
             <h2>下载 LIULI Shell</h2>
-            <p>当前版本 v1.13.8 · Windows 10 / 11 x64。<b>优先提供便携版</b>：无需安装，双击即用；安装版走夸克网盘。所有下载链接均在新窗口打开。</p>
+            <p>当前版本 v1.13.9 · Windows 10 / 11 x64。<b>优先提供便携版</b>：无需安装，双击即用；安装版走夸克网盘。所有下载链接均在新窗口打开。</p>
           </div>
         </div>
         <div class="download-grid">
@@ -505,7 +508,7 @@
           <div class="download-card">
             <span class="tag ghost">安装向导</span>
             <h3>Windows 安装版</h3>
-            <p>安装向导可选择目录，默认 D:\LIULISHELL；检测到旧版本时按钮变为「升级」，保留已有配置数据，并自动创建桌面图标。</p>
+            <p>安装向导可选择目录，默认 D:\LIULISHELL；自选目录会自动补上 LIULISHELL 子文件夹（例如选 D:\Win64EXE 实际装到 D:\Win64EXE\LIULISHELL），避免装进其他软件所在目录；检测到旧版本时按钮变为「升级」，保留已有配置数据，并自动创建桌面图标。</p>
             <a class="btn" href="https://pan.quark.cn/s/3b9930496416?pwd=YKXY" target="_blank" rel="noopener noreferrer">夸克网盘下载 <span class="ext">↗</span></a>
             <div class="filemeta">Windows 10 / 11 x64 · Setup.exe · 约 102 MB<br />提取码 YKXY（链接已带，无需手动填写）</div>
           </div>
@@ -788,7 +791,7 @@ npx electron-builder --mac dmg zip --arm64    <span class="c-cm"># 只打 Apple 
             <article class="setting-card">
               <h3>外观与布局</h3>
               <ul>
-                <li>5 套主题，<strong>终端 ANSI 色板同步换色</strong></li>
+                <li>8 套主题（含 2 套暗色），<strong>终端 ANSI 色板同步换色</strong></li>
                 <li>可设置背景图并自动压缩、面板半透明</li>
                 <li>三栏宽度与底部高度可拖动并记忆</li>
                 <li>板块显示开关：不用的栏目随手收起</li>
@@ -839,6 +842,12 @@ npx electron-builder --mac dmg zip --arm64    <span class="c-cm"># 只打 Apple 
           </div>
         </div>
 
+        <div class="theme-head">
+          <div class="kicker">Themes</div>
+          <h3>8 套主题配色，切换即时生效</h3>
+          <p>浅色 6 套、暗色 2 套；点击左侧名称预览大图，终端背景与文字色板会一起换色。</p>
+        </div>
+
         <div class="theme-show">
           <div class="theme-tabs" id="theme-tabs" role="tablist">
             <button class="theme-tab active" type="button" role="tab" data-img="assets/theme-warm.png" data-title="暖白 · 墨绿" data-note="默认 · 低对比护眼">
@@ -855,6 +864,15 @@ npx electron-builder --mac dmg zip --arm64    <span class="c-cm"># 只打 Apple 
             </button>
             <button class="theme-tab" type="button" role="tab" data-img="assets/theme-night.png" data-title="夜间 · 深墨" data-note="暗色界面">
               <b>夜间 · 深墨</b><span>暗色界面</span><i class="swatch" style="background:linear-gradient(90deg,#171c22 0 55%,#5fc2b0 55% 75%,#8ad9cb 75% 100%)"></i>
+            </button>
+            <button class="theme-tab" type="button" role="tab" data-img="assets/theme-rose.png" data-title="藕粉 · 莓紫" data-note="柔和暖紫">
+              <b>藕粉 · 莓紫</b><span>柔和暖紫</span><i class="swatch" style="background:linear-gradient(90deg,#fbf5f8 0 55%,#a04a86 55% 75%,#c477ad 75% 100%)"></i>
+            </button>
+            <button class="theme-tab" type="button" role="tab" data-img="assets/theme-celadon.png" data-title="青瓷 · 松绿" data-note="淡雅青绿">
+              <b>青瓷 · 松绿</b><span>淡雅青绿</span><i class="swatch" style="background:linear-gradient(90deg,#f1f7f3 0 55%,#3f7d5f 55% 75%,#6ba587 75% 100%)"></i>
+            </button>
+            <button class="theme-tab" type="button" role="tab" data-img="assets/theme-ocean.png" data-title="深海 · 靛蓝" data-note="暗色蓝调">
+              <b>深海 · 靛蓝</b><span>暗色蓝调</span><i class="swatch" style="background:linear-gradient(90deg,#101820 0 55%,#5aa9e6 55% 75%,#8bc7f2 75% 100%)"></i>
             </button>
           </div>
           <figure class="theme-preview">
@@ -1024,7 +1042,7 @@ spctl --assess --type execute -vv "/Applications/LIULI Shell.app"   # 查看拦�
 
               <h3 style="margin-top:18px">通用说明</h3>
               <ul>
-                <li><b>构建目录：</b>所有产物默认输出到项目根目录 <code>dist/</code>。Linux 为 <code>LIULI-Shell-1.13.8-x86_64.AppImage</code> / <code>.deb</code> / <code>.tar.gz</code>，macOS 为 <code>.dmg</code> / <code>.zip</code>。</li>
+                <li><b>构建目录：</b>所有产物默认输出到项目根目录 <code>dist/</code>。Linux 为 <code>LIULI-Shell-1.13.9-x86_64.AppImage</code> / <code>.deb</code> / <code>.tar.gz</code>，macOS 为 <code>.dmg</code> / <code>.zip</code>。</li>
                 <li><b>打包前必做：</b><code>npm run vendor</code> 会把 xterm.js 等前端资源复制到 <code>src/renderer/vendor/</code>，缺少这一步打出来的包终端会是空白。</li>
                 <li><b>选构建机：</b>AppImage 只能跑在 glibc 不低于构建机的系统上。要在 20.04 ~ 26.04 通用，就在最老的 Ubuntu 20.04 上构建；只给自己用则本机构建最快。</li>
                 <li><b>交叉构建：</b>Linux 包在 Linux 构建、macOS 包必须在 macOS 构建，两者产物互不通用；Windows 包同理。推荐用对应系统的 CI（如 <code>ubuntu-22.04</code>、<code>macos-14</code> runner）出包。</li>
@@ -1043,7 +1061,7 @@ spctl --assess --type execute -vv "/Applications/LIULI Shell.app"   # 查看拦�
         <img src="assets/icon.png" alt="LIULI Shell" />
         <span>LIULI Shell<small>by LIULIWANJIA</small></span>
       </div>
-      <div>跨平台 SHELL 工具 · 人性化的 · 更易用的 · v1.13.8</div>
+      <div>跨平台 SHELL 工具 · 人性化的 · 更易用的 · v1.13.9</div>
     </div>
   </footer>
 

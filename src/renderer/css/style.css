@@ -28,6 +28,8 @@
   --bottom-h: 360px;
   --radius: 8px;
   --left-foot-h: 24px;
+  /* 命令输入栏固定高度：左栏监控区用它算顶部对齐，输入框在其中垂直居中 */
+  --cmd-bar-h: 52px;
 }
 
 * { box-sizing: border-box; }
@@ -312,10 +314,12 @@ body.theme-dark .group.lv1.open > .group-head:hover { background: rgba(var(--acc
 .ci-state { width: 6px; height: 6px; border-radius: 50%; flex: 0 0 auto; background: transparent; }
 .conn-item.online .ci-state { background: var(--ok); box-shadow: 0 0 0 3px var(--accent-soft); }
 
-/* 左下监控区：顶部与命令输入栏顶部对齐；分区过多时用下拉框，不挤压服务器列表 */
+/* 左下监控区：顶边与命令输入栏顶边精确对齐。
+ * 两者都以视口底部为基准：监控区下方只有 left-foot，命令栏下方是 bottom-pane + 分隔条。
+ * 分隔条不占布局高度，所以监控区高度 = bottom-h + cmd-bar-h - left-foot-h。 */
 .left-monitors {
   flex: 0 0 auto;
-  height: calc(var(--bottom-h) + 53px - var(--left-foot-h));
+  height: calc(var(--bottom-h) + var(--cmd-bar-h) - var(--left-foot-h));
   min-height: 220px; max-height: none;
   overflow: hidden;
   padding: 6px 8px 4px; border-top: 1px solid var(--line);
@@ -348,8 +352,12 @@ body.theme-dark .group.lv1.open > .group-head:hover { background: rgba(var(--acc
 .splitter.v { width: 1px; cursor: col-resize; }
 .splitter.v::after { content: ""; position: absolute; top: 0; bottom: 0; left: -4px; right: -4px; }
 .splitter.v:hover, .splitter.v.dragging { background: var(--accent); }
-.splitter.h { height: 8px; cursor: row-resize; background: transparent; }
-.splitter.h::after { content: ""; position: absolute; left: 0; right: 0; top: -4px; bottom: -4px; }
+/* 水平分隔条：只保留透明拖拽热区，不占布局高度。
+ * 与命令编辑器把手（.ce-resize）一致：靠 ::after 向上下各扩 4px 保证命中面积，
+ * 若给它真实高度，会挤开下方命令栏 / 左侧监控区的水平对齐与上下边距。 */
+.splitter.h { height: 0; cursor: row-resize; background: transparent; z-index: 32; }
+/* 热区偏向上方：命令栏底部有 9px 空白，向下只探入标签栏 2px，避免挡住按钮 */
+.splitter.h::after { content: ""; position: absolute; left: 0; right: 0; top: -6px; bottom: -2px; }
 .splitter.h:hover, .splitter.h.dragging { background: transparent; }
 body.resizing { user-select: none; cursor: grabbing; }
 
@@ -418,7 +426,13 @@ body.resizing { user-select: none; cursor: grabbing; }
 .empty-title { font-size: 13px; color: var(--term-fg); }
 .empty-sub { font-size: 11.5px; color: var(--term-muted); }
 
-.cmd-bar { position: relative; z-index: 31; flex: 0 0 auto; display: flex; align-items: center; gap: 8px; padding: 9px 11px; background: var(--panel); border-top: 1px solid var(--line); }
+/* 命令输入栏：固定高度 + 垂直居中，输入框上下留白严格相等。
+ * 顶部分隔线用 inset 阴影绘制，不占布局高度，避免 border 让上下差 1px。 */
+.cmd-bar {
+  position: relative; z-index: 31; flex: 0 0 auto; height: var(--cmd-bar-h);
+  display: flex; align-items: center; gap: 8px; padding: 0 11px;
+  background: var(--panel); box-shadow: inset 0 1px 0 var(--line);
+}
 .cmd-caret { color: var(--accent); font-family: var(--font-mono); font-weight: 700; font-size: 16px; }
 .cmd-bar #cmd-input {
   flex: 1 1 auto; height: 34px; font-family: var(--font-mono);

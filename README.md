@@ -1,7 +1,7 @@
 # LIULI Shell
 
 > **更易用的跨平台 SHELL 终端** · 作者 **LIULIWANJIA** · by LIULIWANJIA
-> 官网：<https://shell.minecft.cn>　|　源码：<https://gitee.com/liuliwanjiaweb/liuli-shell>　|　当前版本 **v1.13.8**
+> 官网：<https://shell.minecft.cn>　|　源码：<https://gitee.com/liuliwanjiaweb/liuli-shell>　|　当前版本 **v1.13.9**
 
 LIULI Shell 是一款跨平台 SSH 终端与服务器管理工具（Windows / Linux / macOS），界面参考 FinalShell，把日常运维需要的东西放进同一个三栏窗口：
 
@@ -9,7 +9,7 @@ LIULI Shell 是一款跨平台 SSH 终端与服务器管理工具（Windows / Li
 - **快速文件管理器**：SFTP 目录树 + 文件列表 + 独立文本编辑器，终端 `cd` 自动跟随，支持拖拽上传与整目录下载
 - **实时状态监控**：CPU、内存、Swap、磁盘、网卡速率与进程预览，量程自适应
 - **WebDAV 加密云同步**：配置、分组、收藏双向合并，加密上传，多设备不丢改动
-- **FinalShell 配置导入**、下载管理器、5 套主题、界面缩放、快捷命令板块
+- **FinalShell 配置导入**、下载管理器、8 套主题（含 2 套暗色）、界面缩放、快捷命令板块
 
 技术栈：Electron + xterm.js + ssh2（原生 SFTP 与 shell channel，无外部命令依赖）。
 
@@ -27,12 +27,13 @@ LIULI Shell 是一款跨平台 SSH 终端与服务器管理工具（Windows / Li
 
 | 版本 | 下载地址 | 说明 |
 | --- | --- | --- |
-| **便携版（推荐）** | [Gitee Releases](https://gitee.com/liuliwanjiaweb/liuli-shell/releases) | `LIULI Shell 1.13.8 Portable.exe` · 约 93 MB · 免安装 |
-| **安装版** | [夸克网盘](https://pan.quark.cn/s/3b9930496416?pwd=YKXY)（提取码 `YKXY`） | `LIULI Shell Setup 1.13.8.exe` · 约 102 MB · NSIS 安装向导 |
+| **便携版（推荐）** | [Gitee Releases](https://gitee.com/liuliwanjiaweb/liuli-shell/releases) | `LIULI Shell 1.13.9 Portable.exe` · 约 93 MB · 免安装 |
+| **安装版** | [夸克网盘](https://pan.quark.cn/s/3b9930496416?pwd=YKXY)（提取码 `YKXY`） | `LIULI Shell Setup 1.13.9.exe` · 约 102 MB · NSIS 安装向导 |
 
 **安装与升级：**
 
-- 全新安装默认目录 `D:\LIULISHELL`（无 D 盘时为 `C:\Program Files\LIULI Shell`），向导中可自行修改，完成后自动创建桌面图标。
+- 全新安装默认目录 `D:\LIULISHELL`（无 D 盘时为 `C:\Program Files\LIULISHELL`），向导中可自行修改，完成后自动创建桌面图标。
+- **自选目录会自动补上 `LIULISHELL` 子文件夹**：例如选择 `D:\Win64EXE`，实际安装到 `D:\Win64EXE\LIULISHELL`，避免把程序直接装进其他软件所在的通用目录；若所选目录本身已以 `LIULISHELL` 结尾则不会再重复追加。升级 / 覆盖安装沿用原目录，不做追加。
 - 安装器读取注册表 `DisplayVersion`：检测到低版本 → 按钮变「升级」并沿用原目录；同版本询问是否覆盖；`/S` 静默安装不弹窗。升级前请先退出正在运行的实例。
 - **升级 / 重装 / 卸载都不会删除数据**：配置在 `%APPDATA%\LIULI Shell`（`liulishell-data.json` + 加密凭据），安装器只清理安装目录。
 - 便携版默认与安装版共用上述配置目录；若要完全随身携带，在便携版 exe 同级新建 `data` 文件夹即可。**便携版 exe 不要放进安装目录**（升级时会被整体替换）。
@@ -150,4 +151,4 @@ npm run dist:mac              # macOS：dmg + zip（x64 / arm64，需在 macOS �
 
 ---
 
-版本 **v1.13.8** · 作者 **LIULIWANJIA** · 跨平台 SHELL 工具 · 人性化的 · 更易用的
+版本 **v1.13.9** · 作者 **LIULIWANJIA** · 跨平台 SHELL 工具 · 人性化的 · 更易用的

@@ -5,6 +5,10 @@
 ;   1. 检查当前已安装版本（读卸载项的 DisplayVersion）
 ;   2. 升级时沿用已有安装目录，避免同一台机器出现两份安装
 ;   3. 升级 / 覆盖安装都不会触碰用户数据
+;   4. 全新安装时自动补上 LIULISHELL 子文件夹，避免直接装进用户选中的普通目录
+;      D:\LIULISHELL            -> 保持不变（默认）
+;      D:\Win64EXE              -> D:\Win64EXE\LIULISHELL
+;      D:\Win64EXE\LIULISHELL   -> 保持不变，不会变成 ...\LIULISHELL\LIULISHELL
 ;
 ; 数据位置：%APPDATA%\LIULI Shell（liulishell-data.json + 加密凭据）
 ;   - 安装器的 RMDir /r 只作用于安装目录 $INSTDIR
@@ -57,7 +61,7 @@ Var prevDir        ; 已安装目录
   ${ElseIf} ${FileExists} "D:\*.*"
     StrCpy $INSTDIR "D:\LIULISHELL"
   ${Else}
-    StrCpy $INSTDIR "$PROGRAMFILES64\LIULI Shell"
+    StrCpy $INSTDIR "$PROGRAMFILES64\LIULISHELL"
   ${EndIf}
 
   ; ---- 4. 版本比较 ----
@@ -98,11 +102,69 @@ Function dirPagePre
   ${EndIf}
 FunctionEnd
 
-; 安装页把「安装」按钮文案改成「升级」
+; 安装页把「安装」按钮文案改成「升级」，并在真正落盘前规范化安装目录
 Function instfilesUpgradePre
+  Call normalizeInstallDir
   ${If} $isUpgrade == "1"
     GetDlgItem $0 $HWNDPARENT 1
     SendMessage $0 ${WM_SETTEXT} 0 "STR:升级"
+  ${EndIf}
+FunctionEnd
+
+; ============================================================
+; 规范化安装目录：保证最后一级一定是 LIULISHELL
+;
+; 用户自己在目录选择页挑的往往是一个「通用文件夹」（例如 D:\Win64EXE），
+; 直接把程序装进去会污染那个目录、卸载时也容易误删别人的文件。
+; 因此只要路径末段不是 LIULISHELL，就自动补一级子文件夹。
+;
+;   D:\LIULISHELL            -> 不变（默认，已经是 LIULISHELL）
+;   D:\Win64EXE              -> D:\Win64EXE\LIULISHELL
+;   D:\Win64EXE\LIULISHELL   -> 不变（末段命中，绝不重复追加）
+;
+; 注意：升级 / 覆盖安装沿用注册表里的旧目录（$prevDir），不做任何追加，
+;       否则会在旧目录下面再套一层，产生第二份安装。
+; 判断「路径末段是否已是 LIULISHELL」：取末尾 11 个字符（\LIULISHELL 的长度）
+; 与 LIULISHELL 比较，大小写不敏感（NSIS 的 ${If} == 默认不区分大小写）。
+; 不用 StrContains：D:\LIULISHELL\Win64EXE 会被误判成「已包含」而漏追加。
+; 也不用 WordFind 取末段（其 -1 选项在含尾斜杠时行为不一致）。
+; ============================================================
+Function normalizeInstallDir
+  ${If} $prevDir != ""
+    Return
+  ${EndIf}
+  ${If} $INSTDIR == ""
+    Return
+  ${EndIf}
+
+  ; 去掉末尾的反斜杠（盘符根 D:\ 除外，避免变成 D:）
+  StrCpy $3 "$INSTDIR"
+  StrLen $4 "$3"
+  ${While} $4 > 3
+    StrCpy $5 "$3" 1 -1
+    ${If} $5 != "\"
+      ${Break}
+    ${EndIf}
+    IntOp $4 $4 - 1
+    StrCpy $3 "$3" $4
+  ${EndWhile}
+
+  ; -11 取末尾 11 字符 = "\LIULISHELL"；命中说明末级已是目标文件夹，绝不重复追加
+  StrCpy $5 "$3" 11 -11
+  ${If} $5 == "\LIULISHELL"
+    StrCpy $INSTDIR "$3"
+    Return
+  ${EndIf}
+  ${If} $3 == "LIULISHELL"
+    Return
+  ${EndIf}
+
+  ; 末段不是 LIULISHELL：补一级。盘符根自带反斜杠，不要拼出双反斜杠
+  StrCpy $5 "$3" 1 -1
+  ${If} $5 == "\"
+    StrCpy $INSTDIR "$3"LIULISHELL
+  ${Else}
+    StrCpy $INSTDIR "$3\LIULISHELL"
   ${EndIf}
 FunctionEnd
 

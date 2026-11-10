@@ -62,6 +62,39 @@ window.Settings = (function () {
         danger: '#f07171', 'danger-soft': '#3a2427', ok: '#4fc79d', warn: '#e3b45a', 'warn-soft': '#3a3020', 'term-bg': '#0d1116'
       },
       term: { bg: '#0d1116', fg: '#e2e8f0', cursor: '#5fc2b0', selection: '#2b3a3a', empty1: '#1d232b', muted: '#758394', accent: '#5fc2b0', dark: true }
+    },
+    {
+      id: 'rose', name: '藕粉 · 莓紫', note: '柔和暖紫',
+      vars: {
+        bg: '#fbf5f8', panel: '#ffffff', 'panel-2': '#fdf7fa', 'panel-3': '#f5eaf1',
+        line: '#eee0e9', 'line-strong': '#ddc6d6', text: '#2f2230', 'text-2': '#6d5b6c',
+        muted: '#9a8898', primary: '#4a2d47', 'primary-hover': '#2e182c',
+        accent: '#a04a86', 'accent-2': '#c477ad', 'accent-soft': '#f6e8f1', 'accent-rgb': '160, 74, 134',
+        danger: '#d9485f', 'danger-soft': '#fdeaee', ok: '#3b9a78', warn: '#d09023', 'warn-soft': '#fdf1da', 'term-bg': '#1d1420'
+      },
+      term: { bg: '#fdf7fa', fg: '#2f2230', cursor: '#a04a86', selection: '#f0dbe9', empty1: '#ffffff', muted: '#9a8898', accent: '#a04a86', dark: false }
+    },
+    {
+      id: 'celadon', name: '青瓷 · 松绿', note: '淡雅青绿',
+      vars: {
+        bg: '#f1f7f3', panel: '#ffffff', 'panel-2': '#f7fbf8', 'panel-3': '#e9f2ec',
+        line: '#dce9e0', 'line-strong': '#c4d8ca', text: '#1d2a23', 'text-2': '#52685b',
+        muted: '#879b8e', primary: '#22392e', 'primary-hover': '#11241a',
+        accent: '#3f7d5f', 'accent-2': '#6ba587', 'accent-soft': '#e5f2ea', 'accent-rgb': '63, 125, 95',
+        danger: '#d04a4a', 'danger-soft': '#fbeaea', ok: '#2f9a6b', warn: '#c18b1e', 'warn-soft': '#fbf1d8', 'term-bg': '#101d16'
+      },
+      term: { bg: '#f7fbf8', fg: '#1d2a23', cursor: '#3f7d5f', selection: '#d8ecdf', empty1: '#ffffff', muted: '#879b8e', accent: '#3f7d5f', dark: false }
+    },
+    {
+      id: 'ocean', name: '深海 · 靛蓝', note: '暗色蓝调', dark: true,
+      vars: {
+        bg: '#101820', panel: '#192430', 'panel-2': '#1e2b39', 'panel-3': '#15202b',
+        line: '#2a3a4a', 'line-strong': '#3a4d60', text: '#e0eaf4', 'text-2': '#a6b8ca',
+        muted: '#72889e', primary: '#3e5f82', 'primary-hover': '#52769c',
+        accent: '#5aa9e6', 'accent-2': '#8bc7f2', 'accent-soft': '#22394f', 'accent-rgb': '90, 169, 230',
+        danger: '#ef7277', 'danger-soft': '#3a2529', ok: '#4cc19b', warn: '#e0b454', 'warn-soft': '#39301f', 'term-bg': '#0b1219'
+      },
+      term: { bg: '#0b1219', fg: '#e0eaf4', cursor: '#5aa9e6', selection: '#26425c', empty1: '#192430', muted: '#72889e', accent: '#5aa9e6', dark: true }
     }
   ];
 
