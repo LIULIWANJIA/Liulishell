@@ -87,11 +87,10 @@
       "shortcutName": "LIULI Shell",
       "runAfterFinish": true,
       "deleteAppDataOnUninstall": false,
-      "uninstallDisplayName": "LIULI Shell ${version}",
-      "artifactName": "${productName} Setup.${ext}"
+      "uninstallDisplayName": "LIULI Shell ${version}"
     },
     "portable": {
-      "artifactName": "${productName} Portable.${ext}",
+      "artifactName": "${productName} ${version} Portable.${ext}",
       "requestExecutionLevel": "user"
     },
     "linux": {
