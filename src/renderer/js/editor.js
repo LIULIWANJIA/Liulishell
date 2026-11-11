@@ -44,6 +44,21 @@
     return n.toFixed(1) + ' ' + u[i];
   }
 
+  /** 右上角保存提示气泡 */
+  function toast(message, type) {
+    const box = document.getElementById('etoasts');
+    if (!box) return;
+    const el = document.createElement('div');
+    el.className = 'etoast' + (type === 'ok' ? ' ok' : type === 'err' ? ' err' : '');
+    el.textContent = message;
+    box.appendChild(el);
+    while (box.children.length > 4) box.firstElementChild.remove();
+    setTimeout(() => {
+      el.classList.add('hide');
+      setTimeout(() => el.remove(), 220);
+    }, 2400);
+  }
+
   function cur() {
     return tabs.find((t) => t.id === activeId) || null;
   }
@@ -428,6 +443,7 @@
         textEl.disabled = false;
         textEl.placeholder = t.error;
         statusEl.textContent = t.error;
+        toast('打开失败：' + t.error, 'err');
         resetView(0);
       }
     }
@@ -440,6 +456,7 @@
     stash();
     if (t.content === t.saved) {
       statusEl.textContent = '没有需要保存的修改';
+      toast('没有需要保存的修改');
       return;
     }
     try {
@@ -448,8 +465,11 @@
       t.size = r.bytes;
       paintInfo();
       statusEl.textContent = `已保存 ${t.name}（${fmtBytes(r.bytes)}）`;
+      toast(`已保存 ${t.name}`, 'ok');
     } catch (err) {
-      statusEl.textContent = '保存失败：' + (err && err.message ? err.message : String(err));
+      const msg = err && err.message ? err.message : String(err);
+      statusEl.textContent = '保存失败：' + msg;
+      toast('保存失败：' + msg, 'err');
     }
   }
 
@@ -459,6 +479,7 @@
     const targets = tabs.filter((t) => !t.loading && t.content !== t.saved);
     if (!targets.length) {
       statusEl.textContent = '所有文件都已保存';
+      toast('所有文件都已保存');
       return;
     }
     let ok = 0;
@@ -477,6 +498,8 @@
     const t = cur();
     if (t) paintInfo();
     statusEl.textContent = failed ? `全部保存完成 ${ok} 个，失败：${failed}` : `已保存 ${ok} 个文件`;
+    if (failed) toast(`保存完成 ${ok} 个，失败：${failed}`, 'err');
+    else toast(`已保存 ${ok} 个文件`, 'ok');
   }
 
   function closeTab(id) {

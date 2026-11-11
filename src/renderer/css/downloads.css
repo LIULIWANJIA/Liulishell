@@ -52,5 +52,5 @@ body::after { content: ''; position: fixed; inset: 0; pointer-events: none; z-in
 .ctx-item:hover { background: var(--accent-soft); color: var(--accent); }
 .ctx-item.danger { color: var(--danger); }
 .ctx-sep { height: 1px; background: var(--line); margin: 3px 4px; }
-.toasts { position: fixed; right: 14px; bottom: 14px; display: flex; flex-direction: column; gap: 6px; z-index: 300; }
+.toasts { position: fixed; right: 14px; bottom: 44px; display: flex; flex-direction: column; gap: 6px; z-index: 300; }
 .toast { padding: 7px 11px; border-radius: 7px; background: var(--primary); color: #fff; font-size: 11.5px; }

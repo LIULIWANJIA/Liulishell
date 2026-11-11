@@ -95,10 +95,19 @@ window.TitleBar = (function () {
       }
     });
 
-    // 顶栏中间显示当前会话
+    // 顶栏中间显示当前选中标签的服务器信息
     const updateDoc = () => {
       const s = App.active;
-      $('#tb-doc').textContent = s ? `${s.config.user}@${s.config.host} — LIULI Shell` : 'SSH 工作台';
+      if (!s) {
+        $('#tb-doc').textContent = 'SSH 工作台';
+        $('#tb-doc').title = '';
+        return;
+      }
+      const c = s.config || {};
+      const name = c.name || c.host || '';
+      const addr = `${c.user || ''}@${c.host || ''}:${c.port || 22}`;
+      $('#tb-doc').textContent = `${name} - ${addr}`;
+      $('#tb-doc').title = `${name} - ${addr}`;
     };
     App.on('active:change', updateDoc);
     App.on('sessions:change', updateDoc);

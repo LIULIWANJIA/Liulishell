@@ -20,6 +20,7 @@ window.Recent = (function () {
   function record(cfg) {
     if (!cfg || !cfg.id) return;
     const list = history().filter((x) => x.id !== cfg.id);
+    const prev = history().find((x) => x.id === cfg.id);
     list.unshift({
       id: cfg.id,
       name: cfg.name || cfg.host,
@@ -27,9 +28,9 @@ window.Recent = (function () {
       port: cfg.port || 22,
       user: cfg.user,
       ts: Date.now(),
-      pinned: false
+      pinned: !!(prev && prev.pinned)
     });
-    // 置顶项始终排在前面
+    // 置顶项始终排在前面；连接成功后保留原置顶状态
     list.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
     save(list);
   }
@@ -38,9 +39,9 @@ window.Recent = (function () {
     if (!box || !listEl) return;
     const list = history();
     const conns = App.state.data.connections || [];
-    box.style.display = list.length ? 'block' : 'none';
+    box.style.display = 'block';
     if (!list.length) {
-      listEl.innerHTML = '';
+      listEl.innerHTML = '<div class="recent-empty">暂无最近连接</div>';
       return;
     }
     listEl.innerHTML = list

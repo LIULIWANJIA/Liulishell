@@ -214,7 +214,9 @@ window.Connections = (function () {
       const active = activeConf === c.id;
       const label = String(c.name || c.host || '?').trim();
       const initial = label.slice(0, 1).toUpperCase();
-      const isKey = c.authType === 'key';
+      const proxy = c.proxyEnabled
+        ? (App.state.data.settings.proxies || []).find((p) => p.id === c.proxyId)
+        : null;
       return `<div class="conn-item${online ? ' online' : ''}${active ? ' active' : ''}${
         pickedIds.has(c.id) ? ' picked' : ''
       }" data-id="${c.id}">
@@ -222,7 +224,9 @@ window.Connections = (function () {
         <span class="ci-body">
           <span class="ci-name">${U.esc(label)}</span>
           <span class="ci-addr"><span class="ci-host">${U.esc(c.user)}@${U.esc(c.host)}</span><span class="ci-port">:${c.port}</span>${
-            isKey ? '<i class="ci-tag">密钥</i>' : ''
+            c.proxyEnabled
+              ? `<i class="ci-tag proxy" title="已启用代理${proxy ? '：' + U.esc(proxy.name) : ''}">代理</i>`
+              : ''
           }</span>
         </span>
         <span class="ci-state"></span>
@@ -308,6 +312,10 @@ window.Connections = (function () {
                   onClick: () => connectMany(multi ? ids : [c.id], { proxyMode: 'default' })
                 }
               : null,
+            {
+              label: multi ? '直接连接所选' : '直接连接',
+              onClick: () => connectMany(multi ? ids : [c.id], { proxyMode: 'none' })
+            },
             { sep: true },
             { label: '编辑配置', onClick: () => openEditor(c) },
             { label: '复制主机地址', onClick: () => navigator.clipboard.writeText(c.host).then(() => U.toast('已复制', 'ok')) },
@@ -339,6 +347,7 @@ window.Connections = (function () {
         e.preventDefault();
         // 只连接「本分组」下的配置，不包含子分组里的服务器
         const items = conns.filter((c) => c.group === gid);
+        const proxies = App.state.data.settings.proxies || [];
         U.ctxMenu(
           [
             {
@@ -346,6 +355,22 @@ window.Connections = (function () {
               onClick: () => {
                 if (!items.length) return U.toast('该分组下没有服务器配置', 'info');
                 connectMany(items.map((c) => c.id));
+              }
+            },
+            proxies.length
+              ? {
+                  label: `通过代理连接本组服务器（${items.length}）`,
+                  onClick: () => {
+                    if (!items.length) return U.toast('该分组下没有服务器配置', 'info');
+                    connectMany(items.map((c) => c.id), { proxyMode: 'default' });
+                  }
+                }
+              : null,
+            {
+              label: `直接连接本组服务器（${items.length}）`,
+              onClick: () => {
+                if (!items.length) return U.toast('该分组下没有服务器配置', 'info');
+                connectMany(items.map((c) => c.id), { proxyMode: 'none' });
               }
             },
             { label: collapsedSet().has(gid) ? '展开分组' : '折叠分组', onClick: toggle },

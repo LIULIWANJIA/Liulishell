@@ -856,6 +856,10 @@ async function upsertConnection(input) {
 function deleteConnection(id) {
   const d = load();
   d.connections = d.connections.filter((c) => c.id !== id);
+  // 删除服务器配置时一并移除最近连接（含其置顶状态），这是取消置顶的途径之一
+  if (d.settings && Array.isArray(d.settings.connectHistory)) {
+    d.settings.connectHistory = d.settings.connectHistory.filter((r) => r && r.id !== id);
+  }
   save();
   return publicState();
 }
@@ -1301,7 +1305,11 @@ const EMPTY_SYNC_STATS = () => ({
 function removeLocalConnection(d, identity) {
   const i = d.connections.findIndex((c) => identityOfConnection(c) === identity);
   if (i < 0) return false;
+  const id = d.connections[i].id;
   d.connections.splice(i, 1);
+  if (d.settings && Array.isArray(d.settings.connectHistory)) {
+    d.settings.connectHistory = d.settings.connectHistory.filter((r) => r && r.id !== id);
+  }
   return true;
 }
 

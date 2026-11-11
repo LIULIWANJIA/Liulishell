@@ -97,8 +97,17 @@
     <!-- ================= 中：终端 + 文件/快捷命令 ================= -->
     <section class="center">
       <div class="terminal-block">
-        <div class="tabs">
-          <div class="tabs-scroll" id="tabs"></div>
+        <div class="tabs" id="tabs-bar">
+          <div class="tab-rows">
+            <div class="tab-row first" id="tabs"></div>
+            <div class="tab-row second" id="tabs-second">
+              <div class="tab-scroll" id="tabs-second-scroll"></div>
+              <div class="tab-arrows">
+                <button class="tab-arrow" id="tabs-prev" title="向左显示">‹</button>
+                <button class="tab-arrow" id="tabs-next" title="向右显示">›</button>
+              </div>
+            </div>
+          </div>
           <div class="tabs-tools">
             <button class="icon-btn" id="btn-clear-term" title="清空当前终端">清屏</button>
             <button class="icon-btn" id="btn-toggle-right" title="显示 / 隐藏服务器信息面板">▤</button>
@@ -107,13 +116,9 @@
 
         <div class="term-host" id="term-host">
           <div class="empty-state" id="empty-state">
-            <div class="empty-logo">❯_</div>
-            <div class="empty-title">还没有打开的终端</div>
-            <div class="empty-sub">从左侧选择一台服务器连接，或点击「＋ 新增配置」</div>
             <div class="recent-box" id="recent-box">
               <div class="recent-head"><span>最近连接</span><span class="pane-grow"></span><button class="btn sm" id="recent-clear">清空历史</button></div>
               <div class="recent-list" id="recent-list"></div>
-              <div class="recent-tip">单击快速连接 · 右键可置顶或删除单行</div>
             </div>
           </div>
         </div>
@@ -192,15 +197,16 @@
           </div>
 
           <div class="page" id="page-snippets">
-            <div class="snip-head">
-              <div class="board-tabs" id="board-tabs"></div>
-              <div class="pane-grow"></div>
-              <select id="snip-target" class="mini-target" title="快捷命令发送目标">
-                <option value="current">当前会话</option>
-                <option value="all">全部会话</option>
-              </select>
-              <button class="btn sm" id="btn-add-board">＋ 板块</button>
-              <button class="btn sm primary" id="btn-add-snippet">＋ 快捷命令</button>
+            <div class="snip-head" id="snip-head">
+              <div class="board-rows" id="board-tabs"></div>
+              <div class="snip-controls" id="snip-controls">
+                <select id="snip-target" class="mini-target" title="快捷命令发送目标">
+                  <option value="current">当前会话</option>
+                  <option value="all">全部会话</option>
+                </select>
+                <button class="btn sm" id="btn-add-board">＋ 板块</button>
+                <button class="btn sm primary" id="btn-add-snippet">＋ 快捷命令</button>
+              </div>
             </div>
 
             <div class="snip-list" id="snip-list"></div>
@@ -217,7 +223,7 @@
         <div class="srv-avatar" id="srv-avatar">--</div>
         <div class="srv-meta">
           <div class="srv-name" id="srv-name">未连接</div>
-          <div class="srv-host" id="srv-host">从左侧选择服务器</div>
+          <div class="srv-host" id="srv-host">请在上方连接一台服务器</div>
         </div>
         <span class="dot offline" id="srv-dot" title="连接状态"></span>
         <button class="icon-btn" id="btn-collapse-right" title="收起服务器信息">»</button>
@@ -233,31 +239,12 @@
             <div class="kv-item"><span>用户</span><b id="info-user">--</b></div>
             <div class="kv-item"><span>运行</span><b id="info-uptime">--</b></div>
             <div class="kv-item"><span>负载</span><b id="info-load">--</b></div>
-            <div class="kv-item"><span>IP</span><b id="info-ip" class="copyable" title="点击复制 IP">--</b></div>
-            <div class="kv-item"><span>端口</span><b id="info-port" class="copyable" title="点击复制端口">--</b></div>
           </div>
-        </section>
-
-        <section class="panel proc-panel">
-          <div class="panel-title">
-            进程预览
-          </div>
-          <table class="grid-table proc-table">
-            <thead>
-              <tr>
-                <th>进程名</th>
-                <th class="sortable" data-sort="cpu">CPU <i class="arrow"></i></th>
-                <th class="sortable" data-sort="mem">内存 <i class="arrow"></i></th>
-              </tr>
-            </thead>
-            <tbody id="proc-body">
-              <tr class="placeholder"><td colspan="3">暂无数据</td></tr>
-            </tbody>
-          </table>
         </section>
 
         <section class="panel net-panel">
           <div class="panel-title">
+            <span>网络速率监测</span>
             <span class="panel-tools">
               <select class="mini-select" id="nic-select"></select>
               <span class="net-unit" id="net-unit">MB/s</span>
@@ -267,6 +254,26 @@
           <div class="net-legend">
             <span class="rx"><i></i>下行 <b id="rx-rate">0 B/s</b></span>
             <span class="tx"><i></i>上行 <b id="tx-rate">0 B/s</b></span>
+          </div>
+        </section>
+
+        <section class="panel proc-panel">
+          <div class="panel-title">
+            进程预览
+          </div>
+          <div class="proc-scroll" id="proc-scroll">
+            <table class="grid-table proc-table">
+              <thead>
+                <tr>
+                  <th>进程名</th>
+                  <th class="sortable" data-sort="cpu">CPU <i class="arrow"></i></th>
+                  <th class="sortable" data-sort="mem">内存 <i class="arrow"></i></th>
+                </tr>
+              </thead>
+              <tbody id="proc-body">
+                <tr class="placeholder"><td colspan="3">暂无数据</td></tr>
+              </tbody>
+            </table>
           </div>
         </section>
       </div>

@@ -162,3 +162,20 @@ body.theme-dark .ebtn.close:hover { background: #a63b38; }
 .edialog-body input:focus { border-color: var(--accent); background: var(--panel); }
 .edialog-hint { color: var(--muted); font-size: 11px; min-height: 14px; }
 .edialog-foot { display: flex; justify-content: flex-end; gap: 7px; padding: 0 12px 12px; }
+
+/* ---------------- 保存提示气泡（右上角） ---------------- */
+.etoasts {
+  position: fixed; top: 42px; right: 14px; z-index: 80;
+  display: flex; flex-direction: column; align-items: flex-end; gap: 6px;
+  pointer-events: none;
+}
+.etoast {
+  max-width: 360px; padding: 8px 12px; border-radius: 8px;
+  background: #1f2a3a; color: #eef3fa; font-size: 12px; line-height: 1.45;
+  box-shadow: 0 8px 24px rgba(10, 18, 32, .3);
+  animation: etoastIn .18s ease;
+}
+.etoast.ok { background: #146c52; }
+.etoast.err { background: #b3312f; }
+.etoast.hide { opacity: 0; transform: translateY(-4px); transition: all .2s; }
+@keyframes etoastIn { from { opacity: 0; transform: translateY(-6px); } }

@@ -20,16 +20,15 @@ window.Sidebar = (function () {
       if (App.state.activeId === payload.sessionId) renderProcs(sess);
     });
 
-    // 服务器信息里的 IP / 端口：单击即可复制
-    ['#info-ip', '#info-port'].forEach((sel) => {
-      const el = $(sel);
-      if (!el) return;
-      el.addEventListener('click', () => {
-        const v = String(el.dataset.value || el.textContent || '').trim();
-        if (!v || v === '--') return;
+    // 服务器名称下方的连接地址：双击复制（不显示端口）
+    const hostEl = $('#srv-host');
+    if (hostEl) {
+      hostEl.addEventListener('dblclick', () => {
+        const v = String(hostEl.dataset.value || '').trim();
+        if (!v) return;
         U.copy(v);
       });
-    });
+    }
 
     App.on('active:change', (sess) => renderAll(sess));
 
@@ -73,8 +72,11 @@ window.Sidebar = (function () {
     if (!sess) return reset();
     const srvName = sess.config.name || sess.config.host;
     const st = sess.status || 'online';
+    const host = String(sess.config.host || '');
     $('#srv-name').textContent = srvName;
-    $('#srv-host').textContent = st === 'connecting' ? '正在连接…' : `${sess.config.user}@${sess.config.host}:${sess.config.port}`;
+    $('#srv-host').textContent = st === 'connecting' ? `正在连接 ${host}…` : host || '--';
+    $('#srv-host').dataset.value = host;
+    $('#srv-host').title = host ? '双击复制地址：' + host : '';
     $('#srv-avatar').textContent = (srvName || 'SSH').slice(0, 2).toUpperCase();
     $('#srv-dot').className = 'dot ' + (st === 'online' ? 'online' : st === 'connecting' ? 'connecting' : st === 'unstable' ? 'unstable' : 'failed');
     $('#srv-dot').title = st === 'online' ? '已连接' : st === 'connecting' ? '连接中' : st === 'unstable' ? '连接不稳定' : '已断开';
@@ -85,22 +87,6 @@ window.Sidebar = (function () {
     $('#info-kernel').textContent = info.kernel || '--';
     $('#info-arch').textContent = info.arch || '--';
     $('#info-user').textContent = info.loginUser || sess.config.user || '--';
-    // IP / 端口：点击即可复制，方便粘贴到别处；域名过长时优先在点号处折行
-    const ipEl = $('#info-ip');
-    const portEl = $('#info-port');
-    if (ipEl) {
-      const host = String(sess.config.host || '');
-      // 域名优先在点号处折行：<wbr> 不占字符，复制时不受影响
-      ipEl.innerHTML = host ? U.esc(host).replace(/\./g, '.<wbr>') : '--';
-      ipEl.dataset.value = host;
-      ipEl.title = '点击复制 IP：' + (host || '--');
-    }
-    if (portEl) {
-      const port = String(sess.config.port || 22);
-      portEl.textContent = port;
-      portEl.dataset.value = port;
-      portEl.title = '点击复制端口：' + port;
-    }
     $('#info-uptime').textContent = (info.uptime || '--').replace(/^up\s+/i, '');
     $('#info-uptime').title = info.uptime || '';
 
@@ -114,6 +100,8 @@ window.Sidebar = (function () {
     $('#swap-total').textContent = '/ --';
     $('#swap-bar').style.width = '0%';
     $('#proc-body').innerHTML = '<tr class="placeholder"><td colspan="3">加载中…</td></tr>';
+    const procScroll = $('#proc-scroll');
+    if (procScroll) procScroll.scrollTop = 0;
     $('#disk-body').innerHTML = '<tr class="placeholder"><td colspan="2">加载中…</td></tr>';
     $('#disk-extra').textContent = '';
     $('#nic-select').innerHTML = '<option value="">--</option>';
@@ -129,9 +117,11 @@ window.Sidebar = (function () {
   function reset() {
     $('#srv-name').textContent = '未连接';
     $('#srv-host').textContent = '请在上方连接一台服务器';
+    delete $('#srv-host').dataset.value;
+    $('#srv-host').title = '';
     $('#srv-avatar').textContent = '--';
     $('#srv-dot').className = 'dot offline';
-    ['info-os', 'info-kernel', 'info-arch', 'info-user', 'info-uptime', 'info-load', 'info-ip', 'info-port'].forEach((id) => {
+    ['info-os', 'info-kernel', 'info-arch', 'info-user', 'info-uptime', 'info-load'].forEach((id) => {
       const el = $('#' + id);
       if (!el) return;
       el.textContent = '--';
@@ -308,9 +298,10 @@ window.Sidebar = (function () {
       .join('');
   }
 
-  /** 进程预览：按面板剩余高度「撑满」显示，多出来的直接裁掉，不出现滚动条。
-   *  先用 3 行探针测出真实行距，再一次性渲染到刚好放满，最后做一次溢出校正。 */
+  /** 进程预览：默认至少展示 5 条；空间富余时自动增加行数，空间不足时在面板内滚动查看。
+   *  先用 3 行探针测出真实行距，再按可用高度计算行数。 */
   function renderProcs(sess) {
+    const MIN_ROWS = 5;
     const rows = (sess && sess.procs) || [];
     const tbody = $('#proc-body');
     if (!tbody) return;
@@ -321,9 +312,7 @@ window.Sidebar = (function () {
       tbody.innerHTML = '<tr class="placeholder"><td colspan="3">暂无数据</td></tr>';
       return;
     }
-    const panel = document.querySelector('.side-body .proc-panel');
-    const cs = panel ? getComputedStyle(panel) : null;
-    const bottomEdge = panel ? panel.getBoundingClientRect().bottom - (parseFloat(cs.paddingBottom) || 0) : 0;
+    const scroller = $('#proc-scroll');
 
     // 探针：3 行足够量出行距（border-collapse 下首行含底边框，用前两行的顶边差更准）
     tbody.innerHTML = procHtml(rows.slice(0, Math.min(3, rows.length)));
@@ -333,17 +322,25 @@ window.Sidebar = (function () {
     else if (trs.length === 1) pitch = trs[0].getBoundingClientRect().height;
     if (!(pitch > 8)) pitch = 21;
 
-    let limit = rows.length;
-    if (panel && bottomEdge > 0) {
-      const avail = bottomEdge - tbody.getBoundingClientRect().top;
-      limit = Math.max(1, Math.min(rows.length, Math.floor(avail / pitch + 0.002)));
+    let fit = rows.length;
+    if (scroller) {
+      const thead = scroller.querySelector('thead');
+      const headH = thead ? thead.getBoundingClientRect().height : 0;
+      const avail = Math.max(0, scroller.clientHeight - headH);
+      fit = Math.floor(avail / pitch + 0.002);
     }
+    const minRows = Math.min(MIN_ROWS, rows.length);
+    let limit = Math.max(minRows, Math.min(rows.length, fit));
     tbody.innerHTML = procHtml(rows.slice(0, limit));
-    // 浮点 / 边框误差校正：超出 0.5px 就退掉最后一行
-    let guard = 0;
-    while (guard++ < 4 && limit > 1 && panel && tbody.getBoundingClientRect().bottom > bottomEdge + 0.5) {
-      tbody.removeChild(tbody.lastElementChild);
-      limit--;
+
+    // 空间足够时做一次溢出校正；不足 5 行时保留 5 行并允许滚动
+    if (scroller && fit >= minRows) {
+      const edge = scroller.getBoundingClientRect().bottom;
+      let guard = 0;
+      while (guard++ < 4 && limit > minRows && tbody.getBoundingClientRect().bottom > edge + 0.5) {
+        tbody.removeChild(tbody.lastElementChild);
+        limit--;
+      }
     }
   }
 

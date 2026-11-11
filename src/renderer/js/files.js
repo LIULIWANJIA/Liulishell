@@ -1001,7 +1001,7 @@ window.Files = (function () {
     const height = Math.max(300, Math.min(560, window.innerHeight - 120));
     // 以文件管理区中心为目标，但保证整个弹窗始终落在窗口内（下方文件区较矮时不会顶出屏幕）
     const cx = r.left + r.width / 2;
-    const cy = r.top + r.height / 2;
+    const cy = r.top + r.height / 2 - 28;
     const left = Math.min(Math.max(cx, width / 2 + 12), window.innerWidth - width / 2 - 12);
     const top = Math.min(Math.max(cy, height / 2 + 12), window.innerHeight - height / 2 - 12);
     dlg.style.width = width + 'px';

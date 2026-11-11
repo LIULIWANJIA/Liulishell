@@ -61,6 +61,62 @@ window.Snippets = (function () {
       if (!currentBoard() && boards().length) activeBoard = boards()[0].id;
       render();
     });
+
+    window.addEventListener('resize', U.debounce(layoutBoardRows, 100));
+    const head = $('#snip-head');
+    if (head) {
+      let width = head.clientWidth;
+      const ro = new ResizeObserver(
+        U.debounce(() => {
+          const w = head.clientWidth;
+          if (Math.abs(w - width) > 1) {
+            width = w;
+            layoutBoardRows();
+          }
+        }, 80)
+      );
+      ro.observe(head);
+    }
+  }
+
+  /**
+   * 板块自动分行：第一行给右上角控制区留出宽度，后续行占满整行。
+   * 控制区是绝对定位的，不会随板块换行而移动。
+   */
+  function layoutBoardRows() {
+    const box = $('#board-tabs');
+    const controls = $('#snip-controls');
+    if (!box || !controls) return;
+    const all = Array.from(box.querySelectorAll('.board-tab'));
+    const widths = all.map((el) => el.getBoundingClientRect().width);
+    box.innerHTML = '';
+    if (!all.length) return;
+    const full = box.clientWidth;
+    if (full <= 0) {
+      const row = document.createElement('div');
+      row.className = 'board-row';
+      all.forEach((tab) => row.appendChild(tab));
+      box.appendChild(row);
+      return;
+    }
+    const firstMax = Math.max(120, full - controls.offsetWidth - 8);
+    let row = document.createElement('div');
+    row.className = 'board-row';
+    box.appendChild(row);
+    let used = 0;
+    let max = firstMax;
+    for (let i = 0; i < all.length; i++) {
+      const w = widths[i] || 80;
+      if (used > 0 && used + w > max + 0.5) {
+        row = document.createElement('div');
+        row.className = 'board-row';
+        box.appendChild(row);
+        used = 0;
+        max = full;
+      }
+      row.appendChild(all[i]);
+      used += w + 4;
+    }
   }
 
   let dragId = null;
@@ -71,14 +127,17 @@ window.Snippets = (function () {
     const board = currentBoard();
 
     const tabs = $('#board-tabs');
-    tabs.innerHTML = list
-      .map(
-        (b) =>
-          `<button class="board-tab${board && b.id === board.id ? ' active' : ''}" data-bid="${b.id}" title="${U.esc(
-            b.name
-          )}（${(b.items || []).length} 条）">${U.esc(b.name)}</button>`
-      )
-      .join('');
+    tabs.innerHTML =
+      '<div class="board-row">' +
+      list
+        .map(
+          (b) =>
+            `<button class="board-tab${board && b.id === board.id ? ' active' : ''}" data-bid="${b.id}" title="${U.esc(
+              b.name
+            )}（${(b.items || []).length} 条）">${U.esc(b.name)}</button>`
+        )
+        .join('') +
+      '</div>';
 
     tabs.querySelectorAll('.board-tab').forEach((tab) => {
       tab.addEventListener('click', () => {
@@ -108,6 +167,8 @@ window.Snippets = (function () {
         );
       });
     });
+
+    layoutBoardRows();
 
     const wrap = $('#snip-list');
     if (!board) {

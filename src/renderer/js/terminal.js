@@ -4,6 +4,9 @@ window.Term = (function () {
   const host = U.qs('#term-host');
   const emptyEl = U.qs('#empty-state');
   const tabsEl = U.qs('#tabs');
+  const tabsBar = U.qs('#tabs-bar');
+  const tabsSecond = U.qs('#tabs-second');
+  const tabsSecondScroll = U.qs('#tabs-second-scroll');
   const cmdInput = U.qs('#cmd-input');
   let history = [];
   let hisIndex = -1;
@@ -18,6 +21,11 @@ window.Term = (function () {
 
   let dragSid = null;
   let dropAfter = false;
+  /* 空白标签页：软件启动时默认存在，+ 最多只保留一个；连接服务器时被占用 */
+  let blankExists = true;
+  let blankActive = true;
+  let tabRowCount = 1;
+  let lastScrollSig = '';
 
   let THEME = {
     background: '#fbfaf7',
@@ -93,6 +101,11 @@ window.Term = (function () {
     }
 
     U.qs('#btn-send').addEventListener('click', sendCommand);
+    const prevBtn = U.qs('#tabs-prev');
+    const nextBtn = U.qs('#tabs-next');
+    if (prevBtn) prevBtn.addEventListener('click', () => moveTabRow(-1));
+    if (nextBtn) nextBtn.addEventListener('click', () => moveTabRow(1));
+    if (tabsSecondScroll) tabsSecondScroll.addEventListener('scroll', updateTabArrows);
     setupInteractions();
     cmdInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
@@ -123,6 +136,7 @@ window.Term = (function () {
     syncTargetUI();
 
     App.on('active:change', () => {
+      if (App.state.activeId) blankActive = false;
       renderTabs();
       syncPanes();
       fitActive();
@@ -215,7 +229,7 @@ window.Term = (function () {
     });
 
     // 标签右键菜单：连接 / 连接全部 / 关闭当前 / 关闭其他 / 关闭全部
-    tabsEl.addEventListener('contextmenu', (e) => {
+    tabsBar.addEventListener('contextmenu', (e) => {
       const tab = e.target.closest('.term-tab[data-sid]');
       if (!tab) return;
       e.preventDefault();
@@ -245,16 +259,111 @@ window.Term = (function () {
     );
     ro.observe(host);
     window.addEventListener('resize', U.debounce(() => fitActive(), 150));
+    if (tabsBar) {
+      let tabBarW = tabsBar.clientWidth;
+      const tro = new ResizeObserver(
+        U.debounce(() => {
+          const w = tabsBar.clientWidth;
+          if (Math.abs(w - tabBarW) > 1) {
+            tabBarW = w;
+            layoutTabRows();
+            scrollActiveTab(true);
+          }
+        }, 80)
+      );
+      tro.observe(tabsBar);
+      const toolsEl = U.qs('.tabs-tools');
+      if (toolsEl) {
+        let toolsW = toolsEl.offsetWidth;
+        const toolRo = new ResizeObserver(
+          U.debounce(() => {
+            const w = toolsEl.offsetWidth;
+            if (Math.abs(w - toolsW) > 1) {
+              toolsW = w;
+              layoutTabRows();
+            }
+          }, 80)
+        );
+        toolRo.observe(toolsEl);
+      }
+    }
+    renderTabs();
+    updateEmpty();
+  }
+
+  /* ---------------- 空白标签页 ---------------- */
+
+  /** 标签名按当前可显示字数截断（最多 12 字，紧张时逐步缩到 3 字） */
+  function labelFor(name, maxChars) {
+    const chars = Array.from(String(name || '').trim() || '终端');
+    return chars.length > maxChars ? chars.slice(0, maxChars).join('') + '…' : chars.join('');
+  }
+
+  /** 本次连接是否会走代理（直接连接 / 配置未启用 / 没有代理节点时都走本地网络） */
+  function usesProxyFor(cfg, opts) {
+    const mode = (opts && opts.proxyMode) || 'config';
+    const proxies = App.settings.proxies || [];
+    if (!proxies.length || mode === 'none') return false;
+    if (mode === 'default') return true;
+    return !!cfg.proxyEnabled;
+  }
+
+  function activateBlank() {
+    blankExists = true;
+    blankActive = true;
+    if (window.Details) Details.deactivate();
+    if (App.state.activeId !== null) App.setActive(null);
+    renderTabs();
+    syncPanes();
+    updateEmpty();
+  }
+
+  function openBlankTab() {
+    if (!blankExists) {
+      blankExists = true;
+      blankActive = true;
+    }
+    activateBlank();
+  }
+
+  function closeBlankTab() {
+    if (!blankExists) return;
+    blankExists = false;
+    blankActive = false;
+    if (!App.state.sessions.size) {
+      // 没有连接时空白页是唯一的起点，关闭后立即恢复
+      ensureBlankOnEmpty();
+    } else if (App.state.activeId === null) {
+      const first = App.state.sessions.keys().next().value;
+      if (first) App.setActive(first);
+    }
+    renderTabs();
+    syncPanes();
+    updateEmpty();
+  }
+
+  /** 连接服务器时占用空白标签页，而不是保留空白页再新开一个 */
+  function consumeBlankTab() {
+    if (!blankExists) return;
+    blankExists = false;
+    blankActive = false;
+  }
+
+  function ensureBlankOnEmpty() {
+    if (App.state.sessions.size) return;
+    blankExists = true;
+    blankActive = true;
+    if (App.state.activeId !== null) App.setActive(null);
   }
 
   /* ---------------- 连接 ---------------- */
 
-  function createPendingSession(cfg, beforeId) {
+  function createPendingSession(cfg, beforeId, viaProxy) {
     const id = 'pending-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6);
     const sess = {
       id,
       config: Object.assign({}, cfg),
-      viaProxy: false,
+      viaProxy: !!viaProxy,
       proxyName: '',
       sysinfo: {},
       stats: null,
@@ -270,27 +379,31 @@ window.Term = (function () {
       pane: null
     };
     App.addSession(sess, beforeId);
-    createPendingPane(sess, `正在连接 ${cfg.user}@${cfg.host}:${cfg.port} …`);
+    createPendingPane(
+      sess,
+      `正在连接 ${cfg.user}@${cfg.host}:${cfg.port} …`,
+      viaProxy ? '正在通过代理建立 SSH 会话…' : '正在用本地网络建立 SSH 会话…'
+    );
     if (window.Details) Details.deactivate();
     App.setActive(id);
     return sess;
   }
 
-  function createPendingPane(sess, text) {
+  function createPendingPane(sess, text, hint) {
     const pane = document.createElement('div');
     pane.className = 'term-pane pending';
     pane.dataset.sid = sess.id;
-    pane.innerHTML = pendingHtml(text);
+    pane.innerHTML = pendingHtml(text, false, hint);
     host.appendChild(pane);
     sess.pane = pane;
     syncPanes();
   }
 
-  function pendingHtml(text, isError) {
+  function pendingHtml(text, isError, hint) {
     return `<div class="pending-box${isError ? ' error' : ''}">
       ${isError ? '<div class="pending-ico">!</div>' : '<div class="pending-spin"></div>'}
       <div class="pending-title">${U.esc(isError ? '连接失败' : text)}</div>
-      ${isError ? `<div class="pending-sub err">${U.esc(text)}</div><div class="pending-hint">右键标签选择「连接」重试，或点击标签上的 ✕ 关闭</div>` : '<div class="pending-bar"><i></i></div><div class="pending-hint">正在建立 SSH 会话…</div>'}
+      ${isError ? `<div class="pending-sub err">${U.esc(text)}</div><div class="pending-hint">右键标签选择「连接」重试，或点击标签上的 ✕ 关闭</div>` : `<div class="pending-bar"><i></i></div><div class="pending-hint">${U.esc(hint || '正在建立 SSH 会话…')}</div>`}
     </div>`;
   }
 
@@ -326,7 +439,10 @@ window.Term = (function () {
     }
 
     // 先建一个「连接中」标签，连接进度显示在新标签内，不占用当前终端
-    const pending = createPendingSession(cfg, beforeId);
+    // 从服务器列表 / 最近连接发起的新连接会占用空白标签页；重连保留原位置
+    const viaProxy = usesProxyFor(cfg, opts);
+    if (!(opts && opts.keepBlank)) consumeBlankTab();
+    const pending = createPendingSession(cfg, beforeId, viaProxy);
     let real = null;
     try {
       const res = await window.api.connect(configId, opts);
@@ -564,7 +680,7 @@ window.Term = (function () {
     sess.typeBuf = text;
   }
 
-  function cleanup(sessionId) {
+  function cleanup(sessionId, opts) {
     const s = App.session(sessionId);
     if (!s) return;
     s.closing = true;
@@ -576,6 +692,7 @@ window.Term = (function () {
     if (window.Details) Details.closeSession(sessionId);
     if (window.FileEditor) FileEditor.closeSession(sessionId);
     App.removeSession(sessionId);
+    if (!(opts && opts.keepBlank)) ensureBlankOnEmpty();
     updateEmpty();
     renderTabs();
   }
@@ -622,11 +739,17 @@ window.Term = (function () {
         const st = s.status || 'online';
         const dotCls = st === 'online' ? 'online' : st === 'connecting' ? 'connecting' : st === 'unstable' ? 'unstable' : 'failed';
         const stText = st === 'online' ? '已连接' : st === 'connecting' ? '连接中' : st === 'unstable' ? '连接不稳定' : '已断开';
+        const name = s.config.name || s.config.host;
+        const label = labelFor(name, 12);
+        const title = `${s.config.user}@${s.config.host} · ${stText}${s.viaProxy ? ' · 代理' : ''}`;
         return `<div class="term-tab${
           !activeDetail && s.id === App.state.activeId ? ' active' : ''
-        }" data-sid="${s.id}">
+        }" data-sid="${s.id}" data-name="${U.esc(name)}">
           <span class="dot ${dotCls}" title="${stText}"></span>
-          <span class="t-name" title="${U.esc((s.config.user + '@' + s.config.host) + ' · ' + stText + (s.viaProxy ? ' · 已代理' : ''))}">${U.esc(s.config.name || s.config.host)}${s.viaProxy ? '<i class="t-proxy">已代理</i>' : ''}</span>
+          <span class="t-name" title="${U.esc(title)}">
+            <span class="t-label">${U.esc(label)}</span>
+            ${s.viaProxy ? '<i class="t-proxy" title="代理">代</i>' : ''}
+          </span>
           <button class="t-close" data-close="${s.id}" title="关闭">✕</button>
         </div>`;
       })
@@ -636,18 +759,31 @@ window.Term = (function () {
       .map(
         (d) => `<div class="term-tab detail${activeDetail && activeDetail.key === d.key ? ' active' : ''}" data-dkey="${d.key}">
           <span class="t-icon">${d.type === 'procs' ? '▤' : '◎'}</span>
-          <span class="t-name" title="${U.esc(d.title)}">${U.esc(d.short)}</span>
+          <span class="t-name" title="${U.esc(d.title)}"><span class="t-label">${U.esc(d.short)}</span></span>
           <button class="t-close" data-dclose="${d.key}" title="关闭">✕</button>
         </div>`
       )
       .join('');
 
+    if (blankExists) {
+      const active = blankActive && !activeDetail && App.state.activeId === null;
+      html += `<div class="term-tab blank${active ? ' active' : ''}" data-blank="1" title="最近连接">
+        <span class="t-icon">❯_</span>
+        <span class="t-name"><span class="t-label">最近连接</span></span>
+        <button class="t-close" data-blankclose="1" title="关闭">✕</button>
+      </div>`;
+    }
+    html += '<button class="tab-add" type="button" title="新建空白标签页">＋</button>';
+
+    const prevSecondScroll = tabsSecondScroll ? tabsSecondScroll.scrollLeft : 0;
     tabsEl.innerHTML = html;
+    if (tabsSecondScroll) tabsSecondScroll.innerHTML = '';
 
     tabsEl.querySelectorAll('.term-tab[data-sid]').forEach((tab) => {
       // 用 click 而非 mousedown：拖动排序时不会因重绘中断 dragstart
       tab.addEventListener('click', (e) => {
         if (e.target.closest('.t-close')) return;
+        blankActive = false;
         if (window.Details) Details.deactivate();
         App.setActive(tab.dataset.sid);
       });
@@ -687,9 +823,17 @@ window.Term = (function () {
     tabsEl.querySelectorAll('.term-tab[data-dkey]').forEach((tab) => {
       tab.addEventListener('mousedown', (e) => {
         if (e.target.closest('.t-close')) return;
+        blankActive = false;
         Details.activate(tab.dataset.dkey);
       });
     });
+    const blankTab = tabsEl.querySelector('.term-tab[data-blank]');
+    if (blankTab) {
+      blankTab.addEventListener('click', (e) => {
+        if (e.target.closest('.t-close')) return;
+        activateBlank();
+      });
+    }
     tabsEl.querySelectorAll('[data-close]').forEach((btn) => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -701,6 +845,118 @@ window.Term = (function () {
         e.stopPropagation();
         Details.close(btn.dataset.dclose);
       });
+    });
+    const blankClose = tabsEl.querySelector('[data-blankclose]');
+    if (blankClose) {
+      blankClose.addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeBlankTab();
+      });
+    }
+    const addBtn = tabsEl.querySelector('.tab-add');
+    if (addBtn) addBtn.addEventListener('click', openBlankTab);
+    layoutTabRows();
+    if (tabsSecondScroll) tabsSecondScroll.scrollLeft = prevSecondScroll;
+    updateTabArrows();
+    scrollActiveTab();
+  }
+
+  /** 标签名只有在一行放不下时才从 8 字逐级缩到 3 字 */
+  function setLabelChars(maxChars) {
+    tabsEl.querySelectorAll('.term-tab[data-sid]').forEach((tab) => {
+      const label = tab.querySelector('.t-label');
+      if (!label) return;
+      label.textContent = labelFor(tab.dataset.name || '', maxChars);
+    });
+  }
+
+  /** 首行固定排满，放不下的标签移到第二行；第二行可左右滚动，首行不参与滚动 */
+  function layoutTabRows() {
+    if (!tabsEl || !tabsSecond || !tabsSecondScroll) return;
+    const tools = tabsBar ? tabsBar.querySelector('.tabs-tools') : null;
+    if (tools) tabsBar.style.setProperty('--tabs-tools-w', tools.offsetWidth + 'px');
+    const keepScroll = tabsSecondScroll.scrollLeft;
+    const wasTwo = tabsSecond.classList.contains('show');
+    while (tabsSecondScroll.firstChild) tabsEl.appendChild(tabsSecondScroll.firstChild);
+    tabsSecond.classList.remove('show');
+    const available = tabsEl.clientWidth;
+    if (available <= 0) {
+      setLabelChars(8);
+      return;
+    }
+    // 空间足够就保持完整名称；挤不下才逐级缩短，最低 3 个字
+    for (const n of [12, 10, 8, 6, 4, 3]) {
+      setLabelChars(n);
+      const total = Array.from(tabsEl.children).reduce((sum, el) => sum + el.getBoundingClientRect().width, 0);
+      if (total <= available) break;
+    }
+    const items = Array.from(tabsEl.children);
+    let split = items.length;
+    let used = 0;
+    for (let i = 0; i < items.length; i++) {
+      const w = items[i].getBoundingClientRect().width;
+      if (i > 0 && used + w > available + 0.5) {
+        split = i;
+        break;
+      }
+      used += w;
+    }
+    const overflow = split < items.length;
+    if (overflow) {
+      // 加号刚好放不下时，把最后一个标签一起移到第二行，避免第二行只剩一个加号
+      if (items[split] && items[split].classList.contains('tab-add') && split > 1) split--;
+      for (let i = split; i < items.length; i++) tabsSecondScroll.appendChild(items[i]);
+      tabsSecond.classList.add('show');
+    }
+    tabsSecondScroll.scrollLeft = keepScroll;
+    updateTabArrows();
+    const two = overflow;
+    if (tabRowCount !== (two ? 2 : 1)) {
+      tabRowCount = two ? 2 : 1;
+      setTimeout(() => {
+        try { fitActive(); } catch (_) {}
+      }, 30);
+    } else if (wasTwo !== two) {
+      setTimeout(() => {
+        try { fitActive(); } catch (_) {}
+      }, 30);
+    }
+  }
+
+  function updateTabArrows() {
+    if (!tabsSecondScroll) return;
+    const prevBtn = U.qs('#tabs-prev');
+    const nextBtn = U.qs('#tabs-next');
+    if (!prevBtn || !nextBtn) return;
+    const max = Math.max(0, tabsSecondScroll.scrollWidth - tabsSecondScroll.clientWidth);
+    prevBtn.disabled = tabsSecondScroll.scrollLeft <= 1;
+    nextBtn.disabled = tabsSecondScroll.scrollLeft >= max - 1;
+  }
+
+  /** 第二行按「一个标签」为步长左右移动，首行保持不动 */
+  function moveTabRow(dir) {
+    if (!tabsSecondScroll) return;
+    const items = Array.from(tabsSecondScroll.children);
+    if (!items.length) return;
+    const firstVisible =
+      items.find((el) => el.offsetLeft + el.offsetWidth > tabsSecondScroll.scrollLeft + 1) || items[0];
+    const idx = items.indexOf(firstVisible);
+    const step = dir > 0
+      ? firstVisible.offsetWidth
+      : (items[Math.max(0, idx - 1)] || firstVisible).offsetWidth;
+    tabsSecondScroll.scrollBy({ left: dir * step, behavior: 'smooth' });
+  }
+
+  /** 激活标签在第二行时自动滚入视野；首行固定不移动 */
+  function scrollActiveTab(force) {
+    const active = tabsBar ? tabsBar.querySelector('.term-tab.active') : null;
+    if (!active || !tabsSecondScroll || !tabsSecondScroll.contains(active)) return;
+    const detail = window.Details ? Details.getActive() : null;
+    const sig = `${detail ? 'd:' + detail.key : blankActive ? 'blank' : App.state.activeId}|${App.state.sessions.size}|${blankExists}`;
+    if (!force && sig === lastScrollSig) return;
+    lastScrollSig = sig;
+    requestAnimationFrame(() => {
+      if (active.isConnected) active.scrollIntoView({ block: 'nearest', inline: 'nearest' });
     });
   }
 
@@ -714,13 +970,14 @@ window.Term = (function () {
     host.querySelectorAll('.term-pane').forEach((p) => {
       p.classList.toggle('active', !detail && p.dataset.sid === App.state.activeId);
     });
-    const has = App.state.sessions.size > 0;
-    emptyEl.style.display = has ? 'none' : 'flex';
+    const showBlank = blankActive && !detail && App.state.activeId === null;
+    emptyEl.style.display = showBlank ? 'flex' : 'none';
   }
 
   function updateEmpty() {
-    const has = App.state.sessions.size > 0;
-    emptyEl.style.display = has ? 'none' : 'flex';
+    const detail = window.Details ? Details.getActive() : null;
+    const showBlank = blankActive && !detail && App.state.activeId === null;
+    emptyEl.style.display = showBlank ? 'flex' : 'none';
   }
 
   let fitTimer = null;
@@ -1006,9 +1263,9 @@ window.Term = (function () {
     try {
       await window.api.disconnect(s.id);
     } catch (_) {}
-    cleanup(s.id);
+    cleanup(s.id, { keepBlank: true });
     U.toast('正在重连 ' + name + ' …', 'info', 1600);
-    return connect(configId, opts, beforeId);
+    return connect(configId, Object.assign({}, opts, { keepBlank: true }), beforeId);
   }
 
   async function reconnectAllOffline() {

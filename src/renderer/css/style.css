@@ -323,6 +323,7 @@ body.theme-dark .group.lv1.open > .group-head:hover { background: rgba(var(--acc
   padding: 1px 4px; margin-left: 3px; border-radius: 4px;
   background: var(--panel-3); color: var(--text-2); flex: 0 0 auto;
 }
+.ci-tag.proxy { background: var(--accent-soft); color: var(--accent); }
 .ci-state { width: 6px; height: 6px; border-radius: 50%; flex: 0 0 auto; background: transparent; }
 .conn-item.online .ci-state { background: var(--ok); box-shadow: 0 0 0 3px var(--accent-soft); }
 
@@ -374,33 +375,56 @@ body.resizing { user-select: none; cursor: grabbing; }
 .center { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; overflow: hidden; background: var(--panel); }
 .terminal-block { position: relative; flex: 1 1 auto; min-height: 150px; display: flex; flex-direction: column; overflow: hidden; }
 
-.tabs { display: flex; align-items: stretch; height: 32px; background: var(--panel-2); border-bottom: 1px solid var(--line); flex: 0 0 auto; }
-.tabs-scroll { display: flex; overflow-x: auto; overflow-y: hidden; flex: 1 1 auto; scrollbar-width: none; }
-.tabs-scroll::-webkit-scrollbar { height: 0; }
-.tabs-tools { display: flex; align-items: center; padding: 0 5px; border-left: 1px solid var(--line); gap: 2px; }
+.tabs { position: relative; display: flex; align-items: flex-start; min-height: 32px; background: var(--panel-2); border-bottom: 1px solid var(--line); flex: 0 0 auto; }
+.tab-rows { flex: 1 1 auto; width: 100%; min-width: 0; display: flex; flex-direction: column; }
+.tab-row { height: 32px; min-width: 0; display: flex; align-items: stretch; }
+.tab-row.first { overflow: hidden; margin-right: var(--tabs-tools-w, 70px); }
+.tab-row.second { display: none; border-top: 1px solid var(--line); }
+.tab-row.second.show { display: flex; }
+.tab-scroll { flex: 1 1 auto; min-width: 0; display: flex; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
+.tab-scroll::-webkit-scrollbar { height: 0; }
+.tab-arrows { flex: 0 0 auto; display: flex; align-items: stretch; margin-left: 10px; border-left: 1px solid var(--line); }
+.tab-arrow {
+  width: 24px; border: 0; background: transparent; color: var(--text-2);
+  cursor: pointer; font-size: 15px; line-height: 1; padding: 0;
+}
+.tab-arrow:hover:not(:disabled) { background: var(--panel-3); color: var(--accent); }
+.tab-arrow:disabled { opacity: .35; cursor: default; }
+.tabs-tools {
+  position: absolute; top: 0; right: 0; z-index: 3;
+  height: 32px; display: flex; align-items: center; padding: 0 5px;
+  border-left: 1px solid var(--line); gap: 2px; background: var(--panel-2);
+}
 
 .term-tab {
   display: flex; align-items: center; gap: 6px;
   padding: 0 7px 0 10px; font-size: 12px; color: var(--text-2);
   border-right: 1px solid var(--line); cursor: pointer; white-space: nowrap;
-  max-width: 200px; position: relative; user-select: none;
+  flex: 0 0 auto; max-width: 280px; position: relative; user-select: none;
+  overflow: hidden;
 }
 .term-tab:hover { background: var(--panel-3); }
 .term-tab.active { background: var(--panel); color: var(--text); font-weight: 500; }
 .term-tab.active::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 2px; background: var(--accent); }
 .term-tab.dragging { opacity: .5; }
-.term-tab.detail .t-icon { font-size: 10px; opacity: .85; }
-.term-tab .dot { width: 6px; height: 6px; }
-.term-tab .t-name { overflow: hidden; text-overflow: ellipsis; display: inline-flex; align-items: center; gap: 4px; }
+.term-tab.detail .t-icon, .term-tab.blank .t-icon { font-size: 10px; opacity: .85; flex: 0 0 auto; font-family: var(--font-mono); }
+.term-tab .dot { width: 6px; height: 6px; flex: 0 0 auto; }
+.term-tab .t-name { min-width: 0; overflow: hidden; display: flex; align-items: center; gap: 4px; }
+.term-tab .t-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .term-tab .t-proxy {
   font-style: normal; font-size: 9px; line-height: 1; padding: 1px 4px; border-radius: 4px;
   background: var(--accent-soft); color: var(--accent); flex: 0 0 auto;
 }
 .term-tab .t-close {
-  width: 16px; height: 16px; border: 0; border-radius: 4px; background: transparent;
+  width: 16px; height: 16px; flex: 0 0 auto; border: 0; border-radius: 4px; background: transparent;
   color: var(--muted); cursor: pointer; font-size: 10px; line-height: 1; padding: 0;
 }
 .term-tab .t-close:hover { background: var(--line-strong); color: var(--danger); }
+.tab-add {
+  flex: 0 0 auto; width: 30px; border: 0; border-right: 1px solid var(--line);
+  background: transparent; color: var(--text-2); cursor: pointer; font-size: 15px; padding: 0;
+}
+.tab-add:hover { background: var(--panel-3); color: var(--accent); }
 
 .term-host { flex: 1 1 auto; min-height: 0; position: relative; background: var(--term-bg); overflow: hidden; }
 .term-pane { position: absolute; inset: 0; padding: 6px 4px 2px 8px; display: none; }
@@ -428,12 +452,10 @@ body.resizing { user-select: none; cursor: grabbing; }
 
 .empty-state {
   position: absolute; inset: 0; display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 7px; color: var(--term-muted);
+  align-items: center; justify-content: flex-start; padding: 26px 16px 16px;
+  color: var(--term-muted);
   background: radial-gradient(circle at 50% 38%, var(--term-empty-1), var(--term-bg) 72%);
 }
-.empty-logo { font-family: var(--font-mono); font-size: 32px; color: var(--term-accent); letter-spacing: 2px; opacity: .9; }
-.empty-title { font-size: 13px; color: var(--term-fg); }
-.empty-sub { font-size: 11.5px; color: var(--term-muted); }
 
 /* 命令输入栏：固定高度 + 垂直居中，输入框上下留白严格相等。
  * 顶部分隔线用 inset 阴影绘制，不占布局高度，避免 border 让上下差 1px。 */
@@ -501,20 +523,23 @@ body.resizing { user-select: none; cursor: grabbing; }
 .file-table tr.placeholder td { text-align: center; color: var(--muted); padding: 16px 0; }
 .file-foot { flex: 0 0 auto; display: flex; justify-content: space-between; padding: 4px 10px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; background: var(--panel-2); }
 
-/* 快捷命令 */
+/* 快捷命令：控制区固定在首行右上角，板块从第一行开始排，放不下时自动增行 */
 .snip-head {
-  display: flex; align-items: center; flex-wrap: wrap; gap: 6px 7px;
+  position: relative;
   padding: 7px 8px; border-bottom: 1px solid var(--line); flex: 0 0 auto;
 }
-/* 板块独占一行并自动换行：一屏可放下 6~8 个板块，超过两行再滚动 */
-.board-tabs {
-  flex: 1 0 100%; display: flex; flex-wrap: wrap; gap: 4px;
-  max-height: 54px; overflow-y: auto; overflow-x: hidden;
+.board-rows { display: flex; flex-direction: column; gap: 4px; min-height: 23px; }
+.board-row { display: flex; flex-wrap: nowrap; gap: 4px; min-width: 0; }
+.snip-controls {
+  position: absolute; top: 7px; right: 8px;
+  display: flex; align-items: center; gap: 6px;
+  padding-left: 7px; background: var(--panel);
 }
 .board-tab {
   height: 23px; padding: 0 10px; border-radius: 99px; border: 1px solid var(--line);
   background: var(--panel); color: var(--text-2); cursor: pointer; font-size: 11.5px;
   white-space: nowrap; max-width: 148px; overflow: hidden; text-overflow: ellipsis;
+  flex: 0 0 auto;
   transition: border-color .12s, color .12s, background .12s;
 }
 .board-tab:hover { border-color: var(--accent-soft); color: var(--accent); }
@@ -581,7 +606,13 @@ body.resizing { user-select: none; cursor: grabbing; }
 }
 .srv-meta { flex: 1 1 auto; min-width: 0; }
 .srv-name { font-weight: 600; font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.srv-host { color: var(--muted); font-size: 10.5px; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.srv-host {
+  color: var(--muted); font-size: 10.5px; margin-top: 1px;
+  white-space: normal; overflow-wrap: anywhere; word-break: break-word;
+  line-height: 1.35; max-height: 2.7em; overflow: hidden;
+  padding-left: 1em; text-indent: -1em; cursor: default;
+}
+.srv-host:hover { color: var(--accent); }
 .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--line-strong); flex: 0 0 auto; }
 .dot.online { background: var(--ok); box-shadow: 0 0 0 3px rgba(30,169,124,.15); }
 .dot.offline { background: var(--line-strong); }
@@ -596,7 +627,9 @@ body.resizing { user-select: none; cursor: grabbing; }
  * 多余空间交给「进程预览」：basis 0 让它的高度完全由布局决定（不受内容反推），
  * 行数由脚本按实际可用高度计算撑满，超出部分直接裁掉，不出现滚动条 */
 .side-body .panel.proc-panel { flex: 1 1 0; min-height: 132px; display: flex; flex-direction: column; overflow: hidden; }
+.side-body .panel.proc-panel .proc-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; }
 .side-body .panel.proc-panel .proc-table { flex: 0 0 auto; }
+.proc-scroll .proc-table thead th { position: sticky; top: 0; z-index: 2; background: var(--panel-2); }
 .side-body .panel.net-panel { flex: 0 0 auto; display: flex; flex-direction: column; min-height: 96px; }
 
 .panel { background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 6px 8px 6px; margin-bottom: 5px; }
@@ -610,14 +643,6 @@ body.resizing { user-select: none; cursor: grabbing; }
 .kv-item { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
 .kv-item span { color: var(--muted); font-size: 10.5px; }
 .kv-item b { font-weight: 500; font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-/* IP 可能是很长的域名：优先在点号处折行、最多两行（完整值见悬浮提示，点击复制整串） */
-.kv-item b#info-ip {
-  white-space: normal; word-break: normal; overflow-wrap: anywhere; line-height: 1.35;
-  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
-}
-/* 可点击复制的值（服务器信息里的 IP / 端口） */
-.kv-item b.copyable { cursor: pointer; }
-.kv-item b.copyable:hover { color: var(--accent); text-decoration: underline dotted; }
 
 .meter-line { display: flex; align-items: baseline; gap: 3px; margin-bottom: 3px; }
 .meter-val { font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: -.3px; }
@@ -1156,9 +1181,10 @@ body.dragging-panel { user-select: none; }
 .proxy-badge { font-size: 9.5px; margin-left: 6px; padding: 1px 6px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }
 
 /* 启动空白页：最近连接历史 */
-.recent-box { width: min(520px, 78%); margin-top: 20px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); overflow: hidden; text-align: left; }
+.recent-box { width: min(620px, 88%); margin-top: 0; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); overflow: hidden; text-align: left; }
 .recent-head { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-bottom: 1px solid var(--line); background: var(--panel-2); font-size: 11.5px; font-weight: 600; color: var(--text-2); }
 .recent-list { max-height: 190px; overflow-y: auto; }
+.recent-empty { padding: 20px 10px; text-align: center; color: var(--muted); font-size: 11.5px; }
 .recent-row { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-bottom: 1px solid var(--line); cursor: pointer; font-size: 11.5px; }
 .recent-row:last-child { border-bottom: 0; }
 .recent-row:hover { background: var(--accent-soft); }
@@ -1167,7 +1193,6 @@ body.dragging-panel { user-select: none; }
 .recent-name { font-weight: 600; flex: 0 0 auto; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .recent-addr { flex: 1 1 auto; min-width: 0; color: var(--text-2); font-family: var(--font-mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .recent-time { color: var(--muted); font-size: 10px; flex: 0 0 auto; }
-.recent-tip { padding: 6px 10px; border-top: 1px solid var(--line); color: var(--muted); font-size: 10px; }
 .empty-state .recent-box { color: var(--text); }
 .detail-head select[data-interval] { height: 24px; font-size: 11px; padding: 0 6px; min-width: 74px; }
 
