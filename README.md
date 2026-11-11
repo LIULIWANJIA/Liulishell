@@ -61,15 +61,16 @@ LIULI Shell 是一款跨平台 SSH 终端与服务器管理工具，界面参考
 **从 GitHub 克隆**（海外 / 国际网络）：
 
 ```bash
-rm -rf liuli-shell && git clone https://github.com/LIULIWANJIA/Liulishell.git
+rm -rf liuli-shell Liulishell && git clone https://github.com/LIULIWANJIA/Liulishell.git liuli-shell
 ```
 
 **从 Gitee 克隆**（国内网络推荐，速度更快）：
 
 ```bash
-rm -rf liuli-shell && git clone https://gitee.com/liuliwanjiaweb/liuli-shell.git
+rm -rf liuli-shell Liulishell && git clone https://gitee.com/liuliwanjiaweb/liuli-shell.git
 ```
 
+> Gitee 仓库默认克隆目录是 `liuli-shell`；GitHub 仓库默认是 `Liulishell`，上面的 GitHub 命令已显式指定为 `liuli-shell`。后续统一执行 `cd liuli-shell`。
 > Gitee 克隆时可能提示输入账号与密码，完成后再执行下一步。
 
 ### Linux 快速构建（推荐）
