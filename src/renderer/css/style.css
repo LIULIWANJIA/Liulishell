@@ -334,17 +334,18 @@ body.theme-dark .group.lv1.open > .group-head:hover { background: rgba(var(--acc
   flex: 0 0 auto;
   height: calc(var(--bottom-h) + var(--cmd-bar-h) - var(--left-foot-h));
   min-height: 220px; max-height: none;
-  overflow: hidden;
+  overflow-y: auto; overflow-x: hidden;
+  scrollbar-width: none; -ms-overflow-style: none;
   padding: 6px 8px 4px; border-top: 1px solid var(--line);
   background: var(--panel-2);
   display: flex; flex-direction: column; gap: 5px;
 }
+.left-monitors::-webkit-scrollbar { width: 0; height: 0; }
 .left-monitors .panel { padding: 5px 8px; margin-bottom: 0; flex: 0 0 auto; }
-.left-monitors .panel.disk-panel { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+.left-monitors .panel.disk-panel { flex: 1 0 auto; min-height: 0; display: flex; flex-direction: column; overflow: visible; }
 .left-monitors .panel.disk-panel .disk-table { flex: 0 0 auto; }
-/* 挂载点全部列出，超出面板高度时在内部滚动 */
-.disk-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; }
-.disk-scroll .disk-table thead th { position: sticky; top: 0; background: var(--panel-2); z-index: 1; }
+/* 磁盘分区跟随外层监控区一起滚动，不再做内部滚动 */
+.disk-scroll { flex: 1 0 auto; min-height: 0; overflow: visible; }
 .left-monitors .meter-val { font-size: 15px; }
 .left-monitors .meter-line { margin-bottom: 2px; line-height: 1.25; }
 .left-monitors .meter { height: 5px; }
@@ -621,13 +622,14 @@ body.resizing { user-select: none; cursor: grabbing; }
 .dot.failed { background: var(--danger); box-shadow: 0 0 0 3px rgba(229,72,77,.14); }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
 
-.side-body { flex: 1 1 auto; overflow-y: auto; overflow-x: hidden; padding: 7px 7px 5px; display: flex; flex-direction: column; }
+.side-body { flex: 1 1 auto; overflow-y: auto; overflow-x: hidden; padding: 7px 8px 5px; display: flex; flex-direction: column; scrollbar-width: none; -ms-overflow-style: none; }
+.side-body::-webkit-scrollbar { width: 0; height: 0; }
 .side-body .panel { flex: 0 0 auto; }
 /* 面板高度固定，不随右侧栏可用高度变化：网络心跳始终是默认高度；
  * 多余空间交给「进程预览」：basis 0 让它的高度完全由布局决定（不受内容反推），
  * 行数由脚本按实际可用高度计算撑满，超出部分直接裁掉，不出现滚动条 */
-.side-body .panel.proc-panel { flex: 1 1 0; min-height: 132px; display: flex; flex-direction: column; overflow: hidden; }
-.side-body .panel.proc-panel .proc-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; }
+.side-body .panel.proc-panel { flex: 1 1 0; min-height: 88px; display: flex; flex-direction: column; overflow: hidden; }
+.side-body .panel.proc-panel .proc-scroll { flex: 1 1 auto; min-height: 0; overflow: hidden; }
 .side-body .panel.proc-panel .proc-table { flex: 0 0 auto; }
 .proc-scroll .proc-table thead th { position: sticky; top: 0; z-index: 2; background: var(--panel-2); }
 .side-body .panel.net-panel { flex: 0 0 auto; display: flex; flex-direction: column; min-height: 96px; }

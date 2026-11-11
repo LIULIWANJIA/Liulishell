@@ -298,10 +298,10 @@ window.Sidebar = (function () {
       .join('');
   }
 
-  /** 进程预览：默认至少展示 5 条；空间富余时自动增加行数，空间不足时在面板内滚动查看。
+  /** 进程预览：最少展示 1 条；空间足够时自动增加行数，不显示内部滚动条。
    *  先用 3 行探针测出真实行距，再按可用高度计算行数。 */
   function renderProcs(sess) {
-    const MIN_ROWS = 5;
+    const MIN_ROWS = 1;
     const rows = (sess && sess.procs) || [];
     const tbody = $('#proc-body');
     if (!tbody) return;
@@ -333,7 +333,7 @@ window.Sidebar = (function () {
     let limit = Math.max(minRows, Math.min(rows.length, fit));
     tbody.innerHTML = procHtml(rows.slice(0, limit));
 
-    // 空间足够时做一次溢出校正；不足 5 行时保留 5 行并允许滚动
+    // 溢出校正；最少保留 1 行，内部不使用滚动条
     if (scroller && fit >= minRows) {
       const edge = scroller.getBoundingClientRect().bottom;
       let guard = 0;

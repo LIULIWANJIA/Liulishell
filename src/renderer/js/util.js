@@ -519,11 +519,11 @@ window.U = (function () {
     qsa,
     esc,
     // 版本号与运行形态（由主进程提供，跟随 package.json / 是否是便携版）
-    appVersion: ((window.api && window.api.appInfo) || {}).version || '1.14.2',
+    appVersion: ((window.api && window.api.appInfo) || {}).version || '1.14.3',
     dataFile: ((window.api && window.api.appInfo) || {}).dataFile || '',
     isPortable: !!(window.api && window.api.appInfo && window.api.appInfo.portable),
     versionText() {
-      return 'LIULI Shell v' + (((window.api && window.api.appInfo) || {}).version || '1.14.2');
+      return 'LIULI Shell v' + (((window.api && window.api.appInfo) || {}).version || '1.14.3');
     },
     fmtBytes,
     fmtRate,
