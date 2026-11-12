@@ -1,10 +1,10 @@
 <div align="center">
 
-# LIULI Shell
+# LIULI Shell 开源 SHELL 工具
 
-<img src="docs/assets/icon.png" width="100" alt="LIULI Shell LOGO" />
+<img src="docs/assets/main-latest.png" width="920" alt="LIULI Shell 主界面" /><br>
 
-<img src="docs/assets/main-latest.png" width="920" alt="LIULI Shell 主界面" />
+<img src="docs/assets/icon.png" width="100" alt="LIULI Shell LOGO" /><br>
 
 <h2>源码公开、易用、免费、跨平台 的 SSH 终端</h2>
 
@@ -26,10 +26,10 @@
 
 | 版本 | 说明 | 下载 |
 | --- | --- | --- |
-| **便携版（推荐）** | 约 93 MB，免安装，双击即用 | [GitHub Releases](https://github.com/LIULIWANJIA/Liulishell/releases) · [Gitee Releases](https://gitee.com/liuliwanjiaweb/liuli-shell/releases) · [夸克网盘](https://pan.quark.cn/s/3b9930496416?pwd=YKXY)（提取码 `YKXY`） |
-| **安装版** | NSIS 安装向导，创建开始菜单与桌面快捷方式 | [GitHub Releases](https://github.com/LIULIWANJIA/Liulishell/releases) · [Gitee Releases](https://gitee.com/liuliwanjiaweb/liuli-shell/releases) · [夸克网盘](https://pan.quark.cn/s/3b9930496416?pwd=YKXY)（提取码 `YKXY`） |
+| **便携版（推荐）** | 免安装，双击即用 | [GitHub](https://github.com/LIULIWANJIA/Liulishell/releases) · [Gitee](https://gitee.com/liuliwanjiaweb/liuli-shell/releases) · [夸克网盘](https://pan.quark.cn/s/3b9930496416?pwd=YKXY)（提取码 `YKXY`） |
+| **安装版** | 有安装向导，自动创建桌面快捷方式 | [GitHub](https://github.com/LIULIWANJIA/Liulishell/releases) · [Gitee](https://gitee.com/liuliwanjiaweb/liuli-shell/releases) · [夸克网盘](https://pan.quark.cn/s/3b9930496416?pwd=YKXY)（提取码 `YKXY`） |
 
-> 便携版配置写在 exe 同级的 `data` 目录；安装版配置在 `%APPDATA%\LIULI Shell`。升级、重装或卸载不会删除数据。
+> 便携版和安装版配置默认都在 `%APPDATA%\LIULI Shell`；便携版 exe 同目录存在 `data` 文件夹时，会改用该目录作为配置目录。升级、重装或卸载不会删除数据。
 
 ### Linux GUI / macOS 快速构建
 
@@ -128,10 +128,25 @@ npm run vendor && npm run dist:mac
 
 - **多标签 SSH 终端**：状态灯、断开重连、标签拖动排序、命令历史与补全
 - **SFTP 文件管理**：目录树 + 文件列表 + 内置编辑器，终端 `cd` 跟随；拖拽上传、整目录下载、权限管理、打包传输
+- **FinalShell 迁移**：支持直接导入 FinalShell 导出的 JSON 备份，也支持文件夹拖放导入
 - **服务器管理**：分组与多选、拖动移动到其他分组、配置复制粘贴、30 天回收站、检查 IP 信息
 - **实时监控**：CPU、内存、Swap、磁盘、网卡速率与进程预览，量程自适应
 - **WebDAV 加密同步**：配置、分组、收藏文件夹与回收站双向合并，多设备迁移不丢改动
-- **个性化**：8 套主题（含暗色）、界面缩放、快捷命令板块、FinalShell 配置导入
+- **个性化**：8 套主题（含暗色）、界面缩放、快捷命令板块
+
+### 界面预览
+
+| 多标签 SSH 终端 | SFTP 文件管理 |
+| :---: | :---: |
+| <img src="docs/assets/feature-terminal.png" width="100%" alt="多标签 SSH 终端" /> | <img src="docs/assets/feature-files.png" width="100%" alt="SFTP 文件管理" /> |
+
+| 服务器管理与多选 | 配置回收站 |
+| :---: | :---: |
+| <img src="docs/assets/feature-servers.png" width="100%" alt="服务器管理与多选" /> | <img src="docs/assets/feature-recycle.png" width="100%" alt="配置回收站" /> |
+
+| 实时监控 | 主题与界面 |
+| :---: | :---: |
+| <img src="docs/assets/feature-monitor.png" width="100%" alt="实时监控" /> | <img src="docs/assets/feature-settings.png" width="100%" alt="主题与界面" /> |
 
 ---
 
