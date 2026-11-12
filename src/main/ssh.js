@@ -447,6 +447,171 @@ class SshSession {
     };
   }
 
+  /** 服务器详情：一次性读取系统、CPU、内存、Swap、网卡与磁盘信息 */
+  async fetchSysinfoDetail() {
+    const cmd = [
+      "echo '@@sidetail'",
+      "echo '@@os'; (cat /etc/os-release 2>/dev/null | head -n 8) || true",
+      "echo '@@kernel'; uname -s 2>/dev/null; uname -r 2>/dev/null",
+      "echo '@@arch'; uname -m 2>/dev/null",
+      "echo '@@host'; hostname 2>/dev/null",
+      "echo '@@user'; whoami 2>/dev/null",
+      "echo '@@up'; (uptime -p 2>/dev/null || uptime 2>/dev/null)",
+      "echo '@@load'; cat /proc/loadavg 2>/dev/null",
+      "echo '@@cpuinfo'; (grep -m1 -E 'model name|^Hardware|^Processor' /proc/cpuinfo 2>/dev/null); (grep -m1 'cpu MHz' /proc/cpuinfo 2>/dev/null); (grep -m1 'cache size' /proc/cpuinfo 2>/dev/null); (nproc 2>/dev/null || grep -c ^processor /proc/cpuinfo 2>/dev/null)",
+      "echo '@@stat1'; head -n 1 /proc/stat 2>/dev/null",
+      "echo '@@mem'; cat /proc/meminfo 2>/dev/null",
+      "echo '@@net1'; cat /proc/net/dev 2>/dev/null",
+      "echo '@@disk'; LC_ALL=C df -Pk 2>/dev/null",
+      "sleep 0.5",
+      "echo '@@stat2'; head -n 1 /proc/stat 2>/dev/null",
+      "echo '@@net2'; cat /proc/net/dev 2>/dev/null",
+      "echo '@@end'"
+    ].join('\n');
+    const raw = await this.exec(cmd, 15000);
+    const grab = (name) => {
+      const re = new RegExp('@@' + name + '\\n([\\s\\S]*?)(?=\\n@@|$)');
+      const m = re.exec(raw);
+      return m ? m[1].trim() : '';
+    };
+
+    const osRaw = grab('os');
+    const pretty = /PRETTY_NAME="?([^"\n]+)"?/.exec(osRaw);
+    const os = pretty ? pretty[1] : (osRaw.split('\n')[0] || 'Linux');
+    const kernelLines = grab('kernel').split('\n').map((s) => s.trim()).filter(Boolean);
+
+    const cpuLines = grab('cpuinfo').split('\n').map((s) => s.trim()).filter(Boolean);
+    let cpuModel = '';
+    let cpuMhz = '';
+    let cpuCache = '';
+    let cores = 0;
+    for (const line of cpuLines) {
+      const m = /^([^:]+):\s*(.+)$/.exec(line);
+      if (m) {
+        const key = m[1].toLowerCase();
+        if (/model name|hardware|processor/.test(key)) cpuModel = m[2].trim();
+        else if (/cpu mhz/.test(key)) cpuMhz = m[2].trim();
+        else if (/cache size/.test(key)) cpuCache = m[2].trim();
+      } else if (/^\d+$/.test(line)) {
+        cores = Number(line) || cores;
+      }
+    }
+
+    const mem = {};
+    grab('mem').split('\n').forEach((line) => {
+      const m = /^(\w+):\s+(\d+)/.exec(line);
+      if (m) mem[m[1]] = Number(m[2]) * 1024;
+    });
+    const memTotal = mem.MemTotal || 0;
+    const memFree = mem.MemFree || 0;
+    const memAvail = mem.MemAvailable !== undefined
+      ? mem.MemAvailable
+      : memFree + (mem.Buffers || 0) + (mem.Cached || 0);
+    const memUsed = Math.max(0, memTotal - memAvail);
+    const swapTotal = mem.SwapTotal || 0;
+    const swapFree = mem.SwapFree || 0;
+
+    const parseCpu = (text) => {
+      const line = String(text || '').split('\n').find((l) => /^cpu\s/.test(l));
+      if (!line) return null;
+      const p = line.trim().split(/\s+/).slice(1).map(Number);
+      const [user = 0, nice = 0, system = 0, idle = 0, iowait = 0, irq = 0, softirq = 0, steal = 0] = p;
+      return {
+        user, nice, system, idle, iowait, irq, softirq, steal,
+        total: user + nice + system + idle + iowait + irq + softirq + steal
+      };
+    };
+    const c1 = parseCpu(grab('stat1'));
+    const c2 = parseCpu(grab('stat2'));
+    let cpuUsage = null;
+    if (c1 && c2 && c2.total > c1.total) {
+      const dt = c2.total - c1.total;
+      const pct = (v) => Math.max(0, Math.min(100, (v / dt) * 100));
+      cpuUsage = {
+        user: pct(c2.user + c2.nice - c1.user - c1.nice),
+        system: pct(c2.system + c2.irq + c2.softirq - c1.system - c1.irq - c1.softirq),
+        idle: pct(c2.idle - c1.idle),
+        io: pct(c2.iowait - c1.iowait),
+        steal: pct(c2.steal - c1.steal)
+      };
+    }
+
+    const parseNet = (text) => {
+      const map = new Map();
+      String(text || '').split('\n').forEach((line) => {
+        const i = line.indexOf(':');
+        if (i < 0) return;
+        const name = line.slice(0, i).trim();
+        const c = line.slice(i + 1).trim().split(/\s+/).map(Number);
+        if (!name || c.length < 9) return;
+        map.set(name, { rxBytes: c[0], rxPackets: c[1], txBytes: c[8], txPackets: c[9] });
+      });
+      return map;
+    };
+    const n1 = parseNet(grab('net1'));
+    const n2 = parseNet(grab('net2'));
+    const ifaces = [];
+    n2.forEach((v, name) => {
+      const prev = n1.get(name) || v;
+      ifaces.push({
+        name,
+        rxBytes: v.rxBytes,
+        txBytes: v.txBytes,
+        rxRate: Math.max(0, v.rxBytes - prev.rxBytes),
+        txRate: Math.max(0, v.txBytes - prev.txBytes)
+      });
+    });
+    ifaces.sort((a, b) => (a.name === 'lo' ? 1 : b.name === 'lo' ? -1 : a.name.localeCompare(b.name)));
+
+    const disks = [];
+    grab('disk').split('\n').forEach((line) => {
+      if (!line.trim()) return;
+      const p = line.trim().split(/\s+/);
+      if (p.length < 6) return;
+      if (!/^\d+(\.\d+)?%?$/.test(p[4])) return;
+      const fsName = p[0];
+      const mount = p.slice(5).join(' ');
+      if (PSEUDO_FS.has(fsName)) return;
+      if (!mount.startsWith('/')) return;
+      if (mount.startsWith('/sys') || mount.startsWith('/proc') || mount.startsWith('/dev')) return;
+      const total = Number(p[1]);
+      const used = Number(p[2]);
+      const free = Number(p[3]);
+      if (!Number.isFinite(total) || !Number.isFinite(used) || !Number.isFinite(free)) return;
+      disks.push({
+        fs: fsName,
+        mount,
+        total: total * 1024,
+        used: used * 1024,
+        free: free * 1024,
+        usedPct: parseInt(p[4], 10) || 0
+      });
+    });
+
+    const load = grab('load').split(/\s+/).slice(0, 3).filter(Boolean);
+    return {
+      os,
+      kernelName: kernelLines[0] || '',
+      kernel: kernelLines[1] || kernelLines[0] || '',
+      arch: grab('arch'),
+      hostname: grab('host') || this.cfg.host,
+      user: grab('user') || this.cfg.user,
+      uptime: grab('up'),
+      load,
+      cpu: {
+        model: cpuModel || grab('arch') || '未知',
+        mhz: cpuMhz,
+        cache: cpuCache,
+        cores,
+        usage: cpuUsage
+      },
+      memory: { total: memTotal, used: memUsed, free: memFree, available: memAvail },
+      swap: { total: swapTotal, used: Math.max(0, swapTotal - swapFree), free: swapFree },
+      net: ifaces,
+      disks
+    };
+  }
+
   /* ---------------- 执行 ---------------- */
 
   exec(cmd, timeout = 15000) {
@@ -572,7 +737,7 @@ class SshSession {
       "echo '@@net'; cat /proc/net/dev 2>/dev/null",
       "echo '@@ifstats'; for i in /sys/class/net/*; do n=$(basename $i); echo \"$n $(cat $i/statistics/rx_bytes 2>/dev/null) $(cat $i/statistics/tx_bytes 2>/dev/null)\"; done",
       "echo '@@ifaces'; ls /sys/class/net 2>/dev/null",
-      "echo '@@disk'; df -hP 2>/dev/null | head -n 60",
+      "echo '@@disk'; LC_ALL=C df -hP 2>/dev/null | head -n 60",
       "echo '@@load'; cat /proc/loadavg 2>/dev/null",
       "echo '@@end'"
     ].join('; ');
@@ -671,13 +836,14 @@ class SshSession {
     grab('disk')
       .split('\n')
       .filter((l) => l.trim())
-      .forEach((line, i) => {
-        if (i === 0 && /^Filesystem/i.test(line)) return;
+      .forEach((line) => {
         const parts = line.trim().split(/\s+/);
         if (parts.length < 6) return;
+        if (!/^\d+(\.\d+)?%?$/.test(parts[4])) return;
         const fsName = parts[0];
         const mount = parts.slice(5).join(' ');
         if (PSEUDO_FS.has(fsName)) return;
+        if (!mount.startsWith('/')) return;
         if (mount.startsWith('/sys') || mount.startsWith('/proc') || mount.startsWith('/dev')) return;
         disks.push({
           fs: fsName,

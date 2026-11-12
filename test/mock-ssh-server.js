@@ -47,6 +47,7 @@ const HOSTNAME = 'mock-node';
 const HOME = '/home/demo';
 
 let tick = 0;
+let detailSeq = 0;
 const started = Date.now();
 
 function cpuLine() {
@@ -208,12 +209,69 @@ function monitorBundle() {
   ].join('\n');
 }
 
+function detailBundle() {
+  detailSeq++;
+  const rx1 = 987654321 + detailSeq * 1000000;
+  const tx1 = 123456789 + detailSeq * 300000;
+  return [
+    '@@sidetail',
+    '@@os',
+    'PRETTY_NAME="Ubuntu 22.04.4 LTS"',
+    'NAME="Ubuntu"',
+    'VERSION_ID="22.04"',
+    '@@kernel',
+    'Linux',
+    '5.15.0-113-generic',
+    '@@arch',
+    'x86_64',
+    '@@host',
+    HOSTNAME,
+    '@@user',
+    'demo',
+    '@@up',
+    'up 12 days, 4 hours',
+    '@@load',
+    '0.28 0.38 0.18 1/234 5678',
+    '@@cpuinfo',
+    'model name : Intel(R) Xeon(R) Gold 6248 CPU @ 2.50GHz',
+    'cpu MHz : 2499.998',
+    'cache size : 28160 KB',
+    '8',
+    '@@stat1',
+    'cpu  120000 1200 40000 900000 800 0 0 0 0 0',
+    '@@mem',
+    'MemTotal:       8388608 kB',
+    'MemFree:        2097152 kB',
+    'MemAvailable:   5242880 kB',
+    'Buffers:         131072 kB',
+    'Cached:         1048576 kB',
+    'SwapTotal:      2097152 kB',
+    'SwapFree:       1572864 kB',
+    '@@net1',
+    '    lo: 12345678 12345 0 0 0 0 0 0 12345678 12345 0 0 0 0 0 0',
+    `  eth0: ${rx1} 654321 0 0 0 0 0 0 ${tx1} 234567 0 0 0 0 0 0`,
+    '@@disk',
+    'Filesystem     1024-blocks      Used Available Capacity Mounted on',
+    '/dev/sda1         52428800  22020096  27761408      45% /',
+    '/dev/sdb1        209715200 174483046  24551424      88% /data',
+    '/dev/sdc1        524288000 125829120 372505600      26% /backup',
+    'tmpfs              4194304         0   4194304       0% /dev/shm',
+    '@@stat2',
+    'cpu  120350 1200 40100 902000 820 0 0 0 0 0',
+    '@@net2',
+    '    lo: 12350000 12360 0 0 0 0 0 0 12350000 12360 0 0 0 0 0 0',
+    `  eth0: ${rx1 + 2345678} 655000 0 0 0 0 0 0 ${tx1 + 243433} 234900 0 0 0 0 0 0`,
+    '@@end'
+  ].join('\n');
+}
+
 function shellQuoteStrip(s) {
   return s.trim().replace(/^'|'$/g, '').replace(/'\\''/g, "'");
 }
 
 function runCommand(cmd) {
   const c = cmd.trim();
+  if (c.includes('@@sidetail')) return detailBundle();
   if (c.includes('@@cwd')) return ps() + '\n@@cwd\n' + procCwd();
   if (c.includes('@@cpu')) return monitorBundle();
   if (c.includes('@@os')) return sysinfoBundle();

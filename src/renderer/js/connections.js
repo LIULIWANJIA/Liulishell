@@ -643,11 +643,6 @@ window.Connections = (function () {
         )}"></div>
       </div>
       <div class="form-row">
-        <div class="field"><label>备注</label><input id="f-remark" type="text" value="${U.esc(
-          conn ? conn.remark || '' : ''
-        )}" placeholder="无"></div>
-      </div>
-      <div class="form-row">
         <div class="field"><label>认证方式</label>
           <div class="radio-row">
             <label><input type="radio" name="f-auth" value="password"${isKey ? '' : ' checked'}> 密码</label>
@@ -687,6 +682,11 @@ window.Connections = (function () {
             conn && conn.hasPassphrase ? '已保存，留空表示不修改' : '私钥未加密则留空'
           }"></div></div>
         </div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>备注</label><textarea id="f-remark" class="remark-input" rows="5" placeholder="无">${U.esc(
+          conn ? conn.remark || '' : ''
+        )}</textarea></div>
       </div>
       <div class="form-row">
         <div class="field"><label>代理</label>

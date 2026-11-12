@@ -243,17 +243,36 @@ window.Sidebar = (function () {
     }
   }
 
+  /** 小流量噪声忽略 + 指数平滑：避免空闲时的细小抖动让曲线和量程乱跳 */
+  const NET_NOISE = 8 * 1024;
+  function smoothRate(prev, raw) {
+    const p = Math.max(0, Number(prev) || 0);
+    const r = Math.max(0, Number(raw) || 0);
+    if (r < NET_NOISE) {
+      if (p < NET_NOISE) return 0;
+      return p + (r - p) * 0.25;
+    }
+    return p + (r - p) * 0.35;
+  }
+
   function pushSample(sess, st) {
     if (!sess.nic) return;
     const iface = ((st.net && st.net.ifaces) || []).find((i) => i.name === sess.nic);
     if (!iface) return;
+    if (sess.netSmoothNic !== sess.nic) {
+      sess.netSmoothNic = sess.nic;
+      sess.netSmooth = { rx: 0, tx: 0 };
+    }
+    sess.netSmooth = sess.netSmooth || { rx: 0, tx: 0 };
+    sess.netSmooth.rx = smoothRate(sess.netSmooth.rx, iface.rxRate);
+    sess.netSmooth.tx = smoothRate(sess.netSmooth.tx, iface.txRate);
     sess.netHistory = sess.netHistory || [];
-    sess.netHistory.push({ rx: iface.rxRate || 0, tx: iface.txRate || 0 });
+    sess.netHistory.push({ rx: sess.netSmooth.rx, tx: sess.netSmooth.tx });
     while (sess.netHistory.length > 64) sess.netHistory.shift();
   }
 
   /* ---------------- 网络速率单位与量程 ---------------- */
-  const MBPS_LADDER = [0.5, 1, 10, 100, 1000, 10000];
+  const MBPS_LADDER = [0.5, 1, 2, 5, 10, 50, 100, 1000, 10000];
 
   function netUnit() {
     return U.unitFor('chart');
@@ -379,19 +398,33 @@ window.Sidebar = (function () {
       sess.netScaleUnit = unit;
       sess.netScale = ladder[0];
       sess.netScaleDrop = 0;
+      sess.netScaleUp = 0;
     }
     let scale = Number(sess.netScale) || ladder[0];
     if (peak * 1.2 > scale) {
-      scale = ladder.find((v) => v >= peak * 1.2) || ladder[ladder.length - 1];
-      sess.netScaleDrop = 0;
+      sess.netScaleUp = (sess.netScaleUp || 0) + 1;
+      // 小波动先观察两次；明显超出当前量程时才立即升档，避免曲线频繁缩放
+      if (peak > scale * 3 || sess.netScaleUp >= 2) {
+        scale = ladder.find((v) => v >= peak * 1.2) || ladder[ladder.length - 1];
+        sess.netScaleDrop = 0;
+        sess.netScaleUp = 0;
+      }
     } else if (scale > ladder[0] && peak < scale * 0.28) {
-      sess.netScaleDrop = (sess.netScaleDrop || 0) + 1;
-      if (sess.netScaleDrop >= 3) {
-        const i = Math.max(0, ladder.indexOf(scale) - 1);
-        scale = ladder[i];
+      sess.netScaleUp = 0;
+      const idx = ladder.indexOf(scale);
+      const nextScale = ladder[Math.max(0, idx - 1)];
+      // 降档后仍要留出约 1.6 倍余量，避免刚降下去又被峰值顶回来，造成量程来回跳
+      if (nextScale >= peak * 1.6) {
+        sess.netScaleDrop = (sess.netScaleDrop || 0) + 1;
+        if (sess.netScaleDrop >= 3) {
+          scale = nextScale;
+          sess.netScaleDrop = 0;
+        }
+      } else {
         sess.netScaleDrop = 0;
       }
     } else {
+      sess.netScaleUp = 0;
       sess.netScaleDrop = 0;
     }
     sess.netScale = scale;

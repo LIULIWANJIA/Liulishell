@@ -900,8 +900,7 @@ function isLocalAddress(host) {
   return false;
 }
 
-ipcMain.handle('net:ipInfo', async (_e, { host }) => {
-  const h = String(host || '').trim().replace(/^https?:\/\//i, '').split('/')[0];
+ipcMain.handle('net:ipInfo', async (_e, { host }) => {  const h = String(host || '').trim().replace(/^https?:\/\//i, '').split('/')[0];
   if (!h) return { ok: false, error: '主机地址为空' };
   if (isLocalAddress(h)) {
     return { ok: true, local: true, ip: h, reason: '本机或内网地址，不进行公网归属查询。' };
@@ -932,6 +931,12 @@ ipcMain.handle('net:ipInfo', async (_e, { host }) => {
   } catch (err) {
     return { ok: false, error: (err && err.message) || String(err) };
   }
+});
+
+/* ---------- 服务器详情 ---------- */
+ipcMain.handle('sysinfo:detail', async (_e, { sessionId }) => {
+  const sess = ssh.getSession(sessionId);
+  return sess.fetchSysinfoDetail();
 });
 
 /* ---------- 下载管理器 ---------- */

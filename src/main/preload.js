@@ -56,6 +56,7 @@ const api = {
   termWrite: (payload) => ipcRenderer.invoke('term:write', payload),
   termResize: (payload) => ipcRenderer.invoke('term:resize', payload),
   setProcSort: (payload) => ipcRenderer.invoke('proc:sort', payload),
+  sysinfoDetail: (payload) => ipcRenderer.invoke('sysinfo:detail', payload || {}),
   procList: (payload) => ipcRenderer.invoke('proc:list', payload),
   killProc: (payload) => ipcRenderer.invoke('proc:kill', payload),
   netList: (payload) => ipcRenderer.invoke('net:list', payload),
