@@ -1,7 +1,5 @@
 <div align="center">
 
-# LIULI Shell 开源 SHELL 工具
-
 <img src="docs/assets/main-latest.png" width="920" alt="LIULI Shell 主界面" /><br>
 
 <img src="docs/assets/icon.png" width="100" alt="LIULI Shell LOGO" /><br>
@@ -35,7 +33,7 @@
 
 > 需要 Node.js ≥ 18（推荐 20 LTS）与 Git，并在对应系统上构建，产物互不通用。Gitee 克隆可能提示输入账号与密码，完成后再执行下一条。
 
-#### Linux GUI
+### Linux GUI 快速构建
 
 **1. 克隆源码（Gitee，国内推荐）**
 
@@ -71,7 +69,7 @@ bash scripts/build-linux.sh deps
 bash scripts/build-linux.sh
 ```
 
-#### MAC OS
+### MAC OS 快速构建
 
 **1. 安装基础环境（已装过自动跳过）**
 
