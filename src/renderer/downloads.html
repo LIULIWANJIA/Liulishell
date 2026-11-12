@@ -7,34 +7,35 @@
   <link rel="stylesheet" href="css/downloads.css" />
 </head>
 <body>
-  <div class="dtitle" id="dtitle">
-    <span class="dmark">↓</span>
-    <span class="dtitle-text">下载管理器</span>
-    <span class="dgrow"></span>
-    <button class="dbtn" id="dmin" title="最小化">─</button>
-    <button class="dbtn" id="dmax" title="最大化">□</button>
-    <button class="dbtn close" id="dclosewin" title="关闭">✕</button>
+  <div class="dwin">
+    <div class="dtitle" id="dtitle">
+      <span class="dmark">↓</span>
+      <span class="dtitle-text">下载管理器</span>
+      <span class="dgrow"></span>
+      <button class="dbtn" id="dmin" title="最小化">─</button>
+      <button class="dbtn close" id="dclosewin" title="关闭">✕</button>
+    </div>
+
+    <div class="dhead">
+      <span id="dsummary">0 个任务</span>
+      <span class="dgrow"></span>
+      <button class="dbtn2" id="dpauseall">全部暂停</button>
+      <button class="dbtn2 danger" id="dcancelall">全部取消</button>
+      <button class="dbtn2" id="dclear">清除已完成</button>
+      <button class="dbtn2" id="dopenfolder">打开下载文件夹</button>
+    </div>
+
+    <div class="dlist" id="dlist"></div>
+
+    <div class="dfoot">
+      <span>右键任务可暂停 / 取消、打开所在文件夹、复制路径或移除记录；「全部取消」会删除未完成文件</span>
+      <span class="dgrow"></span>
+      <span>作者 LIULIWANJIA</span>
+    </div>
+
+    <div class="ctx" id="ctx"></div>
+    <div class="toasts" id="toasts"></div>
   </div>
-
-  <div class="dhead">
-    <span id="dsummary">0 个任务</span>
-    <span class="dgrow"></span>
-    <button class="dbtn2" id="dpauseall">全部暂停</button>
-    <button class="dbtn2 danger" id="dcancelall">全部取消</button>
-    <button class="dbtn2" id="dclear">清除已完成</button>
-    <button class="dbtn2" id="dopenfolder">打开下载文件夹</button>
-  </div>
-
-  <div class="dlist" id="dlist"></div>
-
-  <div class="dfoot">
-    <span>右键任务可暂停 / 取消、打开所在文件夹、复制路径或移除记录；「全部取消」会删除未完成文件</span>
-    <span class="dgrow"></span>
-    <span>作者 LIULIWANJIA</span>
-  </div>
-
-  <div class="ctx" id="ctx"></div>
-  <div class="toasts" id="toasts"></div>
   <script src="js/util.js"></script>
   <script src="js/downloads.js"></script>
 </body>

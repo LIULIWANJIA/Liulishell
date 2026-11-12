@@ -494,7 +494,7 @@ window.Term = (function () {
       }
       setTimeout(() => fitActive(), 30);
       real.term.focus();
-      if (window.Recent) Recent.record(cfg);
+      if (!cfg.deletedAt && window.Recent) Recent.record(cfg);
       U.toast('已连接 ' + (cfg.name || cfg.host) + (real.viaProxy ? '（经代理）' : ''), 'ok', 1800);
       return real;
     } catch (err) {

@@ -8,7 +8,7 @@
 
 [官网](https://shell.minecft.cn) · [GitHub 仓库](https://github.com/LIULIWANJIA/Liulishell) · [Gitee 仓库](https://gitee.com/liuliwanjiaweb/liuli-shell) · [发行版下载](#发行版下载)
 
-当前版本：**v1.14.3** | Windows · Linux · macOS
+当前版本：**v1.14.4** | Windows · Linux · macOS
 
 **使用限制：仅限个人、非营利、教育与研究等非商业用途；任何商业主体或商业场景禁止使用，衍生版本须在明显区域署名原作者。详见 [LICENSE](LICENSE)。**
 

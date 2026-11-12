@@ -9,6 +9,7 @@ window.App = (function () {
     activeId: null,
     filter: '',
     clipboard: null,
+    connClipboard: null,
     pendingData: new Map(),
     pendingSysinfo: new Map(),
     transfers: new Map(),
@@ -112,7 +113,9 @@ window.App = (function () {
       emit('target:change', v);
     },
     findConnection(id) {
-      return (state.data.connections || []).find((c) => c.id === id) || null;
+      return (state.data.connections || []).find((c) => c.id === id) ||
+        (state.data.recycleBin || []).find((c) => c.id === id) ||
+        null;
     }
   };
 

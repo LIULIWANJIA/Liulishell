@@ -2,6 +2,7 @@
 const { app, BrowserWindow, ipcMain, dialog, Menu, shell, nativeImage, screen } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const https = require('https');
 
 /* ---------- 数据目录 ----------
  * 1. 显式指定（测试 / 多配置）优先：LIULI_USER_DATA
@@ -31,6 +32,9 @@ let win = null;
 let editorWin = null;
 let downloadWin = null;
 let importWin = null;
+let appQuitting = false;
+let downloadReady = false;
+let downloadShowWhenReady = false;
 let webdavSyncing = false;
 /* 界面缩放百分比（独立存储，不写进 liulishell-data.json，卸载 / 重装即重置） */
 let zoomPercent = zoomPref.DEFAULT_PERCENT;
@@ -307,6 +311,11 @@ function createWindow() {
       try { win.maximize(); } catch (_) {}
     }
     win.show();
+    // 主界面出来后预加载下载管理器（隐藏状态），首次打开也接近即时
+    setTimeout(() => {
+      if (appQuitting) return;
+      try { ensureDownloadWindow(); } catch (_) {}
+    }, 1800);
   });
 
   /* Chromium 的 per-origin zoom 会在导航 / 加载完成后重新应用一次，
@@ -434,6 +443,7 @@ function createWindow() {
   });
   win.on('closed', () => {
     win = null;
+    appQuitting = true;
     if (editorWin && !editorWin.isDestroyed()) editorWin.close();
     if (downloadWin && !downloadWin.isDestroyed()) downloadWin.close();
     if (importWin && !importWin.isDestroyed()) importWin.close();
@@ -446,28 +456,69 @@ function createWindow() {
   });
 }
 
-/** 下载管理器独立窗口 */
-function ensureDownloadWindow() {
-  if (downloadWin && !downloadWin.isDestroyed()) {
-    downloadWin.focus();
-    return downloadWin;
+/** 下载管理器窗口：常驻内存，关闭时仅隐藏，再次打开秒开 */
+function openDownloadsWindow() {
+  const w = ensureDownloadWindow();
+  const wasVisible = w.isVisible();
+  downloadShowWhenReady = true;
+  if (w.isMinimized()) w.restore();
+  if (downloadReady) {
+    if (!wasVisible) {
+      if (w.isMaximized()) w.unmaximize();
+      const target = centeredOverMain(820, 480);
+      const b = w.getBounds();
+      if (b.x !== target.x || b.y !== target.y || b.width !== target.width || b.height !== target.height) {
+        w.setBounds(target);
+      }
+      w.show();
+      w.focus();
+    } else {
+      w.show();
+      w.focus();
+    }
+    downloadShowWhenReady = false;
   }
+  return w;
+}
+
+function ensureDownloadWindow() {
+  if (downloadWin && !downloadWin.isDestroyed()) return downloadWin;
+  downloadReady = false;
+  downloadShowWhenReady = false;
   downloadWin = new BrowserWindow({
-    width: 820, height: 520, minWidth: 620, minHeight: 360,
+    ...centeredOverMain(820, 480),
+    minWidth: 620, minHeight: 360,
     title: '下载管理器 - LIULI Shell',
-    backgroundColor: '#f7f6f2',
-    frame: process.platform === 'darwin',
+    backgroundColor: '#00000000',
+    transparent: true,
+    frame: false,
+    hasShadow: false,
     thickFrame: process.platform === 'win32' ? false : undefined,
-    titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : undefined,
+    skipTaskbar: true,
+    maximizable: false,
     show: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true, nodeIntegration: false, sandbox: false, spellcheck: false,
+      backgroundThrottling: false,
       zoomFactor: zoomPercent / 100
     }
   });
   pinZoom(downloadWin);
   downloadWin.loadFile(path.join(__dirname, '..', 'renderer', 'downloads.html'));
+  if (!app.isPackaged && process.env.LIULI_DOWNLOADS_SHOT) {
+    downloadWin.webContents.once('did-finish-load', () => {
+      setTimeout(async () => {
+        try {
+          const img = await downloadWin.webContents.capturePage();
+          fs.writeFileSync(process.env.LIULI_DOWNLOADS_SHOT, img.toPNG());
+          console.log('[shot] downloads saved -> ' + process.env.LIULI_DOWNLOADS_SHOT);
+        } catch (err) {
+          console.log('[shot] downloads failed:', err.message);
+        }
+      }, Number(process.env.LIULI_DOWNLOADS_SHOT_DELAY) || 1200);
+    });
+  }
   if (process.env.LIULI_DOWNLOADS_EVAL) {
     downloadWin.webContents.once('did-finish-load', () => {
       setTimeout(async () => {
@@ -482,10 +533,27 @@ function ensureDownloadWindow() {
     });
   }
   downloadWin.once('ready-to-show', () => {
-    downloadWin.show();
+    downloadReady = true;
     downloadWin.webContents.send('transfer:list', transferList());
+    if (downloadShowWhenReady && downloadWin && !downloadWin.isDestroyed()) {
+      downloadWin.show();
+      downloadWin.focus();
+      downloadShowWhenReady = false;
+    }
   });
-  downloadWin.on('closed', () => { downloadWin = null; });
+  downloadWin.on('close', (e) => {
+    if (appQuitting) return;
+    e.preventDefault();
+    setImmediate(() => {
+      if (downloadWin && !downloadWin.isDestroyed()) downloadWin.hide();
+    });
+    downloadShowWhenReady = false;
+  });
+  downloadWin.on('closed', () => {
+    downloadWin = null;
+    downloadReady = false;
+    downloadShowWhenReady = false;
+  });
   return downloadWin;
 }
 
@@ -586,6 +654,22 @@ function broadcast(channel, payload) {
   if (win && !win.isDestroyed()) win.webContents.send(channel, payload);
 }
 
+/** 相对主窗口居中：子窗口每次打开都回到主窗口中央，不记忆上次拖动的位置 */
+function centeredOverMain(width, height) {
+  let b;
+  try {
+    b = win && !win.isDestroyed() ? win.getBounds() : screen.getPrimaryDisplay().workArea;
+  } catch (_) {
+    b = screen.getPrimaryDisplay().workArea;
+  }
+  return {
+    width,
+    height,
+    x: Math.round(b.x + (b.width - width) / 2),
+    y: Math.round(b.y + Math.max(24, (b.height - height) / 3))
+  };
+}
+
 /** 设置变化广播到主窗口与下载管理器 / 编辑器等独立窗口 */
 function broadcastSettings() {
   const settings = store.publicState().settings;
@@ -605,6 +689,16 @@ function emitTransfers() {
   const list = transferList();
   broadcast('transfer:list', list);
   if (downloadWin && !downloadWin.isDestroyed()) downloadWin.webContents.send('transfer:list', list);
+}
+
+/* 进度事件很密集，合并到约 5 次/秒再推给界面，避免下载管理器反复整表重绘 */
+let transfersEmitTimer = null;
+function emitTransfersThrottled() {
+  if (transfersEmitTimer) return;
+  transfersEmitTimer = setTimeout(() => {
+    transfersEmitTimer = null;
+    emitTransfers();
+  }, 200);
 }
 
 function patchTransfer(id, patch) {
@@ -661,7 +755,7 @@ function sendAll(channel, payload) {
       t.total = payload.total || t.total;
       if (payload.name) t.name = payload.name;
       t.direction = payload.direction || t.direction;
-      emitTransfers();
+      emitTransfersThrottled();
     }
   }
   broadcast(channel, payload);
@@ -702,6 +796,8 @@ app.whenReady().then(() => {
   else Menu.setApplicationMenu(null);
   try { initZoom(); } catch (_) { zoomPercent = zoomPref.DEFAULT_PERCENT; }
   try { defaultDownloadDir(); } catch (_) {}
+  // 每次启动清理回收站中超过 30 天的配置
+  try { store.purgeRecycleExpired(); } catch (_) {}
   createWindow();
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
@@ -732,6 +828,7 @@ process.on('uncaughtException', (err) => crashLog('uncaughtException', err));
 process.on('unhandledRejection', (err) => crashLog('unhandledRejection', err));
 
 app.on('before-quit', () => {
+  appQuitting = true;
   // 退出前统一压回保存值：预览过的比例不应残留到下次启动
   BrowserWindow.getAllWindows().forEach((w) => applyZoomTo(w));
 });
@@ -753,8 +850,100 @@ ipcMain.on('app:version', (e) => {
   };
 });
 
+/** 查询 IP / 域名归属信息（由主进程发起，避免渲染层 CSP 与跨域限制） */
+function httpsJson(url, timeout = 9000, depth = 0) {
+  return new Promise((resolve, reject) => {
+    const req = https.get(url, { headers: { 'User-Agent': 'LIULI-Shell' } }, (res) => {
+      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location && depth < 3) {
+        res.resume();
+        resolve(httpsJson(res.headers.location, timeout, depth + 1));
+        return;
+      }
+      let data = '';
+      res.setEncoding('utf8');
+      res.on('data', (d) => {
+        data += d;
+        if (data.length > 512 * 1024) {
+          req.destroy();
+          reject(new Error('返回内容过大'));
+        }
+      });
+      res.on('end', () => {
+        try {
+          resolve(JSON.parse(data));
+        } catch (_) {
+          reject(new Error('返回内容不是有效 JSON'));
+        }
+      });
+    });
+    req.setTimeout(timeout, () => req.destroy(new Error('查询超时')));
+    req.on('error', reject);
+  });
+}
+
+/** 本机 / 内网地址：不做公网归属查询，直接提示 */
+function isLocalAddress(host) {
+  const s = String(host || '').toLowerCase();
+  if (!s) return true;
+  if (s === 'localhost' || s.endsWith('.localhost') || s.endsWith('.local') || s.endsWith('.lan')) return true;
+  if (s === '::1' || s === '::') return true;
+  if (/^(fc|fd)[0-9a-f]{2}:/.test(s) || /^fe80:/.test(s)) return true;
+  const m = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(s);
+  if (!m) return false;
+  const a = Number(m[1]);
+  const b = Number(m[2]);
+  if (a === 10 || a === 127 || a === 0) return true;
+  if (a === 192 && b === 168) return true;
+  if (a === 172 && b >= 16 && b <= 31) return true;
+  if (a === 169 && b === 254) return true;
+  if (a === 100 && b >= 64 && b <= 127) return true;
+  return false;
+}
+
+ipcMain.handle('net:ipInfo', async (_e, { host }) => {
+  const h = String(host || '').trim().replace(/^https?:\/\//i, '').split('/')[0];
+  if (!h) return { ok: false, error: '主机地址为空' };
+  if (isLocalAddress(h)) {
+    return { ok: true, local: true, ip: h, reason: '本机或内网地址，不进行公网归属查询。' };
+  }
+  try {
+    const json = await httpsJson(`https://ipwho.is/${encodeURIComponent(h)}`);
+    if (!json || json.success === false) {
+      return { ok: false, error: (json && json.message) || '查询失败' };
+    }
+    const conn = json.connection || {};
+    const tz = json.timezone || {};
+    return {
+      ok: true,
+      ip: json.ip || '',
+      type: json.type || '',
+      country: json.country || '',
+      countryCode: json.country_code || '',
+      region: json.region || '',
+      city: json.city || '',
+      isp: conn.isp || conn.org || '',
+      org: conn.org || '',
+      asn: conn.asn ? 'AS' + conn.asn : '',
+      timezone: tz.id || '',
+      utc: tz.utc || '',
+      latitude: json.latitude,
+      longitude: json.longitude
+    };
+  } catch (err) {
+    return { ok: false, error: (err && err.message) || String(err) };
+  }
+});
+
 /* ---------- 下载管理器 ---------- */
-ipcMain.handle('downloads:open', () => { ensureDownloadWindow(); return true; });
+ipcMain.handle('downloads:open', () => { openDownloadsWindow(); return true; });
+ipcMain.handle('downloads:toggle', () => {
+  if (downloadWin && !downloadWin.isDestroyed() && downloadWin.isVisible() && !downloadWin.isMinimized()) {
+    downloadWin.hide();
+    return false;
+  }
+  openDownloadsWindow();
+  return true;
+});
 ipcMain.handle('transfer:list', () => transferList());
 ipcMain.handle('transfer:cancel', (_e, id) => {
   const t = transfers.get(id);
@@ -856,14 +1045,8 @@ ipcMain.handle('transfer:openDownloadDir', () => {
   return dir;
 });
 ipcMain.handle('downloads:minimize', () => downloadWin && downloadWin.minimize());
-ipcMain.handle('downloads:maximize', () => {
-  if (!downloadWin) return false;
-  if (downloadWin.isMaximized()) downloadWin.unmaximize();
-  else downloadWin.maximize();
-  return downloadWin.isMaximized();
-});
 ipcMain.handle('downloads:close', () => {
-  if (downloadWin && !downloadWin.isDestroyed()) downloadWin.close();
+  if (downloadWin && !downloadWin.isDestroyed()) downloadWin.hide();
   return true;
 });
 ipcMain.handle('settings:pickDownloadDir', async () => {
@@ -932,10 +1115,27 @@ function U_clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
 /* ---------- 数据 ---------- */
 ipcMain.handle('store:get', () => store.publicState());
 
-ipcMain.handle('conn:save', async (_e, conn) => store.upsertConnection(conn || {})); // -> { id, state }
-ipcMain.handle('conn:delete', (_e, id) => store.deleteConnection(id));
-ipcMain.handle('group:save', (_e, group) => store.upsertGroup(group || {}));
-ipcMain.handle('group:delete', (_e, id) => store.deleteGroup(id));
+ipcMain.handle('conn:save', async (_e, conn) => {
+  const res = await store.upsertConnection(conn || {}); // -> { id, state }
+  return res;
+});
+ipcMain.handle('conn:duplicate', (_e, { id, group }) => store.duplicateConnection(id, group));
+ipcMain.handle('conn:move', (_e, { ids, group }) => store.moveConnections(ids, group));
+ipcMain.handle('recycle:restore', (_e, id) => store.restoreConnection(id));
+ipcMain.handle('recycle:purge', (_e, id) => store.purgeRecycleItem(id));
+ipcMain.handle('conn:delete', (_e, id) => {
+  const state = store.deleteConnection(id);
+  return state;
+});
+ipcMain.handle('conn:deleteMany', (_e, ids) => store.deleteConnections(ids || []));
+ipcMain.handle('group:save', (_e, group) => {
+  const state = store.upsertGroup(group || {});
+  return state;
+});
+ipcMain.handle('group:delete', (_e, id) => {
+  const state = store.deleteGroup(id);
+  return state;
+});
 ipcMain.handle('snippets:save', (_e, boards) => store.saveSnippetBoards(boards));
 ipcMain.handle('settings:save', (_e, patch) => {
   const next = store.patchSettings(patch || {});
@@ -961,6 +1161,24 @@ ipcMain.handle('settings:resetWindowPos', () => {
   const w = store.load().settings.window || {};
   store.patchSettings({ window: Object.assign({}, w, { x: null, y: null, maximized: false }) });
   return true;
+});
+
+ipcMain.handle('settings:resetWindowLayout', () => {
+  const d = store.load();
+  const geo = resolveWindowGeometry({
+    settings: {
+      window: { x: null, y: null, width: 0, height: 0, maximized: false },
+      startDockedRight: d.settings.startDockedRight
+    }
+  });
+  store.patchSettings({ window: { x: geo.x, y: geo.y, width: geo.width, height: geo.height, maximized: false } });
+  if (win && !win.isDestroyed()) {
+    try {
+      if (win.isMaximized()) win.unmaximize();
+      win.setBounds({ x: geo.x, y: geo.y, width: geo.width, height: geo.height });
+    } catch (_) {}
+  }
+  return geo;
 });
 
 ipcMain.handle('settings:pickWallpaper', async () => {
@@ -1000,7 +1218,8 @@ ipcMain.handle('key:delete', (_e, id) => store.deleteKey(id));
 
 /* ---------- 连接 ---------- */
 ipcMain.handle('ssh:connect', async (_e, payload) => {
-  const base = store.getConnection(payload && payload.id);
+  const id = payload && payload.id;
+  const base = store.getConnection(id) || store.getRecycleConnection(id);
   if (!base) throw new Error('连接配置不存在');
   // 凭据浮窗里可临时切换登录方式 / 密钥来源，只影响本次连接与后续保存，不改动缓存对象
   const override = {};
@@ -1489,7 +1708,7 @@ ipcMain.handle('webdav:sync', async () => {
     store.markWebdavSync('success', '');
     broadcastSettings();
     const state = store.publicState();
-    return {
+      return {
       ok: true,
       added: merged.added,
       skipped: merged.skipped,
@@ -1621,6 +1840,14 @@ ipcMain.handle('fs:rename', async (_e, { sessionId, from, to }) => {
   return true;
 });
 
+ipcMain.handle('fs:chmod', async (_e, { sessionId, items, mode, recursive, scope }) => {
+  const sess = ssh.getSession(sessionId);
+  const result = await sess.chmodItems(items || [], mode, !!recursive, scope || 'all');
+  // 递归修改可能影响任意子目录，直接清掉该服务器的目录缓存
+  dirCache.invalidateAll(sessionConnKey(sess));
+  return result;
+});
+
 /* ---------- 在线编辑（<10MB 文本） ---------- */
 ipcMain.handle('fs:read', async (_e, { sessionId, path: remotePath }) => {
   const sess = ssh.getSession(sessionId);
@@ -1661,6 +1888,52 @@ ipcMain.handle('fs:download', async (_e, { sessionId, items }) => {
     targets.push(target);
   }
   return { ok: true, count, target: targets.length === 1 ? targets[0] : dir };
+});
+
+ipcMain.handle('fs:packDownload', async (_e, { sessionId, dir, items }) => {
+  const sess = ssh.getSession(sessionId);
+  if (!items || !items.length) return { ok: false, error: '没有选择要打包的内容' };
+  const baseDir = String(dir || '').trim() || path.posix.dirname(items[0].path || '');
+  const names = items.map((it) => String((it && it.name) || path.posix.basename((it && it.path) || '')).trim()).filter(Boolean);
+  if (!names.length) return { ok: false, error: '没有选择要打包的内容' };
+
+  const d = new Date();
+  const p2 = (x) => String(x).padStart(2, '0');
+  const stamp = `${d.getFullYear()}${p2(d.getMonth() + 1)}${p2(d.getDate())}-${p2(d.getHours())}${p2(d.getMinutes())}${p2(d.getSeconds())}`;
+  const rand = crypto.randomBytes(2).toString('hex');
+  const localDir = defaultDownloadDir();
+  let fileName = `打包传输-${stamp}-${rand}.tar.gz`;
+  let n = 2;
+  while (fs.existsSync(path.join(localDir, fileName))) {
+    fileName = `打包传输-${stamp}-${rand}-${n}.tar.gz`;
+    n++;
+  }
+  const target = path.join(localDir, fileName);
+  const remote = `/tmp/${fileName}`;
+  const quote = (v) => `'${String(v).replace(/'/g, `'\\''`)}'`;
+  const cmd = `tar -czf ${quote(remote)} -C ${quote(baseDir)} -- ${names.map(quote).join(' ')}; test -s ${quote(remote)} && echo __PACK_OK__`;
+
+  const id = 'dl-' + Date.now() + '-pack';
+  newTransfer({
+    id, name: fileName, direction: 'download', target,
+    remote, sessionId, total: 0
+  });
+  try {
+    const out = await sess.exec(cmd, 10 * 60 * 1000);
+    if (!String(out || '').includes('__PACK_OK__')) {
+      throw new Error(String(out || '').trim().slice(0, 300) || '打包失败');
+    }
+    await sess.downloadFile(remote, target, id);
+    const t = transfers.get(id);
+    patchTransfer(id, { status: 'done', transferred: (t && (t.total || t.transferred)) || 0, finishedAt: Date.now() });
+    return { ok: true, name: fileName, target };
+  } catch (err) {
+    const msg = (err && err.message) || String(err);
+    patchTransfer(id, { status: transferStatusFromError(msg), error: msg, finishedAt: Date.now() });
+    throw new Error(msg);
+  } finally {
+    try { await sess.exec(`rm -f ${quote(remote)}`, 8000); } catch (_) {}
+  }
 });
 
 ipcMain.handle('fs:upload', async (_e, { sessionId, remoteDir, localPaths }) => {

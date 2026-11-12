@@ -412,6 +412,45 @@
     $('#btn-clear-term').addEventListener('click', () => Term.clearActive());
   }
 
-  window.AppActions = { exportConfig, importConfig, importFinalShell };
+  async function toggleLeftSidebar() {
+    const app = $('#app');
+    const show = app.classList.contains('hide-left-all');
+    const base = App.settings.panels || {};
+    const panels = Object.assign({}, base, {
+      leftList: show,
+      leftMonitors: show,
+      leftFoot: show
+    });
+    if (window.Settings) await Settings.persist({ panels });
+    Term.fitActive();
+    relayoutSidebar();
+    saveLayout();
+    U.toast(show ? '已显示服务器列表' : '已隐藏服务器列表', 'ok', 1400);
+  }
+
+  async function resetLayout() {
+    const root = document.documentElement;
+    root.style.setProperty('--left-w', '214px');
+    root.style.setProperty('--right-w', '252px');
+    root.style.setProperty('--bottom-h', '360px');
+    const panes = window.Settings && Settings.DEFAULTS
+      ? Object.assign({}, Settings.DEFAULTS.panels)
+      : {
+          leftList: true, leftMonitors: true, leftFoot: true, tabs: true, cmdBar: true,
+          rightInfo: true, cmdEditor: true, files: true, snippets: true
+        };
+    if (window.Settings) await Settings.persist({ panels: panes, startDockedRight: true });
+    try { await window.api.resetWindowLayout(); } catch (_) {}
+    try { await window.api.zoomReset(); } catch (_) {}
+    $('#bottom-pane').classList.remove('collapsed');
+    $('#app').classList.remove('bottom-collapsed');
+    $('#btn-collapse-bottom').textContent = '▾';
+    saveLayout();
+    Term.fitActive();
+    relayoutSidebar();
+    U.toast('布局、窗口位置与缩放已重置', 'ok', 1800);
+  }
+
+  window.AppActions = { exportConfig, importConfig, importFinalShell, toggleLeftSidebar, resetLayout };
   document.addEventListener('DOMContentLoaded', main);
 })();

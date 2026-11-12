@@ -15,6 +15,7 @@ window.TitleBar = (function () {
         { label: '密钥库…', onClick: () => Connections.openKeyManager() },
         { label: '管理收藏文件夹…', onClick: () => window.Files && Files.openFavorites() },
         { sep: true },
+        { label: '回收站…', onClick: () => window.RecycleBin && RecycleBin.open() },
         { label: '导出配置（加密）…', onClick: () => window.AppActions && AppActions.exportConfig() },
         { label: '导入配置…', onClick: () => window.AppActions && AppActions.importConfig() },
         { label: '导入 FinalShell 配置…', onClick: () => window.AppActions && AppActions.importFinalShell() },
@@ -33,10 +34,22 @@ window.TitleBar = (function () {
         { label: '命令历史…', key: 'Ctrl+Shift+H', onClick: () => window.History && History.openDialog() }
       ],
       view: [
-        { label: '显示 / 隐藏服务器信息', onClick: () => $('#btn-toggle-right').click() },
-        { label: '收起 / 展开下方面板', onClick: () => $('#btn-collapse-bottom').click() },
+        {
+          label: $('#app').classList.contains('hide-left-all') ? '显示服务器列表' : '隐藏服务器列表',
+          onClick: () => window.AppActions && AppActions.toggleLeftSidebar()
+        },
+        {
+          label: $('#app').classList.contains('info-hidden') ? '显示服务器信息' : '隐藏服务器信息',
+          onClick: () => $('#btn-toggle-right').click()
+        },
+        {
+          label: $('#bottom-pane').classList.contains('collapsed') ? '展开下方面板' : '收起下方面板',
+          onClick: () => $('#btn-collapse-bottom').click()
+        },
+        { sep: true },
         { label: '清屏', onClick: () => Term.clearActive() },
         { sep: true },
+        { label: '重置布局', onClick: () => window.AppActions && AppActions.resetLayout() },
         { label: '重新加载', onClick: () => window.api.viewReload() }
       ],
       help: [
@@ -58,15 +71,19 @@ window.TitleBar = (function () {
   }
 
   function init() {
-    document.querySelectorAll('.tb-menu').forEach((btn) => {
+    document.querySelectorAll('.tb-menu[data-menu]').forEach((btn) => {
       btn.addEventListener('click', () => {
         const r = btn.getBoundingClientRect();
         U.ctxMenu(actions()[btn.dataset.menu] || [], r.left, r.bottom + 2);
       });
     });
+    const serversBtn = $('#tb-servers');
+    if (serversBtn && window.ServersPanel) {
+      serversBtn.addEventListener('click', () => ServersPanel.toggle());
+    }
 
     $('#tb-settings').addEventListener('click', () => Settings.open());
-    $('#tb-downloads').addEventListener('click', () => window.api.downloadsOpen());
+    $('#tb-downloads').addEventListener('click', () => window.api.downloadsToggle());
     $('#tb-min').addEventListener('click', () => window.api.winMinimize());
     $('#tb-max').addEventListener('click', async () => {
       await window.api.winMaximize();

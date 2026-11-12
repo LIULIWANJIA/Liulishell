@@ -72,7 +72,7 @@ window.Files = (function () {
 
     // 下载管理器入口
     const dlBtn = $('#btn-dl-manager');
-    if (dlBtn) dlBtn.addEventListener('click', () => window.api.downloadsOpen());
+    if (dlBtn) dlBtn.addEventListener('click', () => window.api.downloadsToggle());
 
     // 收藏文件夹入口
     const favBtn = $('#btn-fav-folders');
@@ -478,11 +478,17 @@ window.Files = (function () {
       { label: 'CD 目录', onClick: () => navigate(targetDir, { userAction: true }) },
       { label: '收藏此目录', onClick: () => addFavorite(targetDir) },
       { sep: true },
+      {
+        label: '文件操作',
+        children: [
+          { label: '重命名', disabled: !target, onClick: () => target && renameEntry(target) },
+          { label: '新建文件', onClick: () => createFile(targetDir) },
+          { label: '新建文件夹', onClick: () => mkdir(targetDir) },
+          { label: '权限管理', disabled: !hasSel, onClick: () => openPermissionDialog(selectedEntries()) }
+        ]
+      },
       { label: `下载所选${hasSel ? '（' + selection.size + '）' : ''}`, disabled: !hasSel, onClick: () => downloadSelection(selectedEntries()) },
-      { sep: true },
-      { label: '重命名…', disabled: !target, onClick: () => target && renameEntry(target) },
-      { label: '新建文件…', onClick: () => createFile(targetDir) },
-      { label: '新建文件夹…', onClick: () => mkdir(targetDir) },
+      { label: '打包传输', disabled: !hasSel, onClick: () => packDownload() },
       { sep: true },
       { label: '复制', disabled: !hasSel, onClick: copySelection },
       { label: '粘贴到当前目录', disabled: !hasClip, onClick: pasteHere },
@@ -496,6 +502,100 @@ window.Files = (function () {
 
   function selectedEntries() {
     return entries.filter((f) => selection.has(f.name));
+  }
+
+  /** 权限管理：所有者 / 群组 / 其他 的读、写、执行，支持递归 */
+  function openPermissionDialog(list) {
+    const sess = App.active;
+    if (!sess || !list || !list.length) return U.toast('请先选择文件或文件夹', 'error');
+    const base = (Number(list[0].mode) || 0) & 0o777 || (list[0].isDir ? 0o755 : 0o644);
+    const rows = [
+      { name: '所有者', shift: 6 },
+      { name: '群组', shift: 3 },
+      { name: '其他', shift: 0 }
+    ];
+    const bits = [
+      { name: '读取', bit: 4 },
+      { name: '写入', bit: 2 },
+      { name: '执行', bit: 1 }
+    ];
+    const grid = rows
+      .map(
+        (r) => `<div class="perm-row">
+          <span class="perm-role">${r.name}</span>
+          ${bits
+            .map((b) => {
+              const val = b.bit << r.shift;
+              return `<label class="perm-cell"><input type="checkbox" data-bit="${val}"${
+                base & val ? ' checked' : ''
+              }><span>${b.name}</span></label>`;
+            })
+            .join('')}
+        </div>`
+      )
+      .join('');
+    const names = list.map((f) => f.name).join('、');
+    U.openModal({
+      title: '权限管理',
+      width: '500px',
+      okText: '确认',
+      cancelText: '取消',
+      body: `
+        <div class="perm-dialog">
+          <div class="perm-sub">已选择 ${list.length} 项：${U.esc(names)}</div>
+          <div class="perm-grid">
+            <div class="perm-row perm-head"><span class="perm-role">权限</span><span>读取</span><span>写入</span><span>执行</span></div>
+            ${grid}
+          </div>
+          <div class="perm-recursive">
+            <label class="check-inline"><input type="checkbox" id="perm-recursive" /> 递归设置子目录</label>
+            <div class="perm-scope hidden" id="perm-scope">
+              <label class="check-inline"><input type="radio" name="perm-scope" value="all" checked /> 默认应用到文件和目录</label>
+              <label class="check-inline"><input type="radio" name="perm-scope" value="files" /> 只应用到文件</label>
+              <label class="check-inline"><input type="radio" name="perm-scope" value="dirs" /> 只应用到目录</label>
+            </div>
+          </div>
+        </div>`,
+      onOk: async () => {
+        let mode = 0;
+        document.querySelectorAll('.perm-grid input[type="checkbox"]').forEach((chk) => {
+          if (chk.checked) mode |= Number(chk.dataset.bit) || 0;
+        });
+        const recursive = !!U.qs('#perm-recursive').checked;
+        const scopeEl = document.querySelector('input[name="perm-scope"]:checked');
+        const items = list.map((f) => ({
+          path: U.posix.join(sess.remotePath, f.name),
+          isDir: !!f.isDir
+        }));
+        try {
+          const res = await window.api.fsChmod({
+            sessionId: sess.id,
+            items,
+            mode,
+            recursive,
+            scope: scopeEl ? scopeEl.value : 'all'
+          });
+          if (res && res.errors && res.errors.length) {
+            U.toast(`权限设置完成 ${res.changed} 项，失败 ${res.errors.length} 项：${res.errors[0]}`, 'error', 5200);
+          } else {
+            U.toast(`权限已更新（${(res && res.changed) || 0} 项）`, 'ok', 2600);
+          }
+          setTimeout(refresh, 120);
+        } catch (err) {
+          U.toast('权限设置失败：' + U.cleanError(err), 'error', 4600);
+        }
+        return true;
+      }
+    });
+    setTimeout(() => {
+      const rec = U.qs('#perm-recursive');
+      const scope = U.qs('#perm-scope');
+      if (rec && scope) {
+        const sync = () => scope.classList.toggle('hidden', !rec.checked);
+        rec.addEventListener('change', sync);
+        sync();
+      }
+    }, 30);
   }
 
   function handleAction(act, evt) {
@@ -621,6 +721,24 @@ window.Files = (function () {
       if (r && r.ok) U.toast(`下载完成，共 ${r.count} 项 → ${r.target}`, 'ok', 3600);
     } catch (err) {
       U.toast('下载失败: ' + U.cleanError(err), 'error', 4200);
+    }
+  }
+
+  async function packDownload() {
+    const sess = App.active;
+    if (!sess) return;
+    const list = selectedEntries();
+    if (!list.length) return U.toast('请先选择要打包的文件或文件夹', 'error');
+    U.toast(`正在打包 ${list.length} 项…`, 'info', 2600);
+    try {
+      const r = await window.api.fsPack({
+        sessionId: sess.id,
+        dir: sess.remotePath,
+        items: list.map((f) => ({ path: U.posix.join(sess.remotePath, f.name), name: f.name, isDir: f.isDir }))
+      });
+      if (r && r.ok) U.toast('已打包下载：' + r.name, 'ok', 4200);
+    } catch (err) {
+      U.toast('打包失败: ' + U.cleanError(err), 'error', 4600);
     }
   }
 
@@ -998,7 +1116,7 @@ window.Files = (function () {
     const r = page.getBoundingClientRect();
     // 水平居中于文件管理区；高度按窗口给足，避免下面的文件区太矮时内容只剩一行
     const width = Math.max(380, Math.min(760, r.width - 48));
-    const height = Math.max(300, Math.min(560, window.innerHeight - 120));
+    const height = Math.max(320, Math.min(620, window.innerHeight - 100));
     // 以文件管理区中心为目标，但保证整个弹窗始终落在窗口内（下方文件区较矮时不会顶出屏幕）
     const cx = r.left + r.width / 2;
     const cy = r.top + r.height / 2 - 28;
@@ -1015,10 +1133,11 @@ window.Files = (function () {
     const box = favEl.querySelector('#fav-list');
     if (box) box.innerHTML = favoritePanelHtml();
     const sub = favEl.querySelector('#fav-sub');
-    if (sub) {
-      const c = favSess.config || {};
-      sub.textContent = `${c.user || ''}@${c.host || ''}:${c.port || 22} · 共 ${favoritesFor(favSess).length} 个收藏`;
-    }
+    const title = favEl.querySelector('#fav-title');
+    const c = favSess.config || {};
+    const who = c.user ? `${c.user}@${c.host || ''}` : c.host || '';
+    if (title) title.textContent = who ? `收藏文件夹 - ${who}` : '收藏文件夹';
+    if (sub) sub.textContent = `共 ${favoritesFor(favSess).length} 个收藏`;
     positionFavDialog();
   }
 
@@ -1307,7 +1426,7 @@ window.Files = (function () {
         <div class="fav-head">
           <span class="fav-head-ico">★</span>
           <div class="fav-head-main">
-            <div class="fav-title">收藏文件夹</div>
+            <div class="fav-title" id="fav-title">收藏文件夹</div>
             <div class="fav-sub" id="fav-sub"></div>
           </div>
           <button class="icon-btn" id="fav-close" title="关闭（Esc）">✕</button>

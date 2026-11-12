@@ -954,6 +954,50 @@ class SshSession {
     });
   }
 
+  /** 批量修改权限；recursive 时按 scope 应用到文件 / 目录 */
+  async chmodItems(items, mode, recursive, scope) {
+    const sftp = await this.getSftp();
+    const bits = Number(mode) & 0o777;
+    let changed = 0;
+    const errors = [];
+    const chmodOne = (p) => new Promise((resolve, reject) => {
+      sftp.chmod(p, bits, (err) => (err ? reject(err) : resolve(true)));
+    });
+    const apply = async (p, isDir, depth) => {
+      if (depth > 30) return;
+      const should = !recursive || scope === 'all' || (scope === 'files' && !isDir) || (scope === 'dirs' && isDir);
+      if (should) {
+        try {
+          await chmodOne(p);
+          changed++;
+        } catch (err) {
+          errors.push(`${p}: ${err.message || err}`);
+        }
+      }
+      if (!recursive || !isDir) return;
+      let list;
+      try {
+        list = await new Promise((resolve, reject) => {
+          sftp.readdir(p, (err, rows) => (err ? reject(err) : resolve(rows || [])));
+        });
+      } catch (err) {
+        errors.push(`${p}: ${err.message || err}`);
+        return;
+      }
+      for (const e of list) {
+        if (!e || e.filename === '.' || e.filename === '..') continue;
+        const m = (e.attrs && e.attrs.mode) || 0;
+        const childDir = (m & 0o170000) === 0o040000;
+        await apply(this.posixJoin(p, e.filename), childDir, depth + 1);
+      }
+    };
+    for (const item of items || []) {
+      if (!item || !item.path) continue;
+      await apply(String(item.path), !!item.isDir, 0);
+    }
+    return { changed, errors };
+  }
+
   /** 读取远端文本文件（限制大小，供内置编辑器使用） */
   async readTextFile(remotePath, maxBytes = 10 * 1024 * 1024) {
     const sftp = await this.getSftp();

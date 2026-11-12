@@ -233,13 +233,73 @@ window.U = (function () {
   }
 
   /* ---------------- 右键菜单 ---------------- */
+  /* ---------------- 右键菜单（支持二级子菜单） ---------------- */
+  let ctxSub = null;
+  let ctxSubTimer = null;
+
+  function ensureCtxSub() {
+    if (ctxSub && document.body.contains(ctxSub)) return ctxSub;
+    ctxSub = document.createElement('div');
+    ctxSub.className = 'ctx-menu ctx-submenu';
+    ctxSub.id = 'ctx-submenu';
+    document.body.appendChild(ctxSub);
+    ctxSub.addEventListener('mouseenter', () => {
+      if (ctxSubTimer) { clearTimeout(ctxSubTimer); ctxSubTimer = null; }
+    });
+    ctxSub.addEventListener('mouseleave', scheduleCtxSubHide);
+    return ctxSub;
+  }
+
+  function hideCtxSub() {
+    if (ctxSubTimer) { clearTimeout(ctxSubTimer); ctxSubTimer = null; }
+    if (ctxSub) ctxSub.classList.remove('show');
+  }
+
+  function scheduleCtxSubHide() {
+    if (ctxSubTimer) clearTimeout(ctxSubTimer);
+    ctxSubTimer = setTimeout(() => { ctxSubTimer = null; hideCtxSub(); }, 180);
+  }
+
+  function showCtxSub(anchor, children) {
+    if (ctxSubTimer) { clearTimeout(ctxSubTimer); ctxSubTimer = null; }
+    const menu = ensureCtxSub();
+    menu.innerHTML = children
+      .map((it, i) => {
+        if (it.sep) return '<div class="ctx-sep"></div>';
+        return `<div class="ctx-item${it.danger ? ' danger' : ''}${it.disabled ? ' disabled' : ''}" data-si="${i}">${esc(it.label)}</div>`;
+      })
+      .join('');
+    menu.classList.add('show');
+    const r = anchor.getBoundingClientRect();
+    const w = menu.offsetWidth;
+    const h = menu.offsetHeight;
+    let left = r.right - 2;
+    if (left + w > window.innerWidth - 8) left = Math.max(4, r.left - w + 2);
+    let top = r.top - 5;
+    if (top + h > window.innerHeight - 8) top = Math.max(4, window.innerHeight - h - 8);
+    menu.style.left = Math.round(left) + 'px';
+    menu.style.top = Math.round(top) + 'px';
+    menu.onclick = (e) => {
+      const item = e.target.closest('.ctx-item');
+      if (!item) return;
+      const it = children[Number(item.dataset.si)];
+      if (!it || it.disabled) return;
+      hideCtxSub();
+      const main = qs('#ctx-menu');
+      if (main) main.classList.remove('show');
+      if (it.onClick) it.onClick();
+    };
+  }
+
   function ctxMenu(items, x, y) {
+    hideCtxSub();
     const menu = qs('#ctx-menu');
     menu.innerHTML = items
       .map((it, i) => {
         if (it.sep) return '<div class="ctx-sep"></div>';
-        return `<div class="ctx-item${it.danger ? ' danger' : ''}${it.disabled ? ' disabled' : ''}" data-i="${i}">${esc(it.label)}${
-          it.key ? `<span class="k">${esc(it.key)}</span>` : ''
+        const sub = Array.isArray(it.children);
+        return `<div class="ctx-item${it.danger ? ' danger' : ''}${it.disabled ? ' disabled' : ''}${sub ? ' has-sub' : ''}" data-i="${i}">${esc(it.label)}${
+          sub ? '<span class="sub-arrow">›</span>' : it.key ? `<span class="k">${esc(it.key)}</span>` : ''
         }</div>`;
       })
       .join('');
@@ -249,9 +309,19 @@ window.U = (function () {
     const py = Math.min(y, window.innerHeight - rect.height - 8);
     menu.style.left = Math.max(4, px) + 'px';
     menu.style.top = Math.max(4, py) + 'px';
+    menu.querySelectorAll('.ctx-item.has-sub').forEach((el) => {
+      const it = items[Number(el.dataset.i)];
+      el.addEventListener('mouseenter', () => showCtxSub(el, it.children));
+      el.addEventListener('mouseleave', scheduleCtxSubHide);
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        showCtxSub(el, it.children);
+      });
+    });
     const close = (e) => {
-      if (!menu.contains(e.target)) {
+      if (!menu.contains(e.target) && !(ctxSub && ctxSub.contains(e.target))) {
         menu.classList.remove('show');
+        hideCtxSub();
         document.removeEventListener('mousedown', close, true);
       }
     };
@@ -260,9 +330,10 @@ window.U = (function () {
       const item = e.target.closest('.ctx-item');
       if (!item) return;
       const idx = Number(item.dataset.i);
-      menu.classList.remove('show');
       const it = items[idx];
-      if (!it || it.disabled) return;
+      if (!it || it.disabled || it.children) return;
+      menu.classList.remove('show');
+      hideCtxSub();
       const fn = it.onClick;
       if (fn) fn();
     };
@@ -514,6 +585,103 @@ window.U = (function () {
     return fmtSpeedNumber(bits) + ' b';
   }
 
+  /* ---------------- 自定义鼠标拖拽（列表项移动到分组） ---------------- */
+  function dragMove(opts) {
+    const root = opts.root;
+    if (!root) return null;
+    const itemSel = opts.itemSelector;
+    const groupSel = opts.groupSelector;
+    const dropClass = opts.dropClass || 'drop-target';
+    let drag = null;
+    let ghost = null;
+    let justDragged = false;
+
+    const clearMarks = () => {
+      root.querySelectorAll('.' + dropClass).forEach((el) => el.classList.remove(dropClass));
+    };
+
+    function onDown(e) {
+      if (e.button !== 0) return;
+      if (e.target.closest && e.target.closest('button,input,select,textarea,a')) return;
+      const item = e.target.closest(itemSel);
+      if (!item || !root.contains(item)) return;
+      drag = { startX: e.clientX, startY: e.clientY, item, active: false, ids: [], groupEl: null };
+      window.addEventListener('mousemove', onMove, true);
+      window.addEventListener('mouseup', onUp, true);
+      window.addEventListener('blur', onBlur, true);
+    }
+
+    function onBlur() {
+      finish();
+    }
+
+    function onMove(e) {
+      if (!drag) return;
+      if (!drag.active) {
+        if (Math.abs(e.clientX - drag.startX) < 6 && Math.abs(e.clientY - drag.startY) < 6) return;
+        drag.active = true;
+        drag.ids = (opts.idsFor && opts.idsFor(drag.item)) || [];
+        drag.item.classList.add('dragging');
+        ghost = document.createElement('div');
+        ghost.className = 'drag-ghost';
+        ghost.textContent = (opts.ghostText && opts.ghostText(drag.ids)) || '移动';
+        document.body.appendChild(ghost);
+        document.body.classList.add('dragging-panel');
+      }
+      e.preventDefault();
+      if (ghost) {
+        ghost.style.left = e.clientX + 12 + 'px';
+        ghost.style.top = e.clientY + 12 + 'px';
+      }
+      const el = document.elementFromPoint(e.clientX, e.clientY);
+      const group = el && el.closest(groupSel);
+      if (group !== drag.groupEl) {
+        clearMarks();
+        drag.groupEl = group && root.contains(group) ? group : null;
+        if (drag.groupEl) drag.groupEl.classList.add(dropClass);
+      }
+    }
+
+    function finish() {
+      if (!drag) return null;
+      const d = drag;
+      drag = null;
+      window.removeEventListener('mousemove', onMove, true);
+      window.removeEventListener('mouseup', onUp, true);
+      window.removeEventListener('blur', onBlur, true);
+      if (ghost) {
+        ghost.remove();
+        ghost = null;
+      }
+      document.body.classList.remove('dragging-panel');
+      clearMarks();
+      d.item.classList.remove('dragging');
+      if (!d.active) return d;
+      justDragged = true;
+      setTimeout(() => { justDragged = false; }, 0);
+      return d;
+    }
+
+    function onUp(e) {
+      const d = finish();
+      if (!d || !d.active) return;
+      const el = document.elementFromPoint(e.clientX, e.clientY);
+      const group = el && el.closest(groupSel);
+      if (!group || !root.contains(group)) return;
+      const gid = opts.groupIdFor ? opts.groupIdFor(group) : group.dataset.gid;
+      if (gid) opts.onDrop(d.ids, gid, group);
+    }
+
+    root.addEventListener('mousedown', onDown, true);
+    root.addEventListener('click', (e) => {
+      if (!justDragged) return;
+      justDragged = false;
+      e.stopPropagation();
+      e.preventDefault();
+    }, true);
+    return { destroy: () => root.removeEventListener('mousedown', onDown, true) };
+  }
+
   return {
     qs,
     qsa,
@@ -537,6 +705,7 @@ window.U = (function () {
     confirmSub,
     promptDialog,
     ctxMenu,
+    dragMove,
     initSelectMenus,
     posix,
     clamp,

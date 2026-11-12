@@ -129,6 +129,29 @@ window.Connections = (function () {
     App.on('data:change', render);
     App.on('sessions:change', render);
     App.on('active:change', render);
+
+    U.dragMove({
+      root: listEl,
+      itemSelector: '.conn-item',
+      groupSelector: '.group',
+      dropClass: 'drop-target',
+      idsFor(item) {
+        const id = item.dataset.id;
+        if (!pickedIds.has(id)) {
+          pickedIds = new Set([id]);
+          lastPickId = id;
+          syncPicked();
+        }
+        return Array.from(pickedIds).filter((x) => App.findConnection(x));
+      },
+      ghostText: (ids) => (ids.length > 1 ? `移动 ${ids.length} 台服务器` : '移动服务器'),
+      groupIdFor: (el) => el.dataset.gid || '',
+      onDrop(ids, gid) {
+        const set = collapsedSet();
+        if (set.delete(gid)) saveCollapsed(set);
+        moveConnections(ids, gid);
+      }
+    });
   }
 
   /** 分组默认全部折叠；用户手动展开/折叠后记忆到 settings */
@@ -318,10 +341,13 @@ window.Connections = (function () {
             },
             { sep: true },
             { label: '编辑配置', onClick: () => openEditor(c) },
+            { label: '复制配置', onClick: () => copyConnection(c.id) },
+            { label: '粘贴配置', disabled: !App.state.connClipboard, onClick: () => pasteConnection(c.group) },
             { label: '复制主机地址', onClick: () => navigator.clipboard.writeText(c.host).then(() => U.toast('已复制', 'ok')) },
+            { label: '检查IP信息', onClick: () => checkIpInfo(c.host) },
             multi ? { label: '取消多选', onClick: () => { pickedIds = new Set([c.id]); lastPickId = c.id; syncPicked(); } } : null,
             { sep: true },
-            { label: '删除配置', danger: true, onClick: () => removeConnection(c.id) }
+            { label: multi ? `删除所选（${ids.length}）` : '删除配置', danger: true, onClick: () => removeConnections(multi ? ids : [c.id]) }
           ].filter(Boolean),
           e.clientX,
           e.clientY
@@ -376,6 +402,7 @@ window.Connections = (function () {
             { label: collapsedSet().has(gid) ? '展开分组' : '折叠分组', onClick: toggle },
             { sep: true },
             { label: '在此分组新增 SSH 配置', onClick: () => openEditor(null, gid) },
+            { label: '粘贴配置', disabled: !App.state.connClipboard, onClick: () => pasteConnection(gid) },
             level < 3 && !isRecycle ? { label: '在此分组新建子分组…', onClick: () => addSubGroup(group) } : null,
             isRecycle ? null : { label: '重命名分组…', onClick: () => renameGroup(group) },
             isRecycle ? null : { sep: true },
@@ -404,6 +431,116 @@ window.Connections = (function () {
     list.forEach((id, i) => {
       setTimeout(() => Term.connect(id, opts), i * 90);
     });
+  }
+
+  /* ---------------- 配置复制 / 粘贴（仅在应用内，不写系统剪切板） ---------------- */
+
+  function copyConnection(id) {
+    const c = App.findConnection(id);
+    if (!c) return;
+    App.state.connClipboard = c.id;
+    U.toast(`已复制配置「${c.name || c.host}」，可到目标分组右键粘贴`, 'ok', 3000);
+  }
+
+  async function pasteConnection(groupId) {
+    const srcId = App.state.connClipboard;
+    if (!srcId) return U.toast('请先复制一个服务器配置', 'info');
+    if (!App.findConnection(srcId)) {
+      App.state.connClipboard = null;
+      return U.toast('源配置已删除，请重新复制', 'info');
+    }
+    try {
+      const res = await window.api.duplicateConnection({ id: srcId, group: groupId });
+      App.setData(res.state);
+      U.toast('配置已粘贴', 'ok');
+    } catch (err) {
+      U.toast('粘贴失败: ' + U.cleanError(err), 'error', 3600);
+    }
+  }
+
+  /* ---------------- 检查 IP 信息 ---------------- */
+
+  const CN_REGION_NAMES = {
+    beijing: '北京市', tianjin: '天津市', hebei: '河北省', shanxi: '山西省',
+    'inner mongolia': '内蒙古自治区', liaoning: '辽宁省', jilin: '吉林省', heilongjiang: '黑龙江省',
+    shanghai: '上海市', jiangsu: '江苏省', zhejiang: '浙江省', anhui: '安徽省', fujian: '福建省',
+    jiangxi: '江西省', shandong: '山东省', henan: '河南省', hubei: '湖北省', hunan: '湖南省',
+    guangdong: '广东省', guangxi: '广西壮族自治区', hainan: '海南省', chongqing: '重庆市',
+    sichuan: '四川省', guizhou: '贵州省', yunnan: '云南省', tibet: '西藏自治区', xizang: '西藏自治区',
+    shaanxi: '陕西省', gansu: '甘肃省', qinghai: '青海省', ningxia: '宁夏回族自治区',
+    xinjiang: '新疆维吾尔自治区', 'hong kong': '香港特别行政区', macau: '澳门特别行政区',
+    macao: '澳门特别行政区', taiwan: '台湾省'
+  };
+
+  function regionKey(text) {
+    return String(text || '')
+      .toLowerCase()
+      .replace(/\s+(province|sheng|zhuang autonomous region|uygur autonomous region|hui autonomous region|autonomous region|special administrative region)$/i, '')
+      .replace(/\s+(zhuang|uygur|hui)$/i, '')
+      .trim();
+  }
+
+  function localizeIpInfo(r) {
+    const code = String(r.countryCode || '').toUpperCase();
+    const cn = code === 'CN';
+    const country = cn ? '中国' : [r.country, r.countryCode].filter(Boolean).join(' · ');
+    const region = CN_REGION_NAMES[regionKey(r.region)] || r.region || '';
+    return { country, region };
+  }
+
+  async function checkIpInfo(host) {
+    const h = String(host || '').trim();
+    if (!h) return;
+    U.openModal({
+      title: `IP 信息 - ${h}`,
+      width: '440px',
+      hideCancel: true,
+      okText: '关闭',
+      body: '<div class="ipinfo-loading">正在查询…</div>'
+    });
+    try {
+      const r = await window.api.ipInfo({ host: h });
+      const body = U.qs('#modal-body');
+      if (!body) return;
+      if (!r || r.ok === false) throw new Error((r && r.error) || '查询失败');
+      if (r.local) {
+        body.innerHTML = `<div class="ipinfo-grid">
+          <div class="ipinfo-row"><span>IP 地址</span><b>${U.esc(r.ip)}</b></div>
+          <div class="ipinfo-row"><span>类型</span><b>本机 / 内网地址</b></div>
+        </div><div class="ipinfo-hint">${U.esc(r.reason || '内网地址不进行公网归属查询。')}</div>`;
+        return;
+      }
+      const loc = localizeIpInfo(r);
+      const rows = [
+        ['IP 地址', r.ip],
+        ['类型', r.type],
+        ['国家 / 地区', loc.country],
+        ['省 / 州', loc.region],
+        ['城市', r.city],
+        ['ISP', r.isp],
+        ['组织', r.org && r.org !== r.isp ? r.org : ''],
+        ['ASN', r.asn],
+        ['时区', [r.timezone, r.utc].filter(Boolean).join(' · ')],
+        ['经纬度', Number.isFinite(r.latitude) && Number.isFinite(r.longitude) ? `${r.latitude}, ${r.longitude}` : '']
+      ].filter(([, v]) => v !== undefined && v !== null && String(v).trim() !== '');
+      body.innerHTML = `<div class="ipinfo-grid">${rows
+        .map(([k, v]) => `<div class="ipinfo-row"><span>${U.esc(k)}</span><b>${U.esc(v)}</b></div>`)
+        .join('')}</div>`;
+    } catch (err) {
+      const body = U.qs('#modal-body');
+      if (body) body.innerHTML = `<div class="ipinfo-error">查询失败：${U.esc(U.cleanError(err))}</div>`;
+    }
+  }
+
+  async function moveConnections(ids, groupId) {
+    if (!ids || !ids.length) return;
+    try {
+      const res = await window.api.moveConnections({ ids, group: groupId });
+      App.setData(res.state);
+      if (res.moved) U.toast(`已移动 ${res.moved} 台服务器`, 'ok');
+    } catch (err) {
+      U.toast('移动失败: ' + U.cleanError(err), 'error', 3600);
+    }
   }
 
   /* ---------------- 分组 ---------------- */
@@ -501,11 +638,14 @@ window.Connections = (function () {
         <div class="field" style="flex:0 0 86px"><label>端口</label><input id="f-port" type="number" value="${
           conn ? conn.port : 22
         }" min="1" max="65535"></div>
-      </div>
-      <div class="form-row">
-        <div class="field"><label>用户名 <span class="req">*</span></label><input id="f-user" type="text" value="${U.esc(
+        <div class="field" style="flex:1.2"><label>用户名 <span class="req">*</span></label><input id="f-user" type="text" value="${U.esc(
           conn ? conn.user : 'root'
         )}"></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>备注</label><input id="f-remark" type="text" value="${U.esc(
+          conn ? conn.remark || '' : ''
+        )}" placeholder="无"></div>
       </div>
       <div class="form-row">
         <div class="field"><label>认证方式</label>
@@ -586,6 +726,7 @@ window.Connections = (function () {
           host,
           port,
           user,
+          remark: $('#f-remark').value.trim(),
           authType,
           proxyEnabled: $('#f-proxy-enabled') ? $('#f-proxy-enabled').checked : false,
           proxyId: $('#f-proxy-id') ? $('#f-proxy-id').value : '',
@@ -683,14 +824,39 @@ window.Connections = (function () {
     return promise;
   }
 
-  async function removeConnection(id) {
-    const c = App.findConnection(id);
-    if (!c) return;
-    const ok = await U.confirmDialog('删除配置', `确定删除「${c.name || c.host}」的 SSH 配置吗？`, '删除');
+  async function removeConnections(ids) {
+    const list = (ids || []).filter((id) => App.findConnection(id));
+    if (!list.length) return;
+    const items = list.map((id) => App.findConnection(id)).filter(Boolean);
+    const single = items.length === 1;
+    const what = single
+      ? `「${items[0].name || items[0].host}」`
+      : `选中的 ${items.length} 台服务器`;
+    const detail = single
+      ? ''
+      : '\n\n' + items
+        .map((x) => `· ${x.name || x.host}（${x.user || ''}@${x.host || ''}:${x.port || 22}）`)
+        .join('\n') + '\n';
+    const ok = await U.confirmDialog(
+      '删除配置',
+      `确定将${what}移入回收站吗？${detail}\n回收站中的配置保留 30 天，可在「文件 → 回收站」中还原。`,
+      '移入回收站'
+    );
     if (!ok) return;
-    const data = await window.api.deleteConnection(id);
-    App.setData(data);
-    U.toast('配置已删除', 'ok');
+    try {
+      const res = await window.api.deleteConnections(list);
+      if (list.includes(App.state.connClipboard)) App.state.connClipboard = null;
+      pickedIds = new Set();
+      lastPickId = '';
+      App.setData(res.state);
+      U.toast(`已移入回收站 ${res.moved || list.length} 台`, 'ok');
+    } catch (err) {
+      U.toast('删除失败: ' + U.cleanError(err), 'error', 3600);
+    }
+  }
+
+  async function removeConnection(id) {
+    return removeConnections([id]);
   }
 
   /* ---------------- 密钥库 ---------------- */
@@ -822,5 +988,25 @@ window.Connections = (function () {
     }, 20);
   }
 
-  return { init, render, openEditor, importKeyDialog, openKeyManager };
+  return {
+    init,
+    render,
+    openEditor,
+    importKeyDialog,
+    openKeyManager,
+    addGroup,
+    addSubGroup,
+    renameGroup,
+    deleteGroup,
+    removeConnection,
+    removeConnections,
+    copyConnection,
+    pasteConnection,
+    checkIpInfo,
+    moveConnections,
+    connectMany,
+    groupTree,
+    compareGroupName,
+    levelsOf
+  };
 })();

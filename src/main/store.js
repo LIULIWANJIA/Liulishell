@@ -10,6 +10,8 @@ const { app, safeStorage } = require('electron');
 
 const MAX_SNIPPET_BOARDS = 30;
 const RECYCLE_GROUP = '待回收';
+const RECYCLE_RESTORE_GROUP = '回收站还原';
+const RECYCLE_KEEP_DAYS = 30;
 const MAX_GROUP_LEVEL = 3;
 
 function newGroupId() {
@@ -94,6 +96,7 @@ function defaults() {
   return {
     groups: [{ id: 'g-default', name: '默认分组', parentId: '' }],
     connections: [],
+    recycleBin: [],
     keys: [],
     cmdHistory: [],
     snippetBoards: [
@@ -200,6 +203,7 @@ function normalize(raw) {
   const data = {
     groups: normalizeGroups(raw.groups, base.groups),
     connections: Array.isArray(raw.connections) ? raw.connections : [],
+    recycleBin: Array.isArray(raw.recycleBin) ? raw.recycleBin : [],
     keys: Array.isArray(raw.keys) ? raw.keys : [],
     cmdHistory: Array.isArray(raw.cmdHistory) ? raw.cmdHistory.slice(0, 300) : [],
     snippetBoards: Array.isArray(raw.snippetBoards) ? raw.snippetBoards.slice(0, MAX_SNIPPET_BOARDS) : base.snippetBoards,
@@ -702,30 +706,42 @@ function publicKeyView(k) {
   };
 }
 
+/** 连接配置的安全视图（不含凭据） */
+function publicConnection(c) {
+  return {
+    id: c.id,
+    name: c.name,
+    group: c.group,
+    host: c.host,
+    port: c.port,
+    user: c.user,
+    remark: c.remark || '',
+    authType: c.authType,
+    keyPath: c.keyPath || '',
+    keyId: c.keyId || '',
+    proxyEnabled: !!c.proxyEnabled,
+    proxyId: c.proxyId || '',
+    clearMotd: c.clearMotd !== false,
+    hasPassword: !!c.password,
+    hasPrivateKey: !!c.privateKey,
+    hasPassphrase: !!c.passphrase,
+    createdAt: c.createdAt,
+    lastUsed: c.lastUsed
+  };
+}
+
 /** 返回给渲染进程的安全视图：不含任何凭据 */
 function publicState() {
   const d = load();
   return {
     groups: d.groups,
-    connections: d.connections.map((c) => ({
-      id: c.id,
-      name: c.name,
-      group: c.group,
-      host: c.host,
-      port: c.port,
-      user: c.user,
-      authType: c.authType,
-      keyPath: c.keyPath || '',
-      keyId: c.keyId || '',
-      proxyEnabled: !!c.proxyEnabled,
-      proxyId: c.proxyId || '',
-      clearMotd: c.clearMotd !== false,
-      hasPassword: !!c.password,
-      hasPrivateKey: !!c.privateKey,
-      hasPassphrase: !!c.passphrase,
-      createdAt: c.createdAt,
-      lastUsed: c.lastUsed
-    })),
+    connections: d.connections.map(publicConnection),
+    recycleBin: (d.recycleBin || []).map((c) =>
+      Object.assign(publicConnection(c), {
+        deletedAt: c.deletedAt || 0,
+        originalGroup: c.originalGroup || ''
+      })
+    ),
     keys: d.keys.map(publicKeyView),
     snippetBoards: d.snippetBoards,
     settings: publicSettings(d)
@@ -816,16 +832,22 @@ async function upsertConnection(input) {
   const d = load();
   const now = Date.now();
   let conn = input.id ? d.connections.find((c) => c.id === input.id) : null;
+  let inRecycle = false;
+  if (!conn && input.id) {
+    conn = (d.recycleBin || []).find((c) => c.id === input.id) || null;
+    inRecycle = !!conn;
+  }
   const fromKey = conn ? connKeyOf(conn) : '';
   if (!conn) {
     conn = { id: 'c-' + now.toString(36) + '-' + Math.random().toString(36).slice(2, 6), createdAt: now };
     d.connections.push(conn);
   }
   conn.name = (input.name || '').trim() || input.host;
-  conn.group = input.group || d.groups[0].id;
+  if (!inRecycle) conn.group = input.group || d.groups[0].id;
   conn.host = (input.host || '').trim();
   conn.port = Number(input.port) || 22;
   conn.user = (input.user || '').trim() || 'root';
+  if (input.remark !== undefined) conn.remark = String(input.remark || '').trim();
   conn.authType = input.authType === 'key' ? 'key' : 'password';
   if (input.proxyEnabled !== undefined) conn.proxyEnabled = !!input.proxyEnabled;
   if (input.proxyId !== undefined) conn.proxyId = String(input.proxyId || '');
@@ -841,8 +863,8 @@ async function upsertConnection(input) {
   if (input.privateKey !== undefined) conn.privateKey = input.privateKey ? await encrypt(input.privateKey) : '';
   if (input.passphrase !== undefined) conn.passphrase = input.passphrase ? await encrypt(input.passphrase) : '';
 
-  // 地址变了：收藏跟着走，同时丢掉旧地址的目录缓存
-  if (fromKey && fromKey !== connKeyOf(conn)) {
+  // 地址变了：收藏跟着走，同时丢掉旧地址的目录缓存（回收站里的配置不处理）
+  if (!inRecycle && fromKey && fromKey !== connKeyOf(conn)) {
     migrateFavoritesOfConnection(d, conn, fromKey);
     try {
       require('./dircache').invalidateAll(fromKey);
@@ -853,15 +875,138 @@ async function upsertConnection(input) {
   return { id: conn.id, state: publicState() };
 }
 
-function deleteConnection(id) {
+/** 复制一份连接配置到目标分组；同名时自动加 -副本 / -副本2 后缀 */
+function duplicateConnection(id, groupId) {
   const d = load();
-  d.connections = d.connections.filter((c) => c.id !== id);
-  // 删除服务器配置时一并移除最近连接（含其置顶状态），这是取消置顶的途径之一
-  if (d.settings && Array.isArray(d.settings.connectHistory)) {
-    d.settings.connectHistory = d.settings.connectHistory.filter((r) => r && r.id !== id);
+  const src = d.connections.find((c) => c.id === id);
+  if (!src) throw new Error('源配置不存在或已删除');
+  let group = groupId && d.groups.some((g) => g.id === groupId) ? groupId : src.group;
+  if (!d.groups.some((g) => g.id === group)) group = d.groups[0].id;
+  const names = new Set(d.connections.filter((c) => c.group === group).map((c) => c.name));
+  let name = src.name;
+  if (names.has(name)) {
+    let cand = src.name + '-副本';
+    if (names.has(cand)) {
+      let n = 2;
+      while (names.has(cand + n)) n++;
+      cand = cand + n;
+    }
+    name = cand;
   }
+  const now = Date.now();
+  const copy = Object.assign({}, src, {
+    id: 'c-' + now.toString(36) + '-' + Math.random().toString(36).slice(2, 6),
+    name,
+    group,
+    createdAt: now,
+    lastUsed: 0
+  });
+  d.connections.push(copy);
+  save();
+  return { id: copy.id, state: publicState() };
+}
+
+/** 拖动移动：把一台或多台配置移动到目标分组（同名保留原名） */
+function moveConnections(ids, groupId) {
+  const d = load();
+  if (!d.groups.some((g) => g.id === groupId)) throw new Error('目标分组不存在');
+  const set = new Set((ids || []).map((x) => String(x)));
+  let moved = 0;
+  for (const c of d.connections) {
+    if (set.has(c.id) && c.group !== groupId) {
+      c.group = groupId;
+      moved++;
+    }
+  }
+  if (moved) save();
+  return { moved, state: publicState() };
+}
+
+function deleteConnections(ids) {
+  const d = load();
+  const set = new Set((ids || []).map((x) => String(x)));
+  const moved = [];
+  for (let i = d.connections.length - 1; i >= 0; i--) {
+    const c = d.connections[i];
+    if (!set.has(c.id)) continue;
+    d.connections.splice(i, 1);
+    if (!Array.isArray(d.recycleBin)) d.recycleBin = [];
+    c.originalGroup = c.group || '';
+    c.deletedAt = Date.now();
+    d.recycleBin.push(c);
+    moved.push(c.id);
+  }
+  if (moved.length) {
+    if (d.settings && Array.isArray(d.settings.connectHistory)) {
+      const gone = new Set(moved);
+      d.settings.connectHistory = d.settings.connectHistory.filter((r) => r && !gone.has(r.id));
+    }
+    save();
+  }
+  return { moved: moved.length, ids: moved, state: publicState() };
+}
+
+function deleteConnection(id) {
+  return deleteConnections([id]).state;
+}
+
+function getRecycleConnection(id) {
+  return (load().recycleBin || []).find((c) => c.id === id) || null;
+}
+
+function getConnectionAny(id) {
+  return getConnection(id) || getRecycleConnection(id);
+}
+
+/** 还原回收站配置到「回收站还原」分组；分组不存在时自动创建 */
+function restoreConnection(id) {
+  const d = load();
+  const idx = (d.recycleBin || []).findIndex((c) => c.id === id);
+  if (idx < 0) throw new Error('回收站中没有该配置');
+  let group = d.groups.find((g) => !g.parentId && g.name === RECYCLE_RESTORE_GROUP);
+  if (!group) {
+    group = { id: newGroupId(), name: RECYCLE_RESTORE_GROUP, parentId: '' };
+    d.groups.push(group);
+  }
+  const conn = d.recycleBin.splice(idx, 1)[0];
+  const names = new Set(d.connections.filter((c) => c.group === group.id).map((c) => c.name));
+  let name = conn.name || conn.host || '服务器';
+  if (names.has(name)) {
+    let cand = name + '-副本';
+    if (names.has(cand)) {
+      let n = 2;
+      while (names.has(cand + n)) n++;
+      cand = cand + n;
+    }
+    name = cand;
+  }
+  delete conn.deletedAt;
+  delete conn.originalGroup;
+  conn.name = name;
+  conn.group = group.id;
+  conn.lastUsed = 0;
+  d.connections.push(conn);
   save();
   return publicState();
+}
+
+/** 永久删除回收站中的配置 */
+function purgeRecycleItem(id) {
+  const d = load();
+  d.recycleBin = (d.recycleBin || []).filter((c) => c.id !== id);
+  save();
+  return publicState();
+}
+
+/** 清理超过 30 天的回收站配置（启动时调用） */
+function purgeRecycleExpired(days = RECYCLE_KEEP_DAYS) {
+  const d = load();
+  const cutoff = Date.now() - Math.max(1, Number(days) || 0) * 24 * 60 * 60 * 1000;
+  const before = (d.recycleBin || []).length;
+  d.recycleBin = (d.recycleBin || []).filter((c) => Number(c.deletedAt || 0) > cutoff);
+  const removed = before - d.recycleBin.length;
+  if (removed) save();
+  return removed;
 }
 
 function touchConnection(id) {
@@ -1004,6 +1149,7 @@ async function exportBundle() {
       host: c.host,
       port: c.port,
       user: c.user,
+      remark: c.remark || '',
       authType: c.authType,
       keyPath: c.keyPath || '',
       keyName: keyRec ? keyRec.name : '',
@@ -1014,6 +1160,31 @@ async function exportBundle() {
       clearMotd: c.clearMotd !== false,
       // 只同步「是否启用代理」，具体用哪个代理不随配置走，导入时统一落到目标设备的默认代理
       proxyEnabled: !!c.proxyEnabled
+    });
+  }
+  // 回收站配置一并同步（按 id 去重，保留删除时间）
+  const recycled = [];
+  for (const c of d.recycleBin || []) {
+    const sec = await secretsOf(c);
+    const keyRec = c.keyId ? d.keys.find((k) => k.id === c.keyId) : null;
+    recycled.push({
+      id: c.id,
+      name: c.name,
+      originalGroupPath: groupPath(d.groups, c.originalGroup || c.group),
+      host: c.host,
+      port: c.port,
+      user: c.user,
+      remark: c.remark || '',
+      authType: c.authType,
+      keyPath: c.keyPath || '',
+      keyName: keyRec ? keyRec.name : '',
+      keyFingerprint: keyRec ? keyRec.fingerprint || '' : '',
+      password: sec.password,
+      privateKey: sec.privateKey,
+      passphrase: sec.passphrase,
+      clearMotd: c.clearMotd !== false,
+      proxyEnabled: !!c.proxyEnabled,
+      deletedAt: Number(c.deletedAt) || Date.now()
     });
   }
   // 密钥库一并导出（重名密钥在下一次导入时复用）
@@ -1053,6 +1224,7 @@ async function exportBundle() {
   return {
     groups: d.groups.map((g) => ({ name: g.name, path: groupPath(d.groups, g.id) })),
     connections: conns,
+    recycleBin: recycled,
     keys,
     snippetBoards,
     favorites,
@@ -1138,6 +1310,7 @@ async function importBundle(bundle) {
       host: c.host,
       port,
       user: c.user,
+      remark: String(c.remark || '').trim(),
       authType: c.authType === 'key' ? 'key' : 'password',
       keyPath: c.keyPath || '',
       keyId: boundKeyId,
@@ -1149,6 +1322,42 @@ async function importBundle(bundle) {
       proxyId: boundProxyId
     });
     added++;
+  }
+
+  // 回收站配置：按 id 合并，保留删除时间
+  d.recycleBin = Array.isArray(d.recycleBin) ? d.recycleBin : [];
+  const recycleIds = new Set(d.recycleBin.map((c) => c.id));
+  for (const c of d.connections) recycleIds.add(c.id);
+  let recycleAdded = 0;
+  for (const r of (bundle && bundle.recycleBin) || []) {
+    if (!r || !r.host || !r.user) continue;
+    const rid = String(r.id || '');
+    if (rid && recycleIds.has(rid)) continue;
+    const boundKeyId = r.keyName ? keyNameToId.get(r.keyName) || '' : '';
+    const id = rid || 'c-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6);
+    d.recycleBin.push({
+      id,
+      createdAt: Number(r.createdAt) || Date.now(),
+      name: r.name || r.host,
+      group: d.groups[0].id,
+      host: r.host,
+      port: Number(r.port) || 22,
+      user: r.user,
+      remark: String(r.remark || '').trim(),
+      authType: r.authType === 'key' ? 'key' : 'password',
+      keyPath: r.keyPath || '',
+      keyId: boundKeyId,
+      password: r.password ? await encrypt(String(r.password)) : '',
+      privateKey: r.privateKey ? await encrypt(String(r.privateKey)) : '',
+      passphrase: r.passphrase ? await encrypt(String(r.passphrase)) : '',
+      clearMotd: r.clearMotd !== false,
+      proxyEnabled: !!r.proxyEnabled,
+      proxyId: r.proxyEnabled ? (d.settings.defaultProxyId || '') : '',
+      deletedAt: Number(r.deletedAt) || Date.now(),
+      originalGroup: ''
+    });
+    recycleIds.add(id);
+    recycleAdded++;
   }
 
   // 收藏分组（仅一级）与收藏文件夹：按名称 / 服务器+路径合并
@@ -1216,7 +1425,7 @@ async function importBundle(bundle) {
     }
   }
   save();
-  return { added, skipped, snippetsAdded, favoritesAdded, favoriteGroupsAdded, state: publicState() };
+  return { added, skipped, recycleAdded, snippetsAdded, favoritesAdded, favoriteGroupsAdded, state: publicState() };
 }
 
 /* ---------------- 云同步：基线三路合并（支持删除同步） ---------------- */
@@ -1253,6 +1462,7 @@ function indexOfBundle(bundle) {
   const out = {
     at: 0,
     connections: [],
+    recycle: [],
     groups: [],
     keys: [],
     snippets: [],
@@ -1261,6 +1471,10 @@ function indexOfBundle(bundle) {
     favoriteGroups: []
   };
   for (const c of b.connections || []) if (c && c.host && c.user) out.connections.push(identityOfConnection(c));
+  for (const c of b.recycleBin || []) {
+    const id = String((c && c.id) || '');
+    if (id) out.recycle.push(id);
+  }
   for (const g of b.groups || []) {
     const p = identityOfGroup(g);
     if (p) out.groups.push(p);
@@ -1286,6 +1500,7 @@ function queryIndex(idx) {
   const i = idx || {};
   return {
     connections: toSet(i.connections),
+    recycle: toSet(i.recycle),
     groups: toSet(i.groups),
     keys: toSet(i.keys),
     snippets: toSet(i.snippets),
@@ -1298,8 +1513,8 @@ function queryIndex(idx) {
 const EMPTY_SYNC_STATS = () => ({
   baselineAt: 0,
   firstSync: false,
-  removedLocal: { connections: 0, groups: 0, snippets: 0, favorites: 0, keys: 0, favoriteGroups: 0 },
-  removedRemote: { connections: 0, groups: 0, snippets: 0, favorites: 0, keys: 0, favoriteGroups: 0 }
+  removedLocal: { connections: 0, recycle: 0, groups: 0, snippets: 0, favorites: 0, keys: 0, favoriteGroups: 0 },
+  removedRemote: { connections: 0, recycle: 0, groups: 0, snippets: 0, favorites: 0, keys: 0, favoriteGroups: 0 }
 });
 
 function removeLocalConnection(d, identity) {
@@ -1311,6 +1526,12 @@ function removeLocalConnection(d, identity) {
     d.settings.connectHistory = d.settings.connectHistory.filter((r) => r && r.id !== id);
   }
   return true;
+}
+
+function removeLocalRecycle(d, id) {
+  const before = (d.recycleBin || []).length;
+  d.recycleBin = (d.recycleBin || []).filter((c) => c.id !== id);
+  return d.recycleBin.length !== before;
 }
 
 function findLocalGroupPath(d, p) {
@@ -1404,6 +1625,11 @@ async function syncMerge(remoteInput) {
         stats.removedLocal.connections++;
       }
     }
+    for (const id of B.recycle) {
+      if (L.recycle.has(id) && !R.recycle.has(id) && removeLocalRecycle(d, id)) {
+        stats.removedLocal.recycle++;
+      }
+    }
     for (const p of B.groups) {
       if (!L.groups.has(p) || R.groups.has(p)) continue;
       const g = findLocalGroupPath(d, p);
@@ -1437,6 +1663,14 @@ async function syncMerge(remoteInput) {
       const id = identityOfConnection(c);
       if (B.connections.has(id) && !L.connections.has(id)) {
         stats.removedRemote.connections++;
+        return false;
+      }
+      return true;
+    });
+    remote.recycleBin = (remote.recycleBin || []).filter((r) => {
+      const id = String((r && r.id) || '');
+      if (B.recycle.has(id) && !L.recycle.has(id)) {
+        stats.removedRemote.recycle++;
         return false;
       }
       return true;
@@ -1540,9 +1774,17 @@ module.exports = {
   saveNow,
   publicState,
   getConnection,
+  getRecycleConnection,
+  getConnectionAny,
   secretsOf,
   upsertConnection,
+  duplicateConnection,
+  moveConnections,
   deleteConnection,
+  deleteConnections,
+  restoreConnection,
+  purgeRecycleItem,
+  purgeRecycleExpired,
   touchConnection,
   upsertGroup,
   deleteGroup,

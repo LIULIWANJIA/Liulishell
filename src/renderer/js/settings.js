@@ -962,9 +962,11 @@ window.Settings = (function () {
         if (r.added) lines.push(`云端 → 本机：合并新增 <b>${r.added}</b> 台服务器`);
         if (r.snippetsAdded) lines.push(`云端 → 本机：新增 <b>${r.snippetsAdded}</b> 条快捷命令`);
         if (r.favoritesAdded) lines.push(`云端 → 本机：新增 <b>${r.favoritesAdded}</b> 个收藏文件夹`);
+        if (r.recycleAdded) lines.push(`云端 → 本机：新增 <b>${r.recycleAdded}</b> 个回收站配置`);
         if (sum(rl)) {
           const parts = [];
           if (rl.connections) parts.push(`${rl.connections} 台服务器`);
+          if (rl.recycle) parts.push(`${rl.recycle} 个回收站配置`);
           if (rl.groups) parts.push(`${rl.groups} 个分组`);
           if (rl.snippets) parts.push(`${rl.snippets} 条快捷命令`);
           if (rl.favorites) parts.push(`${rl.favorites} 个收藏`);
@@ -974,6 +976,7 @@ window.Settings = (function () {
         if (sum(rr)) {
           const parts = [];
           if (rr.connections) parts.push(`${rr.connections} 台服务器`);
+          if (rr.recycle) parts.push(`${rr.recycle} 个回收站配置`);
           if (rr.groups) parts.push(`${rr.groups} 个分组`);
           if (rr.snippets) parts.push(`${rr.snippets} 条快捷命令`);
           if (rr.favorites) parts.push(`${rr.favorites} 个收藏`);

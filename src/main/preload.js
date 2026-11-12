@@ -26,14 +26,21 @@ const EVENTS = [
 const api = {
   /* 数据 */
   getState: () => ipcRenderer.invoke('store:get'),
+  ipInfo: (payload) => ipcRenderer.invoke('net:ipInfo', payload || {}),
   saveConnection: (conn) => ipcRenderer.invoke('conn:save', conn),
+  duplicateConnection: (payload) => ipcRenderer.invoke('conn:duplicate', payload || {}),
+  moveConnections: (payload) => ipcRenderer.invoke('conn:move', payload || {}),
+  recycleRestore: (id) => ipcRenderer.invoke('recycle:restore', id),
+  recyclePurge: (id) => ipcRenderer.invoke('recycle:purge', id),
   deleteConnection: (id) => ipcRenderer.invoke('conn:delete', id),
+  deleteConnections: (ids) => ipcRenderer.invoke('conn:deleteMany', ids || []),
   saveGroup: (group) => ipcRenderer.invoke('group:save', group),
   deleteGroup: (id) => ipcRenderer.invoke('group:delete', id),
   saveSnippets: (boards) => ipcRenderer.invoke('snippets:save', boards),
   saveSettings: (patch) => ipcRenderer.invoke('settings:save', patch),
   pickWallpaper: () => ipcRenderer.invoke('settings:pickWallpaper'),
   resetWindowPos: () => ipcRenderer.invoke('settings:resetWindowPos'),
+  resetWindowLayout: () => ipcRenderer.invoke('settings:resetWindowLayout'),
   pickKeyFile: () => ipcRenderer.invoke('dialog:pickKey'),
   keySave: (payload) => ipcRenderer.invoke('key:save', payload),
   keyDelete: (id) => ipcRenderer.invoke('key:delete', id),
@@ -74,9 +81,11 @@ const api = {
   fsCopy: (payload) => ipcRenderer.invoke('fs:copy', payload),
   fsMkdir: (payload) => ipcRenderer.invoke('fs:mkdir', payload),
   fsRename: (payload) => ipcRenderer.invoke('fs:rename', payload),
+  fsChmod: (payload) => ipcRenderer.invoke('fs:chmod', payload),
   fsRead: (payload) => ipcRenderer.invoke('fs:read', payload),
   fsWrite: (payload) => ipcRenderer.invoke('fs:write', payload),
   fsDownload: (payload) => ipcRenderer.invoke('fs:download', payload),
+  fsPack: (payload) => ipcRenderer.invoke('fs:packDownload', payload),
   fsUpload: (payload) => ipcRenderer.invoke('fs:upload', payload),
   fsUploadPaths: (payload) => ipcRenderer.invoke('fs:uploadPaths', payload),
 
@@ -93,8 +102,8 @@ const api = {
 
   /* 下载管理器 / 传输 */
   downloadsOpen: () => ipcRenderer.invoke('downloads:open'),
+  downloadsToggle: () => ipcRenderer.invoke('downloads:toggle'),
   downloadsMinimize: () => ipcRenderer.invoke('downloads:minimize'),
-  downloadsMaximize: () => ipcRenderer.invoke('downloads:maximize'),
   downloadsClose: () => ipcRenderer.invoke('downloads:close'),
   transferList: () => ipcRenderer.invoke('transfer:list'),
   transferCancel: (id) => ipcRenderer.invoke('transfer:cancel', id),

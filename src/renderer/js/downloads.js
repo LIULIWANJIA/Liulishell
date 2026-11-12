@@ -82,6 +82,7 @@
   }
 
   function render() {
+    if (document.visibilityState === 'hidden') return;
     const running = rows.filter((r) => r.status === 'running').length;
     const paused = rows.filter((r) => r.status === 'paused').length;
     $('#dsummary').textContent = `${rows.length} 个任务${running ? ` · ${running} 个进行中` : ''}${paused ? ` · ${paused} 个已暂停` : ''}`;
@@ -216,14 +217,15 @@
     });
     $('#dopenfolder').addEventListener('click', () => window.api.openDownloadDir());
     $('#dmin').addEventListener('click', () => window.api.downloadsMinimize());
-    $('#dmax').addEventListener('click', () => window.api.downloadsMaximize());
     $('#dclosewin').addEventListener('click', () => window.api.downloadsClose());
-    $('#dtitle').addEventListener('dblclick', () => window.api.downloadsMaximize());
     document.addEventListener('mousedown', (e) => {
       if (!ctx.contains(e.target)) ctx.classList.remove('show');
     });
     // 运行时刷新速率显示
     setInterval(render, 1000);
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) render();
+    });
     render();
   }
 
