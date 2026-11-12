@@ -1,5 +1,5 @@
 'use strict';
-const { app, BrowserWindow, ipcMain, dialog, Menu, shell, nativeImage, screen } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, Menu, shell, nativeImage, screen, net } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const https = require('https');
@@ -1592,14 +1592,63 @@ function davUrl(base, rel) {
   return b + p;
 }
 
+function davErrorText(err) {
+  const bits = [];
+  let cur = err;
+  for (let i = 0; cur && i < 4; i++) {
+    if (cur.code) bits.push(String(cur.code));
+    if (cur.message && cur.message !== 'fetch failed' && !bits.includes(String(cur.message))) bits.push(String(cur.message));
+    cur = cur.cause;
+  }
+  return bits.join(' ');
+}
+
+function davFriendlyError(err) {
+  const s = davErrorText(err);
+  const rules = [
+    [/(ENOTFOUND|EAI_AGAIN|ERR_NAME_NOT_RESOLVED)/i, '无法解析 WebDAV 域名，请检查地址或 DNS 网络'],
+    [/(ECONNREFUSED|ERR_CONNECTION_REFUSED)/i, 'WebDAV 服务器拒绝连接，请确认地址、端口与服务状态'],
+    [/(ETIMEDOUT|UND_ERR_CONNECT_TIMEOUT|TimeoutError|ERR_TIMED_OUT)/i, '连接 WebDAV 超时，请检查网络或服务器'],
+    [/(CERT_|ERR_CERT_|SELF_SIGNED_CERT|UNABLE_TO_VERIFY_LEAF_SIGNATURE|DEPTH_ZERO_SELF_SIGNED_CERT)/i, 'HTTPS 证书校验失败，请检查服务器证书是否有效'],
+    [/(EPROTO|ERR_SSL|ERR_TLS)/i, 'TLS 握手失败，请确认端口与协议是否匹配'],
+    [/(ECONNRESET|ERR_CONNECTION_RESET|EPIPE)/i, '连接被服务器重置，请稍后重试'],
+    [/(ENETUNREACH|EHOSTUNREACH|ERR_INTERNET_DISCONNECTED)/i, '网络不可达，请检查网络或代理设置'],
+    [/(ERR_PROXY|PROXY_CONNECTION)/i, '代理连接失败，请检查系统代理设置'],
+    [/(ERR_UNSAFE_PORT)/i, 'WebDAV 端口被系统安全策略拒绝，请更换端口'],
+    [/(ERR_ADDRESS_INVALID|ERR_INVALID_URL)/i, 'WebDAV 地址无效，请检查填写内容'],
+    [/(ERR_EMPTY_RESPONSE|ERR_CONTENT_LENGTH_MISMATCH)/i, '服务器返回了异常响应，请检查 WebDAV 服务'],
+    [/(ERR_TOO_MANY_REDIRECTS)/i, '重定向次数过多，请检查 WebDAV 地址']
+  ];
+  for (const [re, msg] of rules) {
+    if (re.test(s)) {
+      const code = s.split(/\s+/).find((x) => /^[A-Z][A-Z0-9_]{3,}$/.test(x));
+      return code ? `${msg}（${code}）` : msg;
+    }
+  }
+  return '无法连接 WebDAV 服务器' + (s ? `：${s.slice(0, 160)}` : '');
+}
+
 async function davRequest(cfg, url, method, body, extraHeaders) {
   const headers = Object.assign(davAuthHeaders(cfg), extraHeaders || {});
-  return fetch(url, {
+  const init = {
     method,
     headers,
     body,
     signal: AbortSignal.timeout(30000)
-  });
+  };
+  try {
+    return await fetch(url, init);
+  } catch (err) {
+    // Node/undici 不走系统代理与系统证书库，失败时用 Electron 网络栈再试一次
+    if (net && typeof net.fetch === 'function') {
+      try {
+        return await net.fetch(url, init);
+      } catch (err2) {
+        throw new Error(davFriendlyError(err2));
+      }
+    }
+    throw new Error(davFriendlyError(err));
+  }
 }
 
 async function davEnsureDirs(cfg, remotePath) {
@@ -1640,18 +1689,11 @@ ipcMain.handle('webdav:save', async (_e, input) => {
 ipcMain.handle('webdav:test', async () => {
   const cfg = await webdavCheckConfig(false);
   const fileUrl = davUrl(cfg.url, cfg.remotePath);
-  try {
-    const res = await davRequest(cfg, fileUrl, 'GET');
-    if (res.status === 401 || res.status === 403) throw new Error('认证失败，请检查用户名 / 密码');
-    if (res.status === 404) return { ok: true, exists: false, message: '连接成功，云端文件尚未创建' };
-    if (!res.ok) throw new Error(`连接失败（HTTP ${res.status}）`);
-    return { ok: true, exists: true, message: '连接成功，已找到云端配置' };
-  } catch (err) {
-    if (/fetch failed|ENOTFOUND|ECONNREFUSED|timed out|TimeoutError/i.test(String(err.message))) {
-      throw new Error('无法连接 WebDAV 服务器，请检查地址与网络');
-    }
-    throw err;
-  }
+  const res = await davRequest(cfg, fileUrl, 'GET');
+  if (res.status === 401 || res.status === 403) throw new Error('认证失败，请检查用户名 / 密码');
+  if (res.status === 404) return { ok: true, exists: false, message: '连接成功，云端文件尚未创建' };
+  if (!res.ok) throw new Error(`连接失败（HTTP ${res.status}）`);
+  return { ok: true, exists: true, message: '连接成功，已找到云端配置' };
 });
 
 ipcMain.handle('app:clearData', async (_e, payload) => {

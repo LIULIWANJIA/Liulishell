@@ -10,7 +10,7 @@
 
 [GitHub Releases](https://github.com/LIULIWANJIA/Liulishell/releases)　·　[Gitee Releases](https://gitee.com/liuliwanjiaweb/liuli-shell/releases)
 
-当前版本：**v1.14.5** | Windows 10/11 · Linux GUI · macOS
+当前版本：**v1.14.6** | Windows 10/11 · Linux GUI · macOS
 
 **使用限制：** 仅限个人、非营利、教育与研究等非商业用途；任何商业主体或商业场景禁止使用；衍生版本须在用户可见的明显区域署名原作者。详见 [LICENSE](LICENSE)。
 
