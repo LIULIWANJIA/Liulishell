@@ -35,34 +35,36 @@
 
 > 需要 Node.js ≥ 18（推荐 20 LTS）与 Git，并在对应系统上构建，产物互不通用。Gitee 克隆可能提示输入账号与密码，完成后再执行下一条。
 
-<table>
-<tr>
-<td valign="top" width="50%">
+<details open>
+<summary><b>Linux GUI</b></summary>
 
-<b>Linux GUI</b>
+```bash
+rm -rf liuli-shell Liulishell && git clone https://gitee.com/liuliwanjiaweb/liuli-shell.git
+cd liuli-shell && bash scripts/build-linux.sh
+```
 
-<pre><code>rm -rf liuli-shell Liulishell &amp;&amp; git clone https://gitee.com/liuliwanjiaweb/liuli-shell.git
-cd liuli-shell &amp;&amp; bash scripts/build-linux.sh</code></pre>
+脚本自动识别发行版、补齐系统依赖，可选 `deb` / `AppImage`，打包完成后询问是否安装。产物在 `dist/`，也支持 `.tar.gz`。
 
-脚本自动识别发行版、补齐系统依赖，可选 <code>deb</code> / <code>AppImage</code>，打包完成后询问是否安装。产物在 <code>dist/</code>，也支持 <code>.tar.gz</code>。
+</details>
 
-</td>
-<td valign="top" width="50%">
+<details>
+<summary><b>MAC OS</b></summary>
 
-<b>MAC OS</b>
-
-<pre><code>xcode-select --install
+```bash
+# 基础环境（已装过自动跳过）
+xcode-select --install
 brew install node@20
-rm -rf liuli-shell Liulishell &amp;&amp; git clone https://gitee.com/liuliwanjiaweb/liuli-shell.git
+
+# 克隆并构建
+rm -rf liuli-shell Liulishell && git clone https://gitee.com/liuliwanjiaweb/liuli-shell.git
 cd liuli-shell
-npm ci
-npm run vendor &amp;&amp; npm run dist:mac</code></pre>
+npm ci || npm install
+npm run vendor && npm run dist:mac
+```
 
-产出 <code>.dmg</code> / <code>.zip</code>（x64 + arm64）。未签名的 App 若被 Gatekeeper 拦截，右键「打开」放行即可。
+产出 `.dmg` / `.zip`（x64 + arm64）。未签名的 App 若被 Gatekeeper 拦截，右键「打开」放行即可。
 
-</td>
-</tr>
-</table>
+</details>
 
 > **GitHub 源**：把上面的克隆地址替换为 `https://github.com/LIULIWANJIA/Liulishell.git liuli-shell` 即可。Linux 依赖异常时再执行 `bash scripts/build-linux.sh repair` 和 `bash scripts/build-linux.sh deps`。
 
