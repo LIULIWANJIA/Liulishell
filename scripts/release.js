@@ -160,7 +160,7 @@ async function github() {
     if (res.status !== 201 && res.status !== 200) fail('GitHub Release 创建失败', res);
     console.log('GitHub：已创建 Release ' + tag);
   }
-  if (res.status !== 200) fail('GitHub Release 查询失败', res);
+  if (res.status !== 200 && res.status !== 201) fail('GitHub Release 查询失败', res);
   const release = res.json;
 
   if (notes && release.body !== notes) {
