@@ -12,9 +12,6 @@ Thumbs.db
 .vscode/
 .idea/
 
-# 官网静态站单独维护，不纳入本仓库（本地保留，不提交 / 不推送）
-website/
-
 # 安装包体积超过 Gitee 单文件限制，请上传到「发行版（Releases）」或网盘，不进仓库
 *.exe
 *.AppImage

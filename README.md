@@ -31,9 +31,29 @@
 
 ### Linux GUI / macOS 快速构建
 
-> 需要 Node.js ≥ 18（推荐 20 LTS）与 Git，并在对应系统上构建，产物互不通用。Gitee 克隆可能提示输入账号与密码，完成后再执行下一条。
+> 需要 Git（macOS 另需 Node.js ≥ 18，推荐 20 LTS；Linux 脚本会自动补齐 Node 与系统依赖），并在对应系统上构建，产物互不通用。Gitee 克隆可能提示输入账号与密码，完成后再执行下一条。
 
 ### Linux GUI 快速构建
+
+> 需要 Git；没有时按发行版选一条安装：
+
+Debian / Ubuntu：
+
+```bash
+sudo apt-get update && sudo apt-get install -y git
+```
+
+Fedora / RHEL：
+
+```bash
+sudo dnf install -y git
+```
+
+Arch：
+
+```bash
+sudo pacman -S --needed git
+```
 
 **1. 克隆源码（Gitee，国内推荐）**
 
@@ -53,7 +73,19 @@ rm -rf liuli-shell Liulishell && git clone https://github.com/LIULIWANJIA/Liulis
 cd liuli-shell && bash scripts/build-linux.sh
 ```
 
-脚本自动识别发行版、补齐系统依赖，可选 `deb` / `AppImage`，打包完成后询问是否安装。产物在 `dist/`，也支持 `.tar.gz`。
+脚本自动识别发行版、补齐系统依赖，可选 `deb` / `AppImage`，打包完成后询问是否安装。产物在 `dist/`。
+
+只打 `.tar.gz`：
+
+```bash
+bash scripts/build-linux.sh tar
+```
+
+环境异常时先体检：
+
+```bash
+bash scripts/build-linux.sh check
+```
 
 **仅当依赖异常或构建报错时，按顺序逐条执行：**
 
@@ -73,7 +105,7 @@ bash scripts/build-linux.sh
 
 > 需要 macOS 12+（Intel 或 Apple Silicon）与 Git，dmg 不能在 Windows / Linux 上构建。以下命令请逐条执行。
 
-**1. 安装基础环境（已装过自动跳过）**
+**1. 安装基础环境（已装过自动跳过；`xcode-select` 会弹窗，等安装完成再继续）**
 
 ```bash
 xcode-select --install 2>/dev/null || true
@@ -83,15 +115,23 @@ xcode-select --install 2>/dev/null || true
 command -v brew >/dev/null || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
+> 安装 Homebrew 时会要求输入当前用户密码。新装后需把 brew 加入当前终端 PATH：
+
 ```bash
-command -v node >/dev/null || brew install node@20
+if [ -x /opt/homebrew/bin/brew ]; then eval "$(/opt/homebrew/bin/brew shellenv)"; elif [ -x /usr/local/bin/brew ]; then eval "$(/usr/local/bin/brew shellenv)"; fi
+```
+
+```bash
+node -v 2>/dev/null | grep -qE '^v(1[89]|[2-9][0-9])' || brew install node@20
 ```
 
 ```bash
 brew link --overwrite --force node@20 >/dev/null 2>&1 || true
 ```
 
-> 安装 Homebrew 时会要求输入当前用户密码。
+```bash
+node -v && npm -v
+```
 
 **2. 克隆源码（Gitee / GitHub 二选一）**
 
@@ -125,6 +165,16 @@ npm ci || npm install
 
 ```bash
 npm run vendor
+```
+
+国内网络下载 Electron 较慢时（可选）：
+
+```bash
+export ELECTRON_MIRROR=https://registry.npmmirror.com/-/binary/electron/
+```
+
+```bash
+export ELECTRON_BUILDER_BINARIES_MIRROR=https://registry.npmmirror.com/-/binary/electron-builder-binaries/
 ```
 
 ```bash
