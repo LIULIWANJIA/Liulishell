@@ -71,26 +71,46 @@ bash scripts/build-linux.sh
 
 ### MAC OS 快速构建
 
+> 需要 macOS 12+（Intel 或 Apple Silicon）与 Git，dmg 不能在 Windows / Linux 上构建。以下命令请逐条执行。
+
 **1. 安装基础环境（已装过自动跳过）**
 
 ```bash
-xcode-select --install
+xcode-select --install 2>/dev/null || true
 ```
 
 ```bash
-brew install node@20
+command -v brew >/dev/null || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
-**2. 克隆源码（Gitee，国内推荐）**
-
 ```bash
-rm -rf liuli-shell Liulishell && git clone https://gitee.com/liuliwanjiaweb/liuli-shell.git
+command -v node >/dev/null || brew install node@20
 ```
 
-**GitHub 源（与上面二选一）**
+```bash
+brew link --overwrite --force node@20 >/dev/null 2>&1 || true
+```
+
+> 安装 Homebrew 时会要求输入当前用户密码。
+
+**2. 克隆源码（Gitee / GitHub 二选一）**
+
+先清理旧目录：
 
 ```bash
-rm -rf liuli-shell Liulishell && git clone https://github.com/LIULIWANJIA/Liulishell.git liuli-shell
+rm -rf liuli-shell Liulishell
+```
+
+Gitee（国内推荐）：
+
+```bash
+git clone https://gitee.com/liuliwanjiaweb/liuli-shell.git liuli-shell
+```
+
+GitHub（海外推荐）：
+
+```bash
+git clone https://github.com/LIULIWANJIA/Liulishell.git liuli-shell
 ```
 
 **3. 安装依赖并构建**
@@ -104,10 +124,20 @@ npm ci || npm install
 ```
 
 ```bash
-npm run vendor && npm run dist:mac
+npm run vendor
 ```
 
-产出 `.dmg` / `.zip`（x64 + arm64）。未签名的 App 若被 Gatekeeper 拦截，右键「打开」放行即可。
+```bash
+npm run dist:mac
+```
+
+只打 Apple Silicon（可选）：
+
+```bash
+npx electron-builder --mac dmg zip --arm64
+```
+
+产物在 `dist/`（`.dmg` / `.zip`，默认 x64 + arm64）。`npm run vendor` 会把 xterm 资源复制到 `src/renderer/vendor`，打包前必须执行；Intel 与 Apple Silicon 产物互不通用。未签名的 App 若被 Gatekeeper 拦截，右键「打开」放行即可。
 
 ---
 
