@@ -12,7 +12,8 @@ body {
   font-family: "Segoe UI", "Microsoft YaHei", sans-serif; font-size: 12.5px;
   box-shadow: none;
 }
-body::after { content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 9999; border: 1px solid var(--line-strong); }
+/* 与主窗口一致的四边 1px 外框；右/下内缩 1px，避免小数缩放取整后边框被窗口裁掉 */
+body::after { content: ''; position: fixed; inset: 0 1px 1px 0; pointer-events: none; z-index: 9999; border: 1px solid var(--line-strong); }
 ::selection, *::selection { background: var(--accent-soft); color: var(--text); }
 
 .ftitle {

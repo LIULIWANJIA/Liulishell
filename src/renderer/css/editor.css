@@ -11,8 +11,8 @@ body {
   background: var(--bg); color: var(--text);
   font-family: "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif; font-size: 12.5px;
 }
-/* 与主窗口一致的四边 1px 外框 */
-body::after { content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 9999; border: 1px solid var(--line-strong); }
+/* 与主窗口一致的四边 1px 外框；右/下内缩 1px，避免小数缩放取整后边框被窗口裁掉 */
+body::after { content: ''; position: fixed; inset: 0 1px 1px 0; pointer-events: none; z-index: 9999; border: 1px solid var(--line-strong); }
 ::selection, *::selection { background: var(--accent-soft); color: var(--text); }
 
 .etitle {
@@ -118,6 +118,21 @@ body::after { content: ''; position: fixed; inset: 0; pointer-events: none; z-in
   padding: 0; border: 0;
 }
 .emirror > div { min-height: 1.6em; }
+
+/* 文件读取中的居中进度条（不确定进度，文件较小或很快时一闪而过） */
+.eloading {
+  position: absolute; inset: 0; z-index: 30;
+  display: none; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+  pointer-events: none;
+}
+.eloading.show { display: flex; }
+.eloading-text { color: var(--text-2); font-size: 12px; }
+.eloading-bar { position: relative; width: 260px; height: 4px; border-radius: 2px; background: var(--panel-3); overflow: hidden; }
+.eloading-bar > i {
+  position: absolute; top: 0; bottom: 0; width: 38%; border-radius: 2px; background: var(--accent);
+  animation: eloadingSlide 1.1s ease-in-out infinite;
+}
+@keyframes eloadingSlide { from { left: -40%; } to { left: 100%; } }
 
 /* ---------------- 查找替换 ---------------- */
 .efind {

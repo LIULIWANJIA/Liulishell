@@ -65,6 +65,20 @@ window.U = (function () {
     }, ms);
   }
 
+  // 终端区域正中的提示（用于首次启动引导等）
+  function centerNotice(message, ms = 4200) {
+    const host = qs('#term-host');
+    if (!host) return;
+    const el = document.createElement('div');
+    el.className = 'term-notice';
+    el.textContent = message;
+    host.appendChild(el);
+    setTimeout(() => {
+      el.classList.add('hide');
+      setTimeout(() => el.remove(), 220);
+    }, ms);
+  }
+
   /* ---------------- 弹窗 ----------------
    * opts.cancelValue：取消按钮返回的值（不传则返回 null）。
    * 用于「覆盖 / 重命名」这类二选一确认：okText 对应 onOk，cancelText 对应 cancelValue。
@@ -699,6 +713,7 @@ window.U = (function () {
     fmtTime,
     debounce,
     toast,
+    centerNotice,
     openModal,
     openSubModal,
     confirmDialog,

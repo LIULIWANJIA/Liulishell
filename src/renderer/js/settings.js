@@ -7,7 +7,7 @@ window.Settings = (function () {
   const content = $('#settings-content');
 
   /* ---------------- 主题预设 ---------------- */
-  const THEMES = [
+  const CORE_THEMES = [
     {
       id: 'warm', name: '暖白 · 墨绿', note: '默认 · 低对比护眼',
       vars: {
@@ -98,6 +98,366 @@ window.Settings = (function () {
     }
   ];
 
+  const EXTRA_THEMES = [
+    {
+      id: 'cinnabar', name: '朱砂 · 宣纸', note: '暖红纸感',
+      vars: {
+        bg: '#fdf6f1', panel: '#fffdfb', 'panel-2': '#fefaf7', 'panel-3': '#f9efe8',
+        line: '#f0ded4', 'line-strong': '#e2c6b8', text: '#2b1e19', 'text-2': '#6b564d',
+        muted: '#9c877d', primary: '#4a2a22', 'primary-hover': '#2d1712',
+        accent: '#c0442f', 'accent-2': '#d96a52', 'accent-soft': '#fbe7e1', 'accent-rgb': '192, 68, 47',
+        danger: '#c8393a', 'danger-soft': '#fbe6e6', ok: '#3f8f6d', warn: '#c98a22', 'warn-soft': '#fdf1d9', 'term-bg': '#1d1310'
+      },
+      term: { bg: '#fefaf7', fg: '#2b1e19', cursor: '#c0442f', selection: '#f5ded6', empty1: '#fffdfb', muted: '#9c877d', accent: '#c0442f', dark: false }
+    },
+    {
+      id: 'indigo', name: '月白 · 靛蓝', note: '沉静靛蓝',
+      vars: {
+        bg: '#f5f7fb', panel: '#ffffff', 'panel-2': '#f9fafd', 'panel-3': '#eef2f8',
+        line: '#dfe6f0', 'line-strong': '#c8d4e4', text: '#1b2230', 'text-2': '#535e70',
+        muted: '#8691a3', primary: '#2b3550', 'primary-hover': '#171f35',
+        accent: '#3f57a8', 'accent-2': '#6b83cc', 'accent-soft': '#e8ecfa', 'accent-rgb': '63, 87, 168',
+        danger: '#d0454a', 'danger-soft': '#fbecec', ok: '#238f76', warn: '#d39420', 'warn-soft': '#fff3dc', 'term-bg': '#101426'
+      },
+      term: { bg: '#f9fafd', fg: '#1b2230', cursor: '#3f57a8', selection: '#dde4f4', empty1: '#ffffff', muted: '#8691a3', accent: '#3f57a8', dark: false }
+    },
+    {
+      id: 'lavender', name: '薰衣草 · 紫罗兰', note: '优雅浅紫',
+      vars: {
+        bg: '#f7f4fd', panel: '#ffffff', 'panel-2': '#faf8ff', 'panel-3': '#efeafb',
+        line: '#e5dcf5', 'line-strong': '#d1c3ea', text: '#241d33', 'text-2': '#5d5473',
+        muted: '#8b82a1', primary: '#3b2c5c', 'primary-hover': '#241640',
+        accent: '#7653d6', 'accent-2': '#9b7ee8', 'accent-soft': '#efe9fd', 'accent-rgb': '118, 83, 214',
+        danger: '#d24a63', 'danger-soft': '#fbe9ee', ok: '#2f9a78', warn: '#c98d22', 'warn-soft': '#fdf1da', 'term-bg': '#171122'
+      },
+      term: { bg: '#faf8ff', fg: '#241d33', cursor: '#7653d6', selection: '#e4dcf8', empty1: '#ffffff', muted: '#8b82a1', accent: '#7653d6', dark: false }
+    },
+    {
+      id: 'sky', name: '晴空 · 湖蓝', note: '明快湖蓝',
+      vars: {
+        bg: '#f2f9fb', panel: '#ffffff', 'panel-2': '#f7fcfd', 'panel-3': '#eaf5f9',
+        line: '#d8eaf0', 'line-strong': '#bedae4', text: '#142630', 'text-2': '#4e6672',
+        muted: '#8297a2', primary: '#1e3a49', 'primary-hover': '#0d2531',
+        accent: '#1f8fae', 'accent-2': '#52b6cf', 'accent-soft': '#e2f4f9', 'accent-rgb': '31, 143, 174',
+        danger: '#d04a4a', 'danger-soft': '#fbeaea', ok: '#2f9a7a', warn: '#c98d22', 'warn-soft': '#fdf1da', 'term-bg': '#0d1b22'
+      },
+      term: { bg: '#f7fcfd', fg: '#142630', cursor: '#1f8fae', selection: '#d5eef5', empty1: '#ffffff', muted: '#8297a2', accent: '#1f8fae', dark: false }
+    },
+    {
+      id: 'lemon', name: '柠檬 · 奶油', note: '温暖奶油',
+      vars: {
+        bg: '#fdfaf0', panel: '#fffefb', 'panel-2': '#fefcf5', 'panel-3': '#faf4e2',
+        line: '#f0e6c9', 'line-strong': '#e2d3a9', text: '#2b2516', 'text-2': '#6b5f3f',
+        muted: '#9b8f6d', primary: '#3f3520', 'primary-hover': '#241c0c',
+        accent: '#b8860b', 'accent-2': '#d9a52e', 'accent-soft': '#faf1d8', 'accent-rgb': '184, 134, 11',
+        danger: '#cc4b3f', 'danger-soft': '#fbeae6', ok: '#3f8f6d', warn: '#c98a22', 'warn-soft': '#fdf1d9', 'term-bg': '#201a0e'
+      },
+      term: { bg: '#fefcf5', fg: '#2b2516', cursor: '#b8860b', selection: '#f3e6c2', empty1: '#ffffff', muted: '#9b8f6d', accent: '#b8860b', dark: false }
+    },
+    {
+      id: 'coral', name: '珊瑚 · 暖橘', note: '温暖橘调',
+      vars: {
+        bg: '#fdf6f2', panel: '#ffffff', 'panel-2': '#fefaf7', 'panel-3': '#faeee7',
+        line: '#f1ddd2', 'line-strong': '#e5c5b3', text: '#2e211b', 'text-2': '#6d574c',
+        muted: '#9d8578', primary: '#4a2f24', 'primary-hover': '#2e1810',
+        accent: '#d9643a', 'accent-2': '#eb8a63', 'accent-soft': '#fcebe2', 'accent-rgb': '217, 100, 58',
+        danger: '#cf4a44', 'danger-soft': '#fbeae7', ok: '#3d9170', warn: '#c98d22', 'warn-soft': '#fdf1da', 'term-bg': '#1f1511'
+      },
+      term: { bg: '#fefaf7', fg: '#2e211b', cursor: '#d9643a', selection: '#f6e0d4', empty1: '#ffffff', muted: '#9d8578', accent: '#d9643a', dark: false }
+    },
+    {
+      id: 'cocoa', name: '可可 · 咖啡', note: '沉稳咖调',
+      vars: {
+        bg: '#f8f3ee', panel: '#fffdfb', 'panel-2': '#fbf7f2', 'panel-3': '#f1e9e0',
+        line: '#e6d9cb', 'line-strong': '#d6c2ae', text: '#2a211a', 'text-2': '#685848',
+        muted: '#998774', primary: '#3e2f23', 'primary-hover': '#241911',
+        accent: '#8a5a38', 'accent-2': '#ab7c56', 'accent-soft': '#f4eae0', 'accent-rgb': '138, 90, 56',
+        danger: '#c8433f', 'danger-soft': '#fbe9e7', ok: '#3f8f6d', warn: '#c98a22', 'warn-soft': '#fdf1d9', 'term-bg': '#1c1510'
+      },
+      term: { bg: '#fbf7f2', fg: '#2a211a', cursor: '#8a5a38', selection: '#efdfd0', empty1: '#fffdfb', muted: '#998774', accent: '#8a5a38', dark: false }
+    },
+    {
+      id: 'slate', name: '板岩 · 青灰', note: '理性青灰',
+      vars: {
+        bg: '#f2f5f7', panel: '#ffffff', 'panel-2': '#f8fafb', 'panel-3': '#eaeff2',
+        line: '#dbe3e8', 'line-strong': '#c4d0d8', text: '#1d262c', 'text-2': '#52616b',
+        muted: '#84939e', primary: '#26343c', 'primary-hover': '#101a20',
+        accent: '#34708c', 'accent-2': '#6199b3', 'accent-soft': '#e6f0f5', 'accent-rgb': '52, 112, 140',
+        danger: '#d0454a', 'danger-soft': '#fbecec', ok: '#238f76', warn: '#d39420', 'warn-soft': '#fff3dc', 'term-bg': '#131a1f'
+      },
+      term: { bg: '#f8fafb', fg: '#1d262c', cursor: '#34708c', selection: '#dbe8ef', empty1: '#ffffff', muted: '#84939e', accent: '#34708c', dark: false }
+    },
+    {
+      id: 'frost', name: '银霜 · 冰蓝', note: '清冷冰蓝',
+      vars: {
+        bg: '#f4f8fb', panel: '#ffffff', 'panel-2': '#f9fcfe', 'panel-3': '#ecf3f8',
+        line: '#dce8f0', 'line-strong': '#c6d9e6', text: '#182430', 'text-2': '#516778',
+        muted: '#8499a8', primary: '#243a4c', 'primary-hover': '#102636',
+        accent: '#4a90c2', 'accent-2': '#7ab4dd', 'accent-soft': '#e8f3fa', 'accent-rgb': '74, 144, 194',
+        danger: '#d0454a', 'danger-soft': '#fbecec', ok: '#238f76', warn: '#d39420', 'warn-soft': '#fff3dc', 'term-bg': '#0f1820'
+      },
+      term: { bg: '#f9fcfe', fg: '#182430', cursor: '#4a90c2', selection: '#dcebf5', empty1: '#ffffff', muted: '#8499a8', accent: '#4a90c2', dark: false }
+    },
+    {
+      id: 'mono', name: '素白 · 玄黑', note: '极简黑白',
+      vars: {
+        bg: '#f4f4f3', panel: '#ffffff', 'panel-2': '#f9f9f8', 'panel-3': '#ededec',
+        line: '#e2e2e0', 'line-strong': '#ccccca', text: '#141414', 'text-2': '#555555',
+        muted: '#8a8a8a', primary: '#1a1a1a', 'primary-hover': '#000000',
+        accent: '#2b2b2b', 'accent-2': '#5a5a5a', 'accent-soft': '#ececeb', 'accent-rgb': '43, 43, 43',
+        danger: '#c8443f', 'danger-soft': '#fbe9e7', ok: '#3f8f6d', warn: '#c98a22', 'warn-soft': '#fdf1d9', 'term-bg': '#191919'
+      },
+      term: { bg: '#fafaf9', fg: '#141414', cursor: '#2b2b2b', selection: '#e4e4e2', empty1: '#ffffff', muted: '#8a8a8a', accent: '#2b2b2b', dark: false }
+    },
+    {
+      id: 'midnight', name: '午夜 · 星空', note: '暗色蓝紫', dark: true,
+      vars: {
+        bg: '#101322', panel: '#191d31', 'panel-2': '#1f243a', 'panel-3': '#151a2b',
+        line: '#2b3150', 'line-strong': '#3c4466', text: '#e3e6f6', 'text-2': '#a8afd0',
+        muted: '#747ea6', primary: '#44508a', 'primary-hover': '#5a67a6',
+        accent: '#7b8cff', 'accent-2': '#a3b0ff', 'accent-soft': '#232a52', 'accent-rgb': '123, 140, 255',
+        danger: '#f07179', 'danger-soft': '#3a2430', ok: '#4cc1a2', warn: '#e0b454', 'warn-soft': '#39301f', 'term-bg': '#090b15'
+      },
+      term: { bg: '#090b15', fg: '#e3e6f6', cursor: '#7b8cff', selection: '#2c3563', empty1: '#191d31', muted: '#747ea6', accent: '#7b8cff', dark: true }
+    },
+    {
+      id: 'nebula', name: '星云 · 极光', note: '暗色青紫', dark: true,
+      vars: {
+        bg: '#0f1518', panel: '#172025', 'panel-2': '#1c282e', 'panel-3': '#131c20',
+        line: '#27363d', 'line-strong': '#374b54', text: '#e0f0ef', 'text-2': '#a5c2c0',
+        muted: '#71908d', primary: '#2f5a5a', 'primary-hover': '#3f7775',
+        accent: '#4fd1c5', 'accent-2': '#7fe6dc', 'accent-soft': '#1b3a38', 'accent-rgb': '79, 209, 197',
+        danger: '#ef7277', 'danger-soft': '#3a2529', ok: '#4cc19b', warn: '#e0b454', 'warn-soft': '#39301f', 'term-bg': '#081012'
+      },
+      term: { bg: '#081012', fg: '#e0f0ef', cursor: '#4fd1c5', selection: '#24494a', empty1: '#172025', muted: '#71908d', accent: '#4fd1c5', dark: true }
+    },
+    {
+      id: 'ember', name: '余烬 · 暗红', note: '暗色暖红', dark: true,
+      vars: {
+        bg: '#17110f', panel: '#211917', 'panel-2': '#281f1c', 'panel-3': '#1b1512',
+        line: '#352925', 'line-strong': '#483832', text: '#f0e5e1', 'text-2': '#c4aea6',
+        muted: '#967e75', primary: '#5c3a30', 'primary-hover': '#7a4e40',
+        accent: '#e8765a', 'accent-2': '#f59c82', 'accent-soft': '#3a231c', 'accent-rgb': '232, 118, 90',
+        danger: '#f07171', 'danger-soft': '#3a2427', ok: '#4fc79d', warn: '#e3b45a', 'warn-soft': '#3a3020', 'term-bg': '#0f0a08'
+      },
+      term: { bg: '#0f0a08', fg: '#f0e5e1', cursor: '#e8765a', selection: '#45281f', empty1: '#211917', muted: '#967e75', accent: '#e8765a', dark: true }
+    },
+    {
+      id: 'obsidian', name: '曜石 · 银灰', note: '暗色中性', dark: true,
+      vars: {
+        bg: '#101214', panel: '#181b1e', 'panel-2': '#1e2226', 'panel-3': '#14171a',
+        line: '#2a2f34', 'line-strong': '#3a4147', text: '#e6eaee', 'text-2': '#aeb8c1',
+        muted: '#78838d', primary: '#46525e', 'primary-hover': '#5b6b7a',
+        accent: '#8fa9c4', 'accent-2': '#b3c6da', 'accent-soft': '#232b33', 'accent-rgb': '143, 169, 196',
+        danger: '#ef7277', 'danger-soft': '#3a2529', ok: '#4cc19b', warn: '#e0b454', 'warn-soft': '#39301f', 'term-bg': '#0a0c0d'
+      },
+      term: { bg: '#0a0c0d', fg: '#e6eaee', cursor: '#8fa9c4', selection: '#2b3640', empty1: '#181b1e', muted: '#78838d', accent: '#8fa9c4', dark: true }
+    },
+    {
+      id: 'wine', name: '酒红 · 天鹅绒', note: '暗色酒红', dark: true,
+      vars: {
+        bg: '#171013', panel: '#211719', 'panel-2': '#281d20', 'panel-3': '#1b1316',
+        line: '#35262b', 'line-strong': '#48343c', text: '#f2e6e9', 'text-2': '#c9aeb6',
+        muted: '#9a7e87', primary: '#5c2f3c', 'primary-hover': '#7a4052',
+        accent: '#d9556f', 'accent-2': '#ec849a', 'accent-soft': '#3a2129', 'accent-rgb': '217, 85, 111',
+        danger: '#f07179', 'danger-soft': '#3a2429', ok: '#4cc19b', warn: '#e3b45a', 'warn-soft': '#3a3020', 'term-bg': '#0f090c'
+      },
+      term: { bg: '#0f090c', fg: '#f2e6e9', cursor: '#d9556f', selection: '#452430', empty1: '#211719', muted: '#9a7e87', accent: '#d9556f', dark: true }
+    },
+    {
+      id: 'bronze', name: '青铜 · 金棕', note: '暗色金棕', dark: true,
+      vars: {
+        bg: '#161310', panel: '#201b16', 'panel-2': '#27221b', 'panel-3': '#1a1612',
+        line: '#352d24', 'line-strong': '#483d30', text: '#f0e8dc', 'text-2': '#c5b7a4',
+        muted: '#94866f', primary: '#5c4a2f', 'primary-hover': '#7a6440',
+        accent: '#d9a441', 'accent-2': '#ecc06b', 'accent-soft': '#3a2f1c', 'accent-rgb': '217, 164, 65',
+        danger: '#ef7271', 'danger-soft': '#3a2526', ok: '#4fc79d', warn: '#e3b45a', 'warn-soft': '#3a3020', 'term-bg': '#0e0b08'
+      },
+      term: { bg: '#0e0b08', fg: '#f0e8dc', cursor: '#d9a441', selection: '#40331f', empty1: '#201b16', muted: '#94866f', accent: '#d9a441', dark: true }
+    },
+    {
+      id: 'daylight', name: '米黄 · 日光', note: '暖米纸感',
+      vars: {
+        bg: '#fdf6e3', panel: '#fffcf2', 'panel-2': '#fbf5e4', 'panel-3': '#f6efda',
+        line: '#ece2c8', 'line-strong': '#dacdaf', text: '#34322a', 'text-2': '#6a6752',
+        muted: '#96927a', primary: '#4a4632', 'primary-hover': '#2e2b1d',
+        accent: '#268bd2', 'accent-2': '#5fa8dc', 'accent-soft': '#e4f0fa', 'accent-rgb': '38, 139, 210',
+        danger: '#dc322f', 'danger-soft': '#fbe6e5', ok: '#3f8f6d', warn: '#b58900', 'warn-soft': '#f8efd4', 'term-bg': '#1c1a14'
+      },
+      term: { bg: '#fbf5e4', fg: '#34322a', cursor: '#268bd2', selection: '#e8e0c8', empty1: '#fffcf2', muted: '#96927a', accent: '#268bd2', dark: false }
+    },
+    {
+      id: 'latte', name: '燕麦 · 拿铁', note: '冷调奶白',
+      vars: {
+        bg: '#eff1f5', panel: '#ffffff', 'panel-2': '#f7f8fb', 'panel-3': '#e6e9ef',
+        line: '#dce0e8', 'line-strong': '#ccd0da', text: '#3c3f51', 'text-2': '#5c6070',
+        muted: '#8c8fa1', primary: '#4c4f69', 'primary-hover': '#303347',
+        accent: '#7a5cd6', 'accent-2': '#9b82e4', 'accent-soft': '#ede9fb', 'accent-rgb': '122, 92, 214',
+        danger: '#d20f39', 'danger-soft': '#fbe6ea', ok: '#2f9a6b', warn: '#df8e1d', 'warn-soft': '#fdf1dc', 'term-bg': '#1e1e2e'
+      },
+      term: { bg: '#f7f8fb', fg: '#3c3f51', cursor: '#7a5cd6', selection: '#e4e0f5', empty1: '#ffffff', muted: '#8c8fa1', accent: '#7a5cd6', dark: false }
+    },
+    {
+      id: 'dawnrose', name: '晨露 · 玫瑰', note: '奶油玫瑰',
+      vars: {
+        bg: '#faf4ed', panel: '#fffaf3', 'panel-2': '#fdf8f2', 'panel-3': '#f4ece4',
+        line: '#e9ddd2', 'line-strong': '#d8c6b8', text: '#4a3d47', 'text-2': '#7a6a73',
+        muted: '#a3959b', primary: '#575279', 'primary-hover': '#3e3a5c',
+        accent: '#b4637a', 'accent-2': '#cf8b9b', 'accent-soft': '#f8e9ed', 'accent-rgb': '180, 99, 122',
+        danger: '#c14b60', 'danger-soft': '#fbe9ec', ok: '#3f8f7d', warn: '#ea9d34', 'warn-soft': '#fdf1dc', 'term-bg': '#191724'
+      },
+      term: { bg: '#fdf8f2', fg: '#4a3d47', cursor: '#b4637a', selection: '#f0e0e4', empty1: '#fffaf3', muted: '#a3959b', accent: '#b4637a', dark: false }
+    },
+    {
+      id: 'porcelain', name: '青花 · 瓷白', note: '青花瓷感',
+      vars: {
+        bg: '#f6f9fc', panel: '#ffffff', 'panel-2': '#fafcfe', 'panel-3': '#edf2f8',
+        line: '#dee8f2', 'line-strong': '#c8d8e8', text: '#16222f', 'text-2': '#4d5f70',
+        muted: '#8395a5', primary: '#20456b', 'primary-hover': '#12304e',
+        accent: '#1c5b96', 'accent-2': '#4785be', 'accent-soft': '#e3eef9', 'accent-rgb': '28, 91, 150',
+        danger: '#cc4444', 'danger-soft': '#fbe9e7', ok: '#2f8f72', warn: '#c39220', 'warn-soft': '#fbf1d5', 'term-bg': '#0f1822'
+      },
+      term: { bg: '#fafcfe', fg: '#16222f', cursor: '#1c5b96', selection: '#dbe8f4', empty1: '#ffffff', muted: '#8395a5', accent: '#1c5b96', dark: false }
+    },
+    {
+      id: 'maple', name: '秋分 · 枫糖', note: '枫糖暖棕',
+      vars: {
+        bg: '#fdf4ec', panel: '#fffcf8', 'panel-2': '#fdf7f1', 'panel-3': '#f7ebdf',
+        line: '#efdccc', 'line-strong': '#e0c3aa', text: '#2e2118', 'text-2': '#6b5443',
+        muted: '#9b8471', primary: '#4b3122', 'primary-hover': '#2e1a0f',
+        accent: '#b5651d', 'accent-2': '#d18a45', 'accent-soft': '#f9e8d7', 'accent-rgb': '181, 101, 29',
+        danger: '#c8483f', 'danger-soft': '#fbe8e6', ok: '#3d8f6c', warn: '#c08a1f', 'warn-soft': '#faf0d3', 'term-bg': '#1d130c'
+      },
+      term: { bg: '#fdf7f1', fg: '#2e2118', cursor: '#b5651d', selection: '#f2dfca', empty1: '#fffcf8', muted: '#9b8471', accent: '#b5651d', dark: false }
+    },
+    {
+      id: 'wisteria', name: '紫藤 · 烟紫', note: '淡雅烟紫',
+      vars: {
+        bg: '#f8f5fa', panel: '#ffffff', 'panel-2': '#fbf9fc', 'panel-3': '#f1ebf6',
+        line: '#e6dcef', 'line-strong': '#d3c3e0', text: '#291f33', 'text-2': '#5f5370',
+        muted: '#8f829f', primary: '#4a3a5e', 'primary-hover': '#312442',
+        accent: '#8b6bb1', 'accent-2': '#ab8fca', 'accent-soft': '#f2ebf8', 'accent-rgb': '139, 107, 177',
+        danger: '#c94a63', 'danger-soft': '#fbe9ee', ok: '#3d8f75', warn: '#c08d25', 'warn-soft': '#fbf1d8', 'term-bg': '#1e1626'
+      },
+      term: { bg: '#fbf9fc', fg: '#291f33', cursor: '#8b6bb1', selection: '#eee4f5', empty1: '#ffffff', muted: '#8f829f', accent: '#8b6bb1', dark: false }
+    },
+    {
+      id: 'seasalt', name: '海盐 · 苏打', note: '清凉水色',
+      vars: {
+        bg: '#f2fafb', panel: '#ffffff', 'panel-2': '#f8fdfd', 'panel-3': '#e9f5f7',
+        line: '#d7eaec', 'line-strong': '#bcdadd', text: '#15272b', 'text-2': '#4c666b',
+        muted: '#81999e', primary: '#1f4249', 'primary-hover': '#0d2a30',
+        accent: '#2b8f99', 'accent-2': '#57b3bc', 'accent-soft': '#e3f4f6', 'accent-rgb': '43, 143, 153',
+        danger: '#c94b48', 'danger-soft': '#fbe9e8', ok: '#2f8f72', warn: '#c39220', 'warn-soft': '#fbf1d5', 'term-bg': '#0e1c1f'
+      },
+      term: { bg: '#f8fdfd', fg: '#15272b', cursor: '#2b8f99', selection: '#d7edf0', empty1: '#ffffff', muted: '#81999e', accent: '#2b8f99', dark: false }
+    },
+    {
+      id: 'jade', name: '碧波 · 松石', note: '松石青绿',
+      vars: {
+        bg: '#effaf7', panel: '#ffffff', 'panel-2': '#f7fdfb', 'panel-3': '#e4f5f0',
+        line: '#d2ece4', 'line-strong': '#b5dcd0', text: '#142b26', 'text-2': '#4a6a62',
+        muted: '#7f9c93', primary: '#1e453c', 'primary-hover': '#0c2d26',
+        accent: '#1f8f79', 'accent-2': '#4dbaa3', 'accent-soft': '#ddf4ed', 'accent-rgb': '31, 143, 121',
+        danger: '#c94b48', 'danger-soft': '#fbe9e8', ok: '#2f8f6d', warn: '#c39220', 'warn-soft': '#fbf1d5', 'term-bg': '#0f211c'
+      },
+      term: { bg: '#f7fdfb', fg: '#142b26', cursor: '#1f8f79', selection: '#d4f0e7', empty1: '#ffffff', muted: '#7f9c93', accent: '#1f8f79', dark: false }
+    },
+    {
+      id: 'neonblue', name: '夜蓝 · 静谧', note: '暗色夜蓝', dark: true,
+      vars: {
+        bg: '#21252b', panel: '#282c34', 'panel-2': '#2f343d', 'panel-3': '#1d2025',
+        line: '#3a4048', 'line-strong': '#4b525c', text: '#d7dae0', 'text-2': '#aab2bd',
+        muted: '#7a828e', primary: '#3e4451', 'primary-hover': '#4e5665',
+        accent: '#61afef', 'accent-2': '#8cc8f7', 'accent-soft': '#22374d', 'accent-rgb': '97, 175, 239',
+        danger: '#e06c75', 'danger-soft': '#3a2428', ok: '#98c379', warn: '#e5c07b', 'warn-soft': '#3a3423', 'term-bg': '#1b1f24'
+      },
+      term: { bg: '#1b1f24', fg: '#d7dae0', cursor: '#61afef', selection: '#2c3e50', empty1: '#282c34', muted: '#7a828e', accent: '#61afef', dark: true }
+    },
+    {
+      id: 'nightfall', name: '幽紫 · 夜曲', note: '暗色紫调', dark: true,
+      vars: {
+        bg: '#282a36', panel: '#21222c', 'panel-2': '#2d2f3f', 'panel-3': '#1c1d26',
+        line: '#3f4254', 'line-strong': '#4e5168', text: '#f8f8f2', 'text-2': '#c5c8d6',
+        muted: '#7f849c', primary: '#44475a', 'primary-hover': '#565a73',
+        accent: '#bd93f9', 'accent-2': '#d6b8ff', 'accent-soft': '#3a3153', 'accent-rgb': '189, 147, 249',
+        danger: '#ff5555', 'danger-soft': '#3f2429', ok: '#50fa7b', warn: '#f1fa8c', 'warn-soft': '#3a3a25', 'term-bg': '#1c1d26'
+      },
+      term: { bg: '#1c1d26', fg: '#f8f8f2', cursor: '#bd93f9', selection: '#44475a', empty1: '#282a36', muted: '#7f849c', accent: '#bd93f9', dark: true }
+    },
+    {
+      id: 'tokyo', name: '东京 · 夜色', note: '暗色夜蓝紫', dark: true,
+      vars: {
+        bg: '#1a1b26', panel: '#16161e', 'panel-2': '#1f2335', 'panel-3': '#14141b',
+        line: '#2f334d', 'line-strong': '#3d4260', text: '#c0caf5', 'text-2': '#a9b1d6',
+        muted: '#565f89', primary: '#2f334d', 'primary-hover': '#3d4260',
+        accent: '#7aa2f7', 'accent-2': '#9ab8ff', 'accent-soft': '#27304d', 'accent-rgb': '122, 162, 247',
+        danger: '#f7768e', 'danger-soft': '#3a2330', ok: '#9ece6a', warn: '#e0af68', 'warn-soft': '#3a3020', 'term-bg': '#101018'
+      },
+      term: { bg: '#101018', fg: '#c0caf5', cursor: '#7aa2f7', selection: '#283457', empty1: '#16161e', muted: '#565f89', accent: '#7aa2f7', dark: true }
+    },
+    {
+      id: 'nordic', name: '北境 · 极夜', note: '暗色极地灰', dark: true,
+      vars: {
+        bg: '#2e3440', panel: '#3b4252', 'panel-2': '#434c5e', 'panel-3': '#272c36',
+        line: '#4c566a', 'line-strong': '#5c6a82', text: '#eceff4', 'text-2': '#d8dee9',
+        muted: '#8f9bb0', primary: '#4c566a', 'primary-hover': '#5c6a82',
+        accent: '#88c0d0', 'accent-2': '#8fbcbb', 'accent-soft': '#33424a', 'accent-rgb': '136, 192, 208',
+        danger: '#bf616a', 'danger-soft': '#3d2a2d', ok: '#a3be8c', warn: '#ebcb8b', 'warn-soft': '#3d3828', 'term-bg': '#232831'
+      },
+      term: { bg: '#232831', fg: '#eceff4', cursor: '#88c0d0', selection: '#3b4252', empty1: '#2e3440', muted: '#8f9bb0', accent: '#88c0d0', dark: true }
+    },
+    {
+      id: 'gruv', name: '暖灰 · 琥珀', note: '暗色暖灰', dark: true,
+      vars: {
+        bg: '#282828', panel: '#32302f', 'panel-2': '#3c3836', 'panel-3': '#221f1e',
+        line: '#504945', 'line-strong': '#665c54', text: '#ebdbb2', 'text-2': '#d5c4a1',
+        muted: '#928374', primary: '#504945', 'primary-hover': '#665c54',
+        accent: '#d79921', 'accent-2': '#e5b53f', 'accent-soft': '#3a3221', 'accent-rgb': '215, 153, 33',
+        danger: '#fb4934', 'danger-soft': '#3c2521', ok: '#b8bb26', warn: '#fabd2f', 'warn-soft': '#3a3320', 'term-bg': '#1d2021'
+      },
+      term: { bg: '#1d2021', fg: '#ebdbb2', cursor: '#d79921', selection: '#3c3836', empty1: '#282828', muted: '#928374', accent: '#d79921', dark: true }
+    },
+    {
+      id: 'cyber', name: '赛博 · 霓虹', note: '暗色霓虹', dark: true,
+      vars: {
+        bg: '#0e0b16', panel: '#171222', 'panel-2': '#1e1830', 'panel-3': '#110d1c',
+        line: '#2c2344', 'line-strong': '#3e315e', text: '#eae6f5', 'text-2': '#b9aed8',
+        muted: '#7c6f9e', primary: '#3d2a5c', 'primary-hover': '#523a78',
+        accent: '#ff4fd8', 'accent-2': '#63e6ff', 'accent-soft': '#3a1d3a', 'accent-rgb': '255, 79, 216',
+        danger: '#ff5c7a', 'danger-soft': '#3a1f2b', ok: '#4fe0c0', warn: '#ffd166', 'warn-soft': '#3a3320', 'term-bg': '#08060d'
+      },
+      term: { bg: '#08060d', fg: '#eae6f5', cursor: '#ff4fd8', selection: '#3a2050', empty1: '#171222', muted: '#7c6f9e', accent: '#ff4fd8', dark: true }
+    },
+    {
+      id: 'coolgray', name: '石墨 · 冷光', note: '暗色冷灰', dark: true,
+      vars: {
+        bg: '#1a1d21', panel: '#20252a', 'panel-2': '#262c32', 'panel-3': '#15181c',
+        line: '#323a42', 'line-strong': '#43505a', text: '#e4ebf0', 'text-2': '#aab8c3',
+        muted: '#75858f', primary: '#3b4a55', 'primary-hover': '#4d606d',
+        accent: '#6cc7d9', 'accent-2': '#96dce9', 'accent-soft': '#1e3840', 'accent-rgb': '108, 199, 217',
+        danger: '#e57373', 'danger-soft': '#3a2626', ok: '#4cc19b', warn: '#e0b454', 'warn-soft': '#39301f', 'term-bg': '#0d1013'
+      },
+      term: { bg: '#0d1013', fg: '#e4ebf0', cursor: '#6cc7d9', selection: '#26424b', empty1: '#20252a', muted: '#75858f', accent: '#6cc7d9', dark: true }
+    },
+    {
+      id: 'duskviolet', name: '紫灰 · 暮色', note: '暗色灰紫', dark: true,
+      vars: {
+        bg: '#1c1822', panel: '#241f2b', 'panel-2': '#2b2533', 'panel-3': '#17131c',
+        line: '#372f42', 'line-strong': '#4a4058', text: '#ece6f2', 'text-2': '#bcb0c9',
+        muted: '#8a7e98', primary: '#4a3a58', 'primary-hover': '#614c74',
+        accent: '#a48fca', 'accent-2': '#c0b0dd', 'accent-soft': '#332a42', 'accent-rgb': '164, 143, 202',
+        danger: '#e57388', 'danger-soft': '#3a2430', ok: '#4cc19b', warn: '#e0b454', 'warn-soft': '#39301f', 'term-bg': '#110e15'
+      },
+      term: { bg: '#110e15', fg: '#ece6f2', cursor: '#a48fca', selection: '#352c45', empty1: '#241f2b', muted: '#8a7e98', accent: '#a48fca', dark: true }
+    }
+  ];
+
+  // 额外配色：浅色在前，深色在后（sort 稳定，组内保持声明顺序）
+  EXTRA_THEMES.sort((a, b) => (a.dark ? 1 : 0) - (b.dark ? 1 : 0));
+
+  const THEMES = CORE_THEMES.concat(EXTRA_THEMES);
+
   const MOUSE_ACTIONS = [
     ['term-copy', '终端 - 复制'],
     ['term-paste', '终端 - 粘贴'],
@@ -129,7 +489,7 @@ window.Settings = (function () {
   const FONT_ZH = ['"Microsoft YaHei", "PingFang SC", sans-serif', '"PingFang SC", "Microsoft YaHei", sans-serif', '"Noto Sans CJK SC", sans-serif', 'SimSun, serif', 'SimHei, sans-serif', '"Segoe UI", sans-serif'];
 
   const DEFAULTS = {
-    theme: 'warm', netUnit: 'mbps', wallpaper: '', downloadDir: '', proxies: [], defaultProxyId: '',
+    theme: 'warm', netUnit: 'mbps', downloadDir: '', proxies: [], defaultProxyId: '',
     units: { global: 'mbps', chart: 'global', netDetail: 'global', downloads: 'global' },
     fonts: { size: 13, en: FONT_EN[0], zh: FONT_ZH[0] },
     mouse: { middle: 'term-paste', right: 'term-menu' },
@@ -138,7 +498,6 @@ window.Settings = (function () {
       leftList: true, leftMonitors: true, leftFoot: true, tabs: true, cmdBar: true,
       rightInfo: true, cmdEditor: true, files: true, snippets: true
     },
-    startDockedRight: true,
     dirSync: true,
     snippetClickRun: true
   };
@@ -152,16 +511,14 @@ window.Settings = (function () {
     const s = App.settings || {};
     const merge = (base, raw) => Object.assign({}, base, raw || {});
     cfg = {
-      theme: s.theme || DEFAULTS.theme,
+      theme: THEMES.some((t) => t.id === s.theme) ? s.theme : DEFAULTS.theme,
       netUnit: s.netUnit === 'bytes' ? 'bytes' : 'mbps',
-      wallpaper: typeof s.wallpaper === 'string' ? s.wallpaper : '',
       downloadDir: typeof s.downloadDir === 'string' ? s.downloadDir : '',
       units: merge(DEFAULTS.units, s.units),
       fonts: merge(DEFAULTS.fonts, s.fonts),
       mouse: merge(DEFAULTS.mouse, s.mouse),
       shortcuts: merge(DEFAULTS.shortcuts, s.shortcuts),
       panels: merge(DEFAULTS.panels, s.panels),
-      startDockedRight: s.startDockedRight !== false,
       dirSync: s.dirSync !== false,
       snippetClickRun: s.snippetClickRun !== false
     };
@@ -181,13 +538,6 @@ window.Settings = (function () {
   }
 
   /* ---------------- 应用设置 ---------------- */
-
-  function rgba(hex, a) {
-    const h = String(hex || '').replace('#', '');
-    if (h.length !== 6) return hex;
-    const n = parseInt(h, 16);
-    return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
-  }
 
   function activatePane(page) {
     document.querySelectorAll('.pane-tab').forEach((t) => t.classList.toggle('active', t.dataset.page === page));
@@ -209,18 +559,6 @@ window.Settings = (function () {
     root.style.setProperty('--term-empty-1', t.empty1 || t.bg || '#1d2533');
     document.body.classList.toggle('theme-dark', !!theme.dark);
     if (window.Term) Term.applyTheme(t);
-
-    // 背景图：有图时让面板略微透光，没图时使用主题纯色
-    if (cfg.wallpaper) {
-      root.style.setProperty('--wallpaper', 'url("' + cfg.wallpaper + '")');
-      app.classList.add('has-wallpaper');
-      root.style.setProperty('--panel', rgba(theme.vars.panel, 0.88));
-      root.style.setProperty('--panel-2', rgba(theme.vars['panel-2'], 0.82));
-      root.style.setProperty('--panel-3', rgba(theme.vars['panel-3'], 0.78));
-    } else {
-      root.style.removeProperty('--wallpaper');
-      app.classList.remove('has-wallpaper');
-    }
 
     // 字体
     const f = cfg.fonts;
@@ -276,8 +614,8 @@ window.Settings = (function () {
 
   /* ---------------- 设置弹窗 ---------------- */
 
-  function themeCards() {
-    return THEMES.map((t) => {
+  function themeCards(list) {
+    return (list || THEMES).map((t) => {
       const v = t.vars;
       const sw = [v.bg, v.panel, v.line, v.text, v.primary, v.accent]
         .map((c) => `<i style="background:${c}"></i>`)
@@ -308,17 +646,7 @@ window.Settings = (function () {
         <div class="set-group">
           <h4>主题配色</h4>
           <p class="set-desc">默认「暖白 · 墨绿」：页面 #f7f6f2 / 卡片 #fff / 边框 #e7e5df / 主文字 #15191d / 主按钮 #15191d / 点缀 #16665a。</p>
-          <div class="theme-grid" id="theme-grid">${themeCards()}</div>
-        </div>
-        <div class="set-group">
-          <h4>背景图</h4>
-          <p class="set-desc">默认使用主题纯色；可选择本机图片作为窗口背景，图片会压缩后加密保存在本地配置中。</p>
-          <div class="wall-preview" id="wall-preview" style="${cfg.wallpaper ? 'background-image:url(' + cfg.wallpaper + ')' : ''}"></div>
-          <div class="wall-actions">
-            <button class="btn sm primary" id="wall-pick">选择本机图片…</button>
-            <button class="btn sm" id="wall-clear">恢复主题纯色</button>
-            <span class="wall-name" id="wall-name">${cfg.wallpaper ? '已设置背景图' : '当前：主题纯色'}</span>
-          </div>
+          <div class="theme-grid" id="theme-grid">${themeCards(CORE_THEMES)}</div>
         </div>
         <div class="set-group">
           <h4>界面缩放</h4>
@@ -333,6 +661,11 @@ window.Settings = (function () {
             <button class="btn sm" id="set-zoom-reset">恢复 100%</button>
           </div>
           <p class="set-note" id="set-zoom-note">切换后会先预览效果，3 秒内无法点击，确认显示正常再保存；不保存则自动回到原比例。该项<b>不写入配置文件</b>，也不参与云同步与导出，卸载或重装软件后自动恢复 100%。若界面已经大到看不清，按 <b>Ctrl + Shift + 0</b> 可随时复位。</p>
+        </div>
+        <div class="set-group">
+          <h4>额外主题配色</h4>
+          <p class="set-desc">在上方主题之外提供的额外配色方案，选中后立即全局生效，并同步驱动终端 ANSI 色板。</p>
+          <div class="theme-grid theme-scroll" id="theme-grid-extra">${themeCards(EXTRA_THEMES)}</div>
         </div>
       </section>
 
@@ -438,13 +771,9 @@ window.Settings = (function () {
           <p class="set-desc">开启后连接时会向 shell 注入轻量钩子，终端里执行 cd 后文件管理器自动跟随；注入命令不会写入 shell 历史。关闭后不注入任何命令，文件管理器仍可手动「CD 目录」。</p>
         </div>
         <div class="set-group">
-          <h4>启动行为</h4>
-          <div class="set-row">
-            <label>窗口位置</label>
-            <label class="check-inline"><input type="checkbox" id="set-dock"${cfg.startDockedRight ? ' checked' : ''} /> 启动时贴靠屏幕右侧</label>
-          </div>
-          <p class="set-desc">仅在首次启动或尚未记住窗口位置时生效；之后会以你上次调整的位置为准。点击「重置窗口位置」可让下次启动重新贴边。</p>
-          <div class="set-row"><label></label><button class="btn sm" id="set-resetpos">重置窗口位置</button></div>
+          <h4>窗口与布局</h4>
+          <div class="set-row"><label>恢复初始状态</label><button class="btn sm" id="set-resetpos">重置窗口位置</button></div>
+          <p class="set-desc">将窗口恢复到初次启动时的默认大小与位置（贴靠屏幕右侧），并恢复默认面板布局与 100% 界面缩放。</p>
         </div>
         <div class="set-group">
           <h4>快捷命令</h4>
@@ -672,13 +1001,15 @@ window.Settings = (function () {
       btn.onclick = () => activateTab(btn.dataset.tab);
     });
 
-    // 主题
-    const grid = $('#theme-grid');
-    grid.addEventListener('click', (e) => {
-      const card = e.target.closest('[data-theme]');
-      if (!card) return;
-      persist({ theme: card.dataset.theme });
-      grid.querySelectorAll('.theme-card').forEach((c) => c.classList.toggle('active', c === card));
+    // 主题（原有 + 额外两组，选中状态互相同步）
+    document.querySelectorAll('.theme-grid').forEach((grid) => {
+      grid.addEventListener('click', (e) => {
+        const card = e.target.closest('[data-theme]');
+        if (!card) return;
+        persist({ theme: card.dataset.theme });
+        const id = card.dataset.theme;
+        document.querySelectorAll('.theme-card').forEach((c) => c.classList.toggle('active', c.dataset.theme === id));
+      });
     });
 
     // 速率单位
@@ -688,25 +1019,6 @@ window.Settings = (function () {
     $('#set-unit-global').addEventListener('change', (e) => persistUnit('global', e.target.value));
     document.querySelectorAll('[data-unit]').forEach((sel) => {
       sel.addEventListener('change', () => persistUnit(sel.dataset.unit, sel.value));
-    });
-
-    // 背景图
-    $('#wall-pick').addEventListener('click', async () => {
-      try {
-        const r = await window.api.pickWallpaper();
-        if (!r || !r.dataUrl) return;
-        await persist({ wallpaper: r.dataUrl });
-        $('#wall-preview').style.backgroundImage = 'url(' + r.dataUrl + ')';
-        $('#wall-name').textContent = r.name || '已设置背景图';
-        U.toast('背景图已应用', 'ok');
-      } catch (err) {
-        U.toast(U.cleanError(err), 'error');
-      }
-    });
-    $('#wall-clear').addEventListener('click', async () => {
-      await persist({ wallpaper: '' });
-      $('#wall-preview').style.backgroundImage = '';
-      $('#wall-name').textContent = '当前：主题纯色';
     });
 
     // 界面缩放（独立存储，不进配置文件）
@@ -1017,11 +1329,19 @@ window.Settings = (function () {
 
     // 启动
     $('#set-dirsync').addEventListener('change', (e) => persist({ dirSync: e.target.checked }));
-    $('#set-dock').addEventListener('change', (e) => persist({ startDockedRight: e.target.checked }));
     $('#set-clickrun').addEventListener('change', (e) => persist({ snippetClickRun: e.target.checked }));
     $('#set-resetpos').addEventListener('click', async () => {
-      await window.api.resetWindowPos();
-      U.toast('已重置，下次启动将重新贴靠屏幕右侧', 'ok');
+      if (!window.AppActions || !AppActions.resetLayout) return;
+      const nav = document.querySelector('.snav.active');
+      const tab = nav ? nav.dataset.tab : 'startup';
+      await AppActions.resetLayout();
+      try {
+        const z = await window.api.zoomGet();
+        if (z && z.percent) zoomPercent = Number(z.percent);
+      } catch (_) {}
+      readCfg();
+      render(tab);
+      bindContent();
     });
 
     const clearBtn = $('#data-clear');
@@ -1119,16 +1439,15 @@ window.Settings = (function () {
     $('#settings-close').addEventListener('click', close);
     $('#settings-done').addEventListener('click', close);
     $('#settings-reset').addEventListener('click', async () => {
-      const ok = await U.confirmSub('恢复默认设置', '将重置主题、背景、字体、鼠标、快捷键、板块与启动设置（不影响已保存的服务器配置）。', '恢复默认');
+      const ok = await U.confirmSub('恢复默认设置', '将重置主题、字体、鼠标、快捷键、板块与目录联动设置（不影响已保存的服务器配置）。', '恢复默认');
       if (!ok) return;
       await persist({
-        theme: DEFAULTS.theme, netUnit: DEFAULTS.netUnit, wallpaper: '',
+        theme: DEFAULTS.theme, netUnit: DEFAULTS.netUnit,
         units: Object.assign({}, DEFAULTS.units),
         fonts: Object.assign({}, DEFAULTS.fonts),
         mouse: Object.assign({}, DEFAULTS.mouse),
         shortcuts: Object.assign({}, DEFAULTS.shortcuts),
         panels: Object.assign({}, DEFAULTS.panels),
-        startDockedRight: true,
         dirSync: true
       });
       render();

@@ -39,7 +39,7 @@ window.Recent = (function () {
     if (!box || !listEl) return;
     const list = history();
     const conns = App.state.data.connections || [];
-    box.style.display = 'block';
+    box.style.display = 'flex';
     if (!list.length) {
       listEl.innerHTML = '<div class="recent-empty">暂无最近连接</div>';
       return;

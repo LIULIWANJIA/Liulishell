@@ -122,7 +122,7 @@ function defaults() {
     settings: {
       fontSize: 13,
       monitorInterval: 1500,
-      window: { width: 1240, height: 800, x: null, y: null },
+      window: { width: 0, height: 0, x: null, y: null },
       layout: null,
       theme: 'warm',
       netUnit: 'mbps',
@@ -136,7 +136,6 @@ function defaults() {
       webdav: { url: '', username: '', syncUser: '', remotePath: '', syncStatus: 'pending', lastSyncAt: 0, lastError: '' },
       webdavSecrets: {},
       connectHistory: [],
-      wallpaper: '',
       fonts: {
         size: 13,
         en: 'Consolas, "Cascadia Mono", monospace',
@@ -155,7 +154,6 @@ function defaults() {
         files: true,
         snippets: true
       },
-      startDockedRight: true,
       dirSync: true,
       favorites: [],
       favoriteGroups: []
@@ -1064,14 +1062,30 @@ function dropGroupTree(d, id) {
 
   const affected = d.connections.filter((c) => ids.has(c.group));
   if (affected.length) {
-    let recycle = d.groups.find((g) => !g.parentId && g.name === RECYCLE_GROUP);
-    if (!recycle) {
-      recycle = { id: newGroupId(), name: RECYCLE_GROUP, parentId: '' };
-      d.groups.push(recycle);
+    // 删除的是「待回收」本身时不能再把配置移进它，改投回收站（30 天内可还原）
+    const deletingRecycle = d.groups.some((g) => ids.has(g.id) && !g.parentId && g.name === RECYCLE_GROUP);
+    if (deletingRecycle) {
+      const gone = new Set(affected.map((c) => c.id));
+      d.connections = d.connections.filter((c) => !gone.has(c.id));
+      if (!Array.isArray(d.recycleBin)) d.recycleBin = [];
+      affected.forEach((c) => {
+        c.originalGroup = c.group || '';
+        c.deletedAt = Date.now();
+        d.recycleBin.push(c);
+      });
+      if (d.settings && Array.isArray(d.settings.connectHistory)) {
+        d.settings.connectHistory = d.settings.connectHistory.filter((r) => r && !gone.has(r.id));
+      }
+    } else {
+      let recycle = d.groups.find((g) => !g.parentId && g.name === RECYCLE_GROUP && !ids.has(g.id));
+      if (!recycle) {
+        recycle = { id: newGroupId(), name: RECYCLE_GROUP, parentId: '' };
+        d.groups.push(recycle);
+      }
+      affected.forEach((c) => {
+        c.group = recycle.id;
+      });
     }
-    affected.forEach((c) => {
-      c.group = recycle.id;
-    });
   }
 
   d.groups = d.groups.filter((g) => !ids.has(g.id));
@@ -1085,7 +1099,6 @@ function deleteGroup(id) {
   const d = load();
   const group = d.groups.find((g) => g.id === id);
   if (!group) return publicState();
-  if (!group.parentId && group.name === RECYCLE_GROUP) throw new Error(`「${RECYCLE_GROUP}」分组不可删除`);
   if (d.groups.length <= 1) throw new Error('至少保留一个分组');
   dropGroupTree(d, id);
   save();

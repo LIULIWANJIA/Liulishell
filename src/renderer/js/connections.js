@@ -405,8 +405,8 @@ window.Connections = (function () {
             { label: '粘贴配置', disabled: !App.state.connClipboard, onClick: () => pasteConnection(gid) },
             level < 3 && !isRecycle ? { label: '在此分组新建子分组…', onClick: () => addSubGroup(group) } : null,
             isRecycle ? null : { label: '重命名分组…', onClick: () => renameGroup(group) },
-            isRecycle ? null : { sep: true },
-            isRecycle ? null : { label: '删除分组', danger: true, onClick: () => deleteGroup(group) }
+            { sep: true },
+            { label: '删除分组', danger: true, onClick: () => deleteGroup(group) }
           ].filter(Boolean),
           e.clientX,
           e.clientY
@@ -586,9 +586,12 @@ window.Connections = (function () {
   }
 
   async function deleteGroup(group) {
+    const isRecycle = !group.parentId && group.name === RECYCLE_NAME;
     const ok = await U.confirmDialog(
       '删除分组',
-      `确定删除分组「${group.name}」及其所有子分组吗？\n组内服务器配置会移动到「${RECYCLE_NAME}」分组，不会丢失。`,
+      isRecycle
+        ? `确定删除「${RECYCLE_NAME}」分组吗？\n组内服务器配置会移入回收站，可在「文件 → 回收站」中还原。`
+        : `确定删除分组「${group.name}」及其所有子分组吗？\n组内服务器配置会移动到「${RECYCLE_NAME}」分组，不会丢失。`,
       '继续'
     );
     if (!ok) return;
@@ -601,7 +604,7 @@ window.Connections = (function () {
     try {
       const data = await window.api.deleteGroup(group.id);
       App.setData(data);
-      U.toast('分组已删除，配置已移入「待回收」', 'ok');
+      U.toast(isRecycle ? `分组已删除，配置已移入回收站` : `分组已删除，配置已移入「${RECYCLE_NAME}」`, 'ok');
     } catch (err) {
       U.toast(err.message, 'error');
     }

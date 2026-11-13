@@ -248,8 +248,8 @@ window.ServersPanel = (function () {
             { label: '粘贴配置', disabled: !App.state.connClipboard, onClick: () => act(() => Connections.pasteConnection(gid)) },
             level < 3 && !isRecycle ? { label: '新建子分组…', onClick: () => act(() => Connections.addSubGroup(group)) } : null,
             isRecycle ? null : { label: '重命名分组…', onClick: () => act(() => Connections.renameGroup(group)) },
-            isRecycle ? null : { sep: true },
-            isRecycle ? null : { label: '删除分组', danger: true, onClick: () => act(() => Connections.deleteGroup(group)) }
+            { sep: true },
+            { label: '删除分组', danger: true, onClick: () => act(() => Connections.deleteGroup(group)) }
           ].filter(Boolean),
           e.clientX,
           e.clientY

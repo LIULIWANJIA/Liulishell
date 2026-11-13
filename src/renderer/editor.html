@@ -28,6 +28,12 @@
     <div class="ehl-layer" id="ehl"><div class="ehl-track" id="ehl-track"></div></div>
     <textarea id="etext" spellcheck="false" wrap="soft" placeholder="双击主窗口中的文件即可编辑（仅支持 < 10MB 的 UTF-8 文本）"></textarea>
 
+    <!-- 文件读取中的居中进度条 -->
+    <div class="eloading" id="eloading" role="status">
+      <div class="eloading-text" id="eloading-text">正在加载…</div>
+      <div class="eloading-bar"><i></i></div>
+    </div>
+
     <!-- 查找 / 替换浮层（浮在编辑区右上角） -->
     <div class="efind" id="efind">
       <div class="efind-row">

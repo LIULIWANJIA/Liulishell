@@ -105,7 +105,7 @@
     if (lastRow) lastRow.addEventListener('click', syncJump);
 
     if (!(data.connections || []).length) {
-      setTimeout(() => U.toast('欢迎使用 LIULI Shell，点击左侧「＋ 新增配置」添加第一台服务器', 'info', 4200), 500);
+      setTimeout(() => U.centerNotice('欢迎使用 LIULI Shell\n点击左侧「＋ 新增配置」添加第一台服务器', 4200), 500);
     }
   }
 
@@ -309,7 +309,7 @@
       const el = $(sel);
       if (!el) return;
       el.addEventListener('dblclick', () => {
-        root.style.setProperty('--bottom-h', '360px');
+        root.style.setProperty('--bottom-h', defaultBottomHeight() + 'px');
         $('#bottom-pane').classList.remove('collapsed');
         $('#btn-collapse-bottom').textContent = '▾';
         saveLayout();
@@ -324,13 +324,18 @@
 
   const LAYOUT_VERSION = 5;
 
+  // 下方面板/命令编辑器默认取窗口高度的 40%（最小 120px），所有分辨率一致
+  function defaultBottomHeight() {
+    return Math.max(120, Math.round(window.innerHeight * 0.4));
+  }
+
   function saveLayout() {
     const root = getComputedStyle(document.documentElement);
     const layout = {
       v: LAYOUT_VERSION,
       leftW: parseInt(root.getPropertyValue('--left-w'), 10) || 214,
       rightW: parseInt(root.getPropertyValue('--right-w'), 10) || 252,
-      bottomH: parseInt(root.getPropertyValue('--bottom-h'), 10) || 360,
+      bottomH: parseInt(root.getPropertyValue('--bottom-h'), 10) || defaultBottomHeight(),
       infoHidden: $('#app').classList.contains('info-hidden'),
       bottomCollapsed: $('#bottom-pane').classList.contains('collapsed')
     };
@@ -353,6 +358,8 @@
     // 版本变更时不再沿用旧高度，改用新的默认高度
     if (!fresh && l.bottomH) {
       root.style.setProperty('--bottom-h', U.clamp(l.bottomH, 120, window.innerHeight - 150) + 'px');
+    } else {
+      root.style.setProperty('--bottom-h', U.clamp(defaultBottomHeight(), 120, window.innerHeight - 150) + 'px');
     }
     if (l.bottomCollapsed) {
       $('#bottom-pane').classList.add('collapsed');
@@ -432,16 +439,18 @@
     const root = document.documentElement;
     root.style.setProperty('--left-w', '214px');
     root.style.setProperty('--right-w', '252px');
-    root.style.setProperty('--bottom-h', '360px');
     const panes = window.Settings && Settings.DEFAULTS
       ? Object.assign({}, Settings.DEFAULTS.panels)
       : {
           leftList: true, leftMonitors: true, leftFoot: true, tabs: true, cmdBar: true,
           rightInfo: true, cmdEditor: true, files: true, snippets: true
         };
-    if (window.Settings) await Settings.persist({ panels: panes, startDockedRight: true });
+    if (window.Settings) await Settings.persist({ panels: panes });
     try { await window.api.resetWindowLayout(); } catch (_) {}
     try { await window.api.zoomReset(); } catch (_) {}
+    // 窗口尺寸与缩放恢复后再算底栏高度，否则会用到重置前的 innerHeight
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+    root.style.setProperty('--bottom-h', defaultBottomHeight() + 'px');
     $('#bottom-pane').classList.remove('collapsed');
     $('#app').classList.remove('bottom-collapsed');
     $('#btn-collapse-bottom').textContent = '▾';

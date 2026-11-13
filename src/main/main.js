@@ -1,5 +1,5 @@
 'use strict';
-const { app, BrowserWindow, ipcMain, dialog, Menu, shell, nativeImage, screen, net } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, Menu, shell, screen, net } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const https = require('https');
@@ -235,14 +235,20 @@ function resolveWindowGeometry(data) {
   try {
     area = screen.getPrimaryDisplay().workArea;
   } catch (_) {}
-  // 默认尺寸：约 60% 屏宽、86% 屏高，贴靠屏幕右侧（不要占满桌面）
-  const defaultW = Math.max(1000, Math.round(area.width * 0.6));
-  const defaultH = Math.max(620, Math.round(area.height * 0.86));
-  let width = Math.max(1000, Math.round(Number(w.width) || defaultW));
+  // 默认尺寸：常规 55%x80%；低分辨率（工作区不足 1920x1000）70%x90%；720P 及以下 85%x90%
+  // 统一距屏幕右侧 32px（不随分辨率变化）
+  const lowRes = area.width < 1920 || area.height < 1000;
+  const tiny = area.height <= 720;
+  const widthRatio = tiny ? 0.85 : lowRes ? 0.7 : 0.55;
+  const heightRatio = tiny || lowRes ? 0.9 : 0.8;
+  const defaultW = Math.max(960, Math.round(area.width * widthRatio));
+  const defaultH = Math.max(620, Math.round(area.height * heightRatio));
+  let width = Math.max(960, Math.round(Number(w.width) || defaultW));
   let height = Math.max(620, Math.round(Number(w.height) || defaultH));
   let x;
   let y;
   let maximized = false;
+  let dockedRight = false;
 
   if (Number.isFinite(w.x) && Number.isFinite(w.y)) {
     // 用保存的位置判断窗口原本在哪块屏幕上，多显示器环境下按那块屏的工作区纠正尺寸
@@ -251,7 +257,7 @@ function resolveWindowGeometry(data) {
       targetArea = screen.getDisplayMatching({ x: Math.round(w.x), y: Math.round(w.y), width, height }).workArea;
     } catch (_) {}
     if (rectVisibleOn(targetArea, Math.round(w.x), Math.round(w.y), width, height)) {
-      width = Math.min(width, Math.max(1000, targetArea.width));
+      width = Math.min(width, Math.max(960, targetArea.width));
       height = Math.min(height, Math.max(620, targetArea.height));
       x = U_clamp(Math.round(w.x), targetArea.x - width + 160, targetArea.x + targetArea.width - 160);
       y = U_clamp(Math.round(w.y), targetArea.y - 8, targetArea.y + targetArea.height - 60);
@@ -260,18 +266,28 @@ function resolveWindowGeometry(data) {
   }
 
   if (x === undefined || y === undefined) {
-    width = U_clamp(width, 1000, Math.max(1000, area.width));
+    width = U_clamp(width, 960, Math.max(960, area.width));
     height = U_clamp(height, 620, Math.max(620, area.height));
-    if (data.settings.startDockedRight !== false) {
-      x = Math.max(area.x, area.x + area.width - width);
-      y = area.y + Math.round((area.height - height) * 0.45);
-    } else {
-      x = area.x + Math.round((area.width - width) / 2);
-      y = area.y + Math.round((area.height - height) / 2);
-    }
+    dockedRight = true;
+    const rightGap = 32; // 固定距右边缘 32px，不随分辨率变化
+    x = Math.max(area.x, area.x + area.width - width - rightGap);
+    y = area.y + Math.round((area.height - height) * 0.45);
     maximized = false;
   }
-  return { x, y, width, height, maximized };
+  return { x, y, width, height, maximized, dockedRight };
+}
+
+/** 非整数 DPI 缩放（如 125%）下系统会把窗口尺寸向上取整，按实际宽度重新贴右，保证右侧间距恒定 */
+function anchorWindowRight(win) {
+  try {
+    const area = screen.getPrimaryDisplay().workArea;
+    for (let i = 0; i < 3; i++) {
+      const b = win.getBounds();
+      const gap = area.x + area.width - (b.x + b.width);
+      if (gap === 32) break;
+      win.setBounds({ x: b.x + gap - 32, y: b.y, width: b.width, height: b.height });
+    }
+  } catch (_) {}
 }
 
 function createWindow() {
@@ -284,7 +300,7 @@ function createWindow() {
     height,
     x,
     y,
-    minWidth: 1000,
+    minWidth: 960,
     minHeight: 620,
     title: 'LIULI Shell',
     backgroundColor: '#f7f6f2',
@@ -302,6 +318,21 @@ function createWindow() {
       zoomFactor: zoomPercent / 100
     }
   });
+
+  if (geo.dockedRight) {
+    anchorWindowRight(win);
+  } else {
+    // 还原的窗口先按保存尺寸落一次位：非整数缩放下创建瞬间系统会临时放大几像素，
+    // 立即 setBounds 可回到保存值，避免每次启动窗口越变越大
+    try {
+      win.setBounds({ x: geo.x, y: geo.y, width: geo.width, height: geo.height });
+      // 原本贴右（右侧间距接近 32px）的还原窗口按实际宽度重新对齐
+      const area = screen.getPrimaryDisplay().workArea;
+      const b = win.getBounds();
+      const gap = area.x + area.width - (b.x + b.width);
+      if (gap >= 24 && gap <= 40) anchorWindowRight(win);
+    } catch (_) {}
+  }
 
   win.once('ready-to-show', () => {
     // 显示前再压一次：Chromium 会按 origin 记住上次 zoom level（预览值也会被记住），
@@ -1162,48 +1193,23 @@ ipcMain.handle('dialog:pickKey', async () => {
   return { path: p, content: fs.readFileSync(p, 'utf8') };
 });
 
-ipcMain.handle('settings:resetWindowPos', () => {
-  const w = store.load().settings.window || {};
-  store.patchSettings({ window: Object.assign({}, w, { x: null, y: null, maximized: false }) });
-  return true;
-});
-
 ipcMain.handle('settings:resetWindowLayout', () => {
-  const d = store.load();
   const geo = resolveWindowGeometry({
-    settings: {
-      window: { x: null, y: null, width: 0, height: 0, maximized: false },
-      startDockedRight: d.settings.startDockedRight
-    }
+    settings: { window: { x: null, y: null, width: 0, height: 0, maximized: false } }
   });
   store.patchSettings({ window: { x: geo.x, y: geo.y, width: geo.width, height: geo.height, maximized: false } });
   if (win && !win.isDestroyed()) {
     try {
       if (win.isMaximized()) win.unmaximize();
       win.setBounds({ x: geo.x, y: geo.y, width: geo.width, height: geo.height });
+      if (geo.dockedRight) {
+        anchorWindowRight(win);
+        const b = win.getBounds();
+        store.patchSettings({ window: { x: b.x, y: b.y, width: b.width, height: b.height, maximized: false } });
+      }
     } catch (_) {}
   }
   return geo;
-});
-
-ipcMain.handle('settings:pickWallpaper', async () => {
-  const r = await dialog.showOpenDialog(win, {
-    title: '选择背景图片',
-    properties: ['openFile'],
-    filters: [{ name: '图片', extensions: ['png', 'jpg', 'jpeg', 'webp', 'bmp', 'gif'] }]
-  });
-  if (r.canceled || !r.filePaths.length) return null;
-  const p = r.filePaths[0];
-  try {
-    let img = nativeImage.createFromPath(p);
-    const size = img.getSize();
-    if (!size.width || !size.height) throw new Error('图片无法读取');
-    if (size.width > 1600) img = img.resize({ width: 1600 });
-    const buf = img.toJPEG(82);
-    return { dataUrl: 'data:image/jpeg;base64,' + buf.toString('base64'), name: path.basename(p) };
-  } catch (err) {
-    throw new Error('读取图片失败: ' + err.message);
-  }
 });
 
 /* ---------- 命令历史 ---------- */

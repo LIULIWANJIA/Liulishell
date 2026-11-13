@@ -1099,10 +1099,11 @@ window.Files = (function () {
       const ungrouped = list.filter((f) => !groups.some((g) => g.id === f.groupId));
       if (ungrouped.length || !groups.length) html += section('未分组', '', ungrouped);
     }
-    if (!list.length) {
-      html = `<div class="fav-empty">还没有收藏文件夹<br/><span>在目录树或文件列表右键「收藏此目录」，也可以点上方「＋ 收藏当前」</span></div>`;
-    } else if (q && !html.trim()) {
-      html = `<div class="fav-empty">没有匹配「${U.esc(favQuery.trim())}」的收藏</div>`;
+    // 有分组但还没有收藏时也要展示分组，只在整个面板都没有内容时才用空状态兜底
+    if (!html.trim()) {
+      html = q
+        ? `<div class="fav-empty">没有匹配「${U.esc(favQuery.trim())}」的收藏</div>`
+        : `<div class="fav-empty">还没有收藏文件夹<br/><span>在目录树或文件列表右键「收藏此目录」，也可以点上方「＋ 收藏当前」</span></div>`;
     }
 
     return html;
@@ -1117,13 +1118,14 @@ window.Files = (function () {
     // 水平居中于文件管理区；高度按窗口给足，避免下面的文件区太矮时内容只剩一行
     const width = Math.max(380, Math.min(760, r.width - 48));
     const height = Math.max(320, Math.min(620, window.innerHeight - 100));
-    // 以文件管理区中心为目标，但保证整个弹窗始终落在窗口内（下方文件区较矮时不会顶出屏幕）
-    const cx = r.left + r.width / 2;
-    const cy = r.top + r.height / 2 - 28;
-    const left = Math.min(Math.max(cx, width / 2 + 12), window.innerWidth - width / 2 - 12);
-    const top = Math.min(Math.max(cy, height / 2 + 12), window.innerHeight - height / 2 - 12);
     dlg.style.width = width + 'px';
     dlg.style.maxHeight = height + 'px';
+    // 弹窗顶部固定在主窗口 20% 高度处，并保证整个弹窗始终落在窗口内
+    const dh = dlg.offsetHeight || height;
+    const cx = r.left + r.width / 2;
+    const cy = window.innerHeight * 0.2 + dh / 2;
+    const left = Math.min(Math.max(cx, width / 2 + 12), window.innerWidth - width / 2 - 12);
+    const top = Math.min(Math.max(cy, dh / 2 + 12), window.innerHeight - dh / 2 - 12);
     dlg.style.left = Math.round(left) + 'px';
     dlg.style.top = Math.round(top) + 'px';
   }

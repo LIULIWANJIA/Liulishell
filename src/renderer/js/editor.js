@@ -15,6 +15,8 @@
   const findCase = $('#efind-case');
   const dlgMask = $('#edialog-mask');
   const dlgInput = $('#edialog-input');
+  const loadEl = $('#eloading');
+  const loadText = $('#eloading-text');
 
   const THEMES = {
     warm: { bg: '#f7f6f2', panel: '#ffffff', p2: '#fbfaf7', p3: '#f3f1eb', line: '#e7e5df', ls: '#d9d6ce', text: '#15191d', t2: '#5d666f', muted: '#8b939b', accent: '#16665a', soft: '#e6efec', primary: '#15191d', hover: '#000000' },
@@ -61,6 +63,15 @@
 
   function cur() {
     return tabs.find((t) => t.id === activeId) || null;
+  }
+
+  /** 当前标签正在读取文件时，在编辑区中间显示进度条 */
+  function updateLoading() {
+    if (!loadEl) return;
+    const t = cur();
+    const on = !!(t && t.loading);
+    loadEl.classList.toggle('show', on);
+    if (on && loadText) loadText.textContent = `正在加载 ${t.name} …`;
   }
 
   function applyTheme() {
@@ -372,6 +383,7 @@
     resetView(t ? t.scrollTop : 0);
     hideFind();
     renderTabs();
+    updateLoading();
   }
 
   function paintInfo() {
@@ -420,6 +432,7 @@
     statusEl.textContent = '正在读取 ' + t.path + ' …';
     resetView(0);
     renderTabs();
+    updateLoading();
     try {
       const res = await window.api.fsRead({ sessionId: t.sessionId, path: t.path });
       t.content = res.content;
@@ -447,6 +460,7 @@
         resetView(0);
       }
     }
+    updateLoading();
     renderTabs();
   }
 
@@ -519,6 +533,7 @@
       if (!nt) posEl.textContent = '';
     }
     renderTabs();
+    updateLoading();
   }
 
   /** 关闭全部标签（有未保存改动时先确认） */
@@ -534,6 +549,7 @@
     posEl.textContent = '';
     resetView(0);
     renderTabs();
+    updateLoading();
   }
 
   /* ---------------- 菜单（点击展开） ---------------- */
