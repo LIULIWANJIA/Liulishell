@@ -43,11 +43,9 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* 无边框窗口的四边统一 1px 外框。右/下固定内缩 1px：
- * 小数缩放下窗口物理尺寸取整会让渲染视口比窗口最多大 1 物理像素，
- * 贴边的右/下边框会被窗口裁掉；内缩 1px 后四边在任何尺寸下都能显示。 */
+/* 无边框窗口的四边统一 1px 外框 */
 body::after {
-  content: ''; position: fixed; inset: 0 1px 1px 0;
+  content: ''; position: fixed; inset: 0;
   pointer-events: none; z-index: 9999;
   border: 1px solid var(--line-strong);
 }
