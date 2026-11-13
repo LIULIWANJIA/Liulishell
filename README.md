@@ -29,13 +29,33 @@
 
 > 便携版和安装版配置默认都在 `%APPDATA%\LIULI Shell`；便携版 exe 同目录存在 `data` 文件夹时，会改用该目录作为配置目录。升级、重装或卸载不会删除数据。
 
+### Linux GUI / macOS 快速构建
+
+> 需要 Git（macOS 另需 Node.js ≥ 18，推荐 20 LTS；Linux 脚本会自动补齐 Node 与系统依赖），并在对应系统上构建，产物互不通用。Gitee 克隆可能提示输入账号与密码，完成后再执行下一条。
+
 ### Linux GUI 快速构建
 
-> 需要 Git 用于克隆源码；Node.js、编译工具与 Electron 运行库等系统依赖由构建脚本自动识别发行版并补齐，无需手动安装。
+> 需要 Git；没有时按发行版选一条安装：
+
+Debian / Ubuntu：
+
+```bash
+sudo apt-get update && sudo apt-get install -y git
+```
+
+Fedora / RHEL：
+
+```bash
+sudo dnf install -y git
+```
+
+Arch：
+
+```bash
+sudo pacman -S --needed git
+```
 
 **1. 克隆源码（Gitee，国内推荐）**
-
-> Gitee 克隆可能提示输入账号与密码，完成后再执行下一条。
 
 ```bash
 rm -rf liuli-shell Liulishell && git clone https://gitee.com/liuliwanjiaweb/liuli-shell.git
@@ -53,7 +73,7 @@ rm -rf liuli-shell Liulishell && git clone https://github.com/LIULIWANJIA/Liulis
 cd liuli-shell && bash scripts/build-linux.sh
 ```
 
-脚本自动识别发行版并只安装缺失的系统依赖与 Node.js，可选 `deb` / `AppImage`，打包完成后询问是否安装。产物在 `dist/`。
+脚本自动识别发行版、补齐系统依赖，可选 `deb` / `AppImage`，打包完成后询问是否安装。产物在 `dist/`。
 
 只打 `.tar.gz`：
 
@@ -190,7 +210,7 @@ npx electron-builder --mac dmg zip --arm64
 - **服务器管理**：分组与多选、拖动移动到其他分组、配置复制粘贴、30 天回收站、检查 IP 信息
 - **实时监控**：CPU、内存、Swap、磁盘、网卡速率与进程预览，量程自适应
 - **WebDAV 加密同步**：配置、分组、收藏文件夹与回收站双向合并，多设备迁移不丢改动
-- **个性化**：8 套核心 + 32 套额外主题（含暗色）、界面缩放、快捷命令板块
+- **个性化**：8 套主题（含暗色）、界面缩放、快捷命令板块
 
 ### 界面预览
 
