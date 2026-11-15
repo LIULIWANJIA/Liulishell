@@ -127,7 +127,8 @@
         "libgbm1",
         "libuuid1",
         "xdg-utils"
-      ]
+      ],
+      "afterRemove": "build/linux-after-remove.sh"
     },
     "appImage": {
       "artifactName": "LIULI-Shell-${version}-${arch}.${ext}"

@@ -635,10 +635,11 @@ install_deb() {
   else
     $SUDO dpkg -i "$deb" || { warn "dpkg 报错，尝试修复依赖"; $SUDO apt-get -f install -y >/dev/null 2>&1 || true; }
   fi
-  ok "已安装 .deb：$(dpkg-deb -f "$deb" Package 2>/dev/null || basename "$deb")"
+  local pkg; pkg="$(dpkg-deb -f "$deb" Package 2>/dev/null || basename "$deb")"
+  ok "已安装 .deb：$pkg"
   desktop_shortcut_for_deb
   printf '\n  启动方式：应用菜单里搜索 “LIULI Shell”，或在终端执行 liuli-shell\n'
-  printf '  卸载：sudo apt remove liuli-shell\n'
+  printf '  卸载：sudo apt remove %s\n' "$pkg"
 }
 
 install_by_target() { # install_by_target deb|appimage
