@@ -1,0 +1,9 @@
+# 统一换行符，避免 Windows 提交后 Linux 上的脚本带 CRLF
+* text=auto eol=lf
+*.sh text eol=lf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.png binary
+*.jpg binary
+*.ico binary
+*.exe binary

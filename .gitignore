@@ -1,0 +1,23 @@
+node_modules/
+release/
+server/
+dist/
+*.log
+shot*.png
+crop*.png
+.DS_Store
+Thumbs.db
+项目设计.md
+
+# 编辑器 / 本地工作缓存（项目记忆等），不需要进仓库
+.workbuddy/
+.vscode/
+.idea/
+.screenshots/
+.trae-html-share-packages/
+
+# 安装包体积超过 Gitee 单文件限制，请上传到「发行版（Releases）」或网盘，不进仓库
+*.exe
+*.AppImage
+*.deb
+*.dmg

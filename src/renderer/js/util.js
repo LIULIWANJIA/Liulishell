@@ -1,0 +1,755 @@
+'use strict';
+/* 通用工具：DOM、格式化、弹窗、右键菜单、路径处理 */
+window.U = (function () {
+  const qs = (sel, root = document) => root.querySelector(sel);
+  const qsa = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+
+  const esc = (s) =>
+    String(s == null ? '' : s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+
+  function fmtBytes(n, digits = 1) {
+    n = Number(n) || 0;
+    if (n < 1024) return n.toFixed(0) + ' B';
+    const units = ['KB', 'MB', 'GB', 'TB', 'PB'];
+    let i = -1;
+    do {
+      n /= 1024;
+      i++;
+    } while (n >= 1024 && i < units.length - 1);
+    return n.toFixed(n >= 100 ? 0 : digits) + ' ' + units[i];
+  }
+
+  const fmtRate = (n) => fmtBytes(n, 1) + '/s';
+
+  function fmtSizeCell(n) {
+    if (n === null || n === undefined) return '';
+    return fmtBytes(n, 1);
+  }
+
+  function fmtTime(ms) {
+    if (!ms) return '';
+    const d = new Date(ms);
+    const p = (x) => String(x).padStart(2, '0');
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+  }
+
+  function debounce(fn, wait = 150) {
+    let t = null;
+    const wrapped = (...args) => {
+      if (t) clearTimeout(t);
+      t = setTimeout(() => {
+        t = null;
+        fn(...args);
+      }, wait);
+    };
+    wrapped.cancel = () => t && clearTimeout(t);
+    return wrapped;
+  }
+
+  /* ---------------- Toast ---------------- */
+  const TOAST_MAX = 6;
+
+  function dismissToast(el) {
+    if (!el || !el.isConnected) return;
+    el.classList.add('hide');
+    setTimeout(() => el.remove(), 220);
+  }
+
+  function toast(message, type = 'info', ms = 2600) {
+    const box = qs('#toasts');
+    if (!box) return;
+    const text = String(message);
+    // 相同内容的提示不重复堆叠，只重置计时
+    const last = box.lastElementChild;
+    if (last && !last.classList.contains('hide') && last.dataset.msg === text && last.dataset.type === type) {
+      clearTimeout(Number(last.dataset.timer));
+      last.dataset.timer = String(setTimeout(() => dismissToast(last), ms));
+      return;
+    }
+    const el = document.createElement('div');
+    el.className = 'toast' + (type === 'error' ? ' err' : type === 'ok' ? ' ok' : '');
+    el.textContent = text;
+    el.dataset.msg = text;
+    el.dataset.type = type;
+    box.appendChild(el);
+    // 最多保留 6 条，超出时移除最早的
+    while (box.children.length > TOAST_MAX) box.firstElementChild.remove();
+    el.dataset.timer = String(setTimeout(() => dismissToast(el), ms));
+  }
+
+  // 终端区域正中的提示（用于首次启动引导等）
+  function centerNotice(message, ms = 4200) {
+    const host = qs('#term-host');
+    if (!host) return;
+    const el = document.createElement('div');
+    el.className = 'term-notice';
+    el.textContent = message;
+    host.appendChild(el);
+    setTimeout(() => {
+      el.classList.add('hide');
+      setTimeout(() => el.remove(), 220);
+    }, ms);
+  }
+
+  /* ---------------- 弹窗 ----------------
+   * opts.cancelValue：取消按钮返回的值（不传则返回 null）。
+   * 用于「覆盖 / 重命名」这类二选一确认：okText 对应 onOk，cancelText 对应 cancelValue。
+   */
+  let modalResolver = null;
+
+  function openModal(opts) {
+    const mask = qs('#modal-mask');
+    const okBtn = qs('#modal-ok');
+    const cancelBtn = qs('#modal-cancel');
+    qs('#modal-title').textContent = opts.title || '';
+    qs('#modal-body').innerHTML = opts.body || '';
+    okBtn.textContent = opts.okText || '保存';
+    okBtn.className = 'btn ' + (opts.okClass || 'primary');
+    cancelBtn.textContent = opts.cancelText || '取消';
+    cancelBtn.style.display = opts.hideCancel ? 'none' : '';
+    qs('#modal').style.width = opts.width || '520px';
+    // 弹窗可能在设置面板（z 140）、凭据浮窗等更高层之上打开，
+    // 固定 z-index:100 会被遮住导致控件点不到，这里按当前最上层动态抬高
+    let base = 100;
+    document.querySelectorAll('#settings-mask.show, #sub-mask.show, #ap-backdrop.show, .fe-mask.show, .fav-overlay.show').forEach((m) => {
+      const z = parseInt(getComputedStyle(m).zIndex, 10) || 0;
+      if (z > base) base = z;
+    });
+    mask.style.zIndex = String(base + 20);
+    mask.classList.add('show');
+
+    return new Promise((resolve) => {
+      modalResolver = resolve;
+      const finish = (value, ok) => {
+        mask.classList.remove('show');
+        mask.style.zIndex = '';
+        modalResolver = null;
+        okBtn.disabled = false;
+        resolve(ok ? value : null);
+      };
+      const onOk = async () => {
+        if (!opts.onOk) return finish(true, true);
+        okBtn.disabled = true;
+        try {
+          const r = await opts.onOk();
+          if (r === false) {
+            okBtn.disabled = false;
+            return;
+          }
+          finish(r === undefined ? true : r, true);
+        } catch (err) {
+          okBtn.disabled = false;
+          toast(err.message || String(err), 'error', 3600);
+        }
+      };
+      okBtn.onclick = onOk;
+      cancelBtn.onclick = () => {
+        if (opts.cancelValue !== undefined) finish(opts.cancelValue, true);
+        else finish(null, false);
+      };
+      qs('#modal-close').onclick = () => finish(null, false);
+      mask.onmousedown = (e) => {
+        if (e.target === mask) finish(null, false);
+      };
+      const bodyEl = qs('#modal-body');
+      bodyEl.onkeydown = (e) => {
+        if (e.key === 'Enter' && !e.shiftKey && e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'SELECT') {
+          e.preventDefault();
+          onOk();
+        }
+      };
+      setTimeout(() => {
+        const first = bodyEl.querySelector('input:not([type=checkbox]):not([type=radio]), textarea');
+        if (first) {
+          first.focus();
+          if (first.select) first.select();
+        }
+      }, 30);
+    });
+  }
+
+  function confirmDialog(title, message, okText = '确定', danger = true) {
+    return openModal({
+      title,
+      width: '420px',
+      okText,
+      okClass: danger ? 'btn danger' : 'btn primary',
+      body: `<div style="line-height:1.7;color:#3d4757;white-space:pre-wrap">${esc(message)}</div>`
+    }).then((v) => v !== null);
+  }
+
+  function promptDialog(title, label, value = '', placeholder = '') {
+    return openModal({
+      title,
+      width: '420px',
+      body: `<div class="field"><label>${esc(label)}</label><input id="dlg-input" type="text" value="${esc(value)}" placeholder="${esc(
+        placeholder
+      )}" /></div>`,
+      onOk: () => {
+        const v = qs('#dlg-input').value.trim();
+        if (!v) throw new Error('请输入内容');
+        return v;
+      }
+    });
+  }
+
+  /** 二级弹窗：叠在父弹窗之上，不销毁父弹窗内容（密钥导入、嵌套确认等） */
+  function openSubModal(opts) {
+    const mask = qs('#sub-mask');
+    const okBtn = qs('#sub-ok');
+    const cancelBtn = qs('#sub-cancel');
+    qs('#sub-title').textContent = opts.title || '';
+    qs('#sub-body').innerHTML = opts.body || '';
+    okBtn.textContent = opts.okText || '确定';
+    okBtn.className = 'btn ' + (opts.okClass || 'primary');
+    cancelBtn.textContent = opts.cancelText || '取消';
+    cancelBtn.style.display = opts.hideCancel ? 'none' : '';
+    qs('#sub-modal').style.width = opts.width || '520px';
+    mask.classList.add('show');
+
+    return new Promise((resolve) => {
+      const finish = (value, ok) => {
+        mask.classList.remove('show');
+        okBtn.disabled = false;
+        resolve(ok ? value : null);
+      };
+      const onOk = async () => {
+        if (!opts.onOk) return finish(true, true);
+        okBtn.disabled = true;
+        try {
+          const r = await opts.onOk();
+          if (r === false) {
+            okBtn.disabled = false;
+            return;
+          }
+          finish(r === undefined ? true : r, true);
+        } catch (err) {
+          okBtn.disabled = false;
+          toast(err.message || String(err), 'error', 3600);
+        }
+      };
+      okBtn.onclick = onOk;
+      cancelBtn.onclick = () => finish(null, false);
+      qs('#sub-close').onclick = () => finish(null, false);
+      mask.onmousedown = (e) => {
+        if (e.target === mask) finish(null, false);
+      };
+      const bodyEl = qs('#sub-body');
+      bodyEl.onkeydown = (e) => {
+        if (e.key === 'Enter' && !e.shiftKey && e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'SELECT') {
+          e.preventDefault();
+          onOk();
+        }
+      };
+      setTimeout(() => {
+        const first = bodyEl.querySelector('input:not([type=checkbox]):not([type=radio]), textarea');
+        if (first) first.focus();
+      }, 30);
+    });
+  }
+
+  function confirmSub(title, message, okText = '确定') {
+    return openSubModal({
+      title,
+      width: '420px',
+      okText,
+      okClass: 'btn danger',
+      body: `<div style="line-height:1.7;color:#3d4757;white-space:pre-wrap">${esc(message)}</div>`
+    }).then((v) => v !== null);
+  }
+
+  /* ---------------- 右键菜单 ---------------- */
+  /* ---------------- 右键菜单（支持二级子菜单） ---------------- */
+  let ctxSub = null;
+  let ctxSubTimer = null;
+
+  function ensureCtxSub() {
+    if (ctxSub && document.body.contains(ctxSub)) return ctxSub;
+    ctxSub = document.createElement('div');
+    ctxSub.className = 'ctx-menu ctx-submenu';
+    ctxSub.id = 'ctx-submenu';
+    document.body.appendChild(ctxSub);
+    ctxSub.addEventListener('mouseenter', () => {
+      if (ctxSubTimer) { clearTimeout(ctxSubTimer); ctxSubTimer = null; }
+    });
+    ctxSub.addEventListener('mouseleave', scheduleCtxSubHide);
+    return ctxSub;
+  }
+
+  function hideCtxSub() {
+    if (ctxSubTimer) { clearTimeout(ctxSubTimer); ctxSubTimer = null; }
+    if (ctxSub) ctxSub.classList.remove('show');
+  }
+
+  function scheduleCtxSubHide() {
+    if (ctxSubTimer) clearTimeout(ctxSubTimer);
+    ctxSubTimer = setTimeout(() => { ctxSubTimer = null; hideCtxSub(); }, 180);
+  }
+
+  function showCtxSub(anchor, children) {
+    if (ctxSubTimer) { clearTimeout(ctxSubTimer); ctxSubTimer = null; }
+    const menu = ensureCtxSub();
+    menu.innerHTML = children
+      .map((it, i) => {
+        if (it.sep) return '<div class="ctx-sep"></div>';
+        return `<div class="ctx-item${it.danger ? ' danger' : ''}${it.disabled ? ' disabled' : ''}" data-si="${i}">${esc(it.label)}</div>`;
+      })
+      .join('');
+    menu.classList.add('show');
+    const r = anchor.getBoundingClientRect();
+    const w = menu.offsetWidth;
+    const h = menu.offsetHeight;
+    let left = r.right - 2;
+    if (left + w > window.innerWidth - 8) left = Math.max(4, r.left - w + 2);
+    let top = r.top - 5;
+    if (top + h > window.innerHeight - 8) top = Math.max(4, window.innerHeight - h - 8);
+    menu.style.left = Math.round(left) + 'px';
+    menu.style.top = Math.round(top) + 'px';
+    menu.onclick = (e) => {
+      const item = e.target.closest('.ctx-item');
+      if (!item) return;
+      const it = children[Number(item.dataset.si)];
+      if (!it || it.disabled) return;
+      hideCtxSub();
+      const main = qs('#ctx-menu');
+      if (main) main.classList.remove('show');
+      if (it.onClick) it.onClick();
+    };
+  }
+
+  function ctxMenu(items, x, y) {
+    hideCtxSub();
+    const menu = qs('#ctx-menu');
+    menu.innerHTML = items
+      .map((it, i) => {
+        if (it.sep) return '<div class="ctx-sep"></div>';
+        const sub = Array.isArray(it.children);
+        return `<div class="ctx-item${it.danger ? ' danger' : ''}${it.disabled ? ' disabled' : ''}${sub ? ' has-sub' : ''}" data-i="${i}">${esc(it.label)}${
+          sub ? '<span class="sub-arrow">›</span>' : it.key ? `<span class="k">${esc(it.key)}</span>` : ''
+        }</div>`;
+      })
+      .join('');
+    menu.classList.add('show');
+    const rect = menu.getBoundingClientRect();
+    const px = Math.min(x, window.innerWidth - rect.width - 8);
+    const py = Math.min(y, window.innerHeight - rect.height - 8);
+    menu.style.left = Math.max(4, px) + 'px';
+    menu.style.top = Math.max(4, py) + 'px';
+    menu.querySelectorAll('.ctx-item.has-sub').forEach((el) => {
+      const it = items[Number(el.dataset.i)];
+      el.addEventListener('mouseenter', () => showCtxSub(el, it.children));
+      el.addEventListener('mouseleave', scheduleCtxSubHide);
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        showCtxSub(el, it.children);
+      });
+    });
+    const close = (e) => {
+      if (!menu.contains(e.target) && !(ctxSub && ctxSub.contains(e.target))) {
+        menu.classList.remove('show');
+        hideCtxSub();
+        document.removeEventListener('mousedown', close, true);
+      }
+    };
+    setTimeout(() => document.addEventListener('mousedown', close, true), 0);
+    menu.onclick = (e) => {
+      const item = e.target.closest('.ctx-item');
+      if (!item) return;
+      const idx = Number(item.dataset.i);
+      const it = items[idx];
+      if (!it || it.disabled || it.children) return;
+      menu.classList.remove('show');
+      hideCtxSub();
+      const fn = it.onClick;
+      if (fn) fn();
+    };
+  }
+
+  /* ---------------- 下拉框（统一的展开面板） ----------------
+   * 原生 select 的展开列表由系统渲染，无法跟随主题；这里拦截 mousedown，
+   * 用一个和右键菜单同风格的浮层代替，选中后回写 value 并派发 change。
+   */
+  let selMenu = null;
+  let selSelect = null;
+
+  function ensureSelMenu() {
+    if (selMenu) return selMenu;
+    selMenu = document.createElement('div');
+    selMenu.className = 'sel-menu';
+    selMenu.id = 'sel-menu';
+    document.body.appendChild(selMenu);
+    // 防止点击面板时输入框失焦
+    selMenu.addEventListener('mousedown', (e) => e.preventDefault());
+    selMenu.addEventListener('click', (e) => {
+      const item = e.target.closest('.sel-item');
+      if (!item || item.classList.contains('disabled')) return;
+      const sel = selSelect;
+      const idx = Number(item.dataset.i);
+      closeSelMenu();
+      if (!sel) return;
+      const opt = sel.options[idx];
+      if (!opt) return;
+      if (sel.value !== opt.value) {
+        sel.value = opt.value;
+        sel.dispatchEvent(new Event('input', { bubbles: true }));
+        sel.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      try { sel.focus({ preventScroll: true }); } catch (_) {}
+    });
+    return selMenu;
+  }
+
+  function buildSelItems(select) {
+    const parts = [];
+    let lastGroup = null;
+    Array.from(select.options).forEach((o, i) => {
+      const g = o.parentElement && o.parentElement.tagName === 'OPTGROUP' ? o.parentElement : null;
+      if (g && g !== lastGroup) parts.push(`<div class="sel-group">${esc(g.label || '')}</div>`);
+      lastGroup = g;
+      const on = o.selected;
+      parts.push(
+        `<div class="sel-item${on ? ' on' : ''}${o.disabled ? ' disabled' : ''}" data-i="${i}">` +
+          `<span class="sel-label">${esc(o.textContent || '')}</span>` +
+          `<span class="sel-tick">${on ? '✓' : ''}</span>` +
+        `</div>`
+      );
+    });
+    return parts.join('');
+  }
+
+  function placeSelMenu(select) {
+    const menu = selMenu;
+    if (!menu) return;
+    const rect = select.getBoundingClientRect();
+    menu.style.minWidth = Math.max(120, Math.round(rect.width)) + 'px';
+    menu.style.maxWidth = Math.min(380, Math.max(160, window.innerWidth - 16)) + 'px';
+    menu.style.left = '0px';
+    menu.style.top = '0px';
+    const mw = menu.offsetWidth;
+    const mh = menu.offsetHeight;
+    let left = rect.left;
+    if (left + mw > window.innerWidth - 8) left = Math.max(8, window.innerWidth - mw - 8);
+    let top = rect.bottom + 4;
+    if (top + mh > window.innerHeight - 8) {
+      const up = rect.top - mh - 4;
+      top = up >= 8 ? up : Math.max(8, window.innerHeight - mh - 8);
+    }
+    menu.style.left = Math.round(left) + 'px';
+    menu.style.top = Math.round(top) + 'px';
+  }
+
+  function openSelMenu(select) {
+    if (!select || select.disabled) return;
+    if (select.multiple || Number(select.size) > 1) return;
+    if (!select.options.length) return;
+    if (select.dataset.nativeMenu === '1') return;
+    ensureSelMenu();
+    if (selSelect === select && selMenu.classList.contains('show')) {
+      closeSelMenu();
+      return;
+    }
+    selSelect = select;
+    selMenu.innerHTML = buildSelItems(select);
+    selMenu.classList.add('show');
+    placeSelMenu(select);
+    const cur = selMenu.querySelector('.sel-item.on');
+    if (cur && cur.scrollIntoView) cur.scrollIntoView({ block: 'nearest' });
+  }
+
+  function closeSelMenu() {
+    if (!selMenu) return;
+    selMenu.classList.remove('show');
+    selSelect = null;
+  }
+
+  function initSelectMenus() {
+    document.addEventListener(
+      'mousedown',
+      (e) => {
+        const t = e.target;
+        const sel = t && t.closest ? t.closest('select') : null;
+        if (sel && !sel.disabled && sel.dataset.nativeMenu !== '1') {
+          e.preventDefault();
+          openSelMenu(sel);
+          return;
+        }
+        if (selMenu && selMenu.classList.contains('show') && !(t.closest && t.closest('#sel-menu'))) {
+          closeSelMenu();
+        }
+      },
+      true
+    );
+    document.addEventListener(
+      'keydown',
+      (e) => {
+        if (e.key === 'Escape' && selMenu && selMenu.classList.contains('show')) {
+          e.preventDefault();
+          closeSelMenu();
+          return;
+        }
+        // 键盘操作时也用同一套面板，避免又弹出系统原生列表
+        const sel = e.target && e.target.closest ? e.target.closest('select') : null;
+        if (!sel || sel.disabled || sel.dataset.nativeMenu === '1') return;
+        if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          openSelMenu(sel);
+        }
+      },
+      true
+    );
+    document.addEventListener(
+      'scroll',
+      (e) => {
+        if (selMenu && selMenu.contains(e.target)) return;
+        closeSelMenu();
+      },
+      true
+    );
+    window.addEventListener('resize', closeSelMenu);
+    window.addEventListener('blur', closeSelMenu);
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initSelectMenus);
+  else setTimeout(initSelectMenus, 0);
+
+  /* ---------------- 路径 ---------------- */
+  const posix = {
+    join(...parts) {
+      const segs = [];
+      for (const p of parts) {
+        if (!p) continue;
+        for (const s of String(p).split('/')) {
+          if (!s || s === '.') continue;
+          if (s === '..') segs.pop();
+          else segs.push(s);
+        }
+      }
+      return '/' + segs.join('/');
+    },
+    dirname(p) {
+      const s = String(p).replace(/\/+$/, '');
+      const i = s.lastIndexOf('/');
+      if (i <= 0) return '/';
+      return s.slice(0, i);
+    },
+    basename(p) {
+      const s = String(p).replace(/\/+$/, '');
+      return s.slice(s.lastIndexOf('/') + 1) || '/';
+    }
+  };
+
+  const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+
+  function shortName(name, max = 16) {
+    if (!name) return '';
+    return name.length > max ? name.slice(0, max - 1) + '…' : name;
+  }
+
+  /** 去掉 IPC 包装前缀，只保留可读的错误信息 */
+  function cleanError(err) {
+    let msg = (err && err.message) || String(err || '');
+    msg = msg.replace(/^Error invoking remote method '[^']*':\s*/i, '');
+    msg = msg.replace(/^Error:\s*/i, '');
+    return msg.trim() || '未知错误';
+  }
+
+  function copy(text) {
+    return navigator.clipboard.writeText(String(text)).then(
+      () => toast('已复制', 'ok', 1400),
+      () => toast('复制失败', 'error')
+    );
+  }
+
+  /* ---------------- 速率单位 ---------------- */
+  /** 解析速率单位：具体项优先，未设置时跟随全局，默认 Mbps */
+  function unitFor(kind, settings) {
+    const s = settings || (window.App && window.App.settings) || {};
+    const u = s.units && typeof s.units === 'object' ? s.units : {};
+    const globalUnit = u.global || (s.netUnit === 'bytes' ? 'mbytes' : 'mbps');
+    const own = u[kind];
+    const unit = own === 'mbytes' || own === 'mbps' ? own : globalUnit;
+    return unit === 'mbytes' ? 'mbytes' : 'mbps';
+  }
+
+  function unitLabel(unit) {
+    return unit === 'mbytes' ? 'MB/s' : 'Mbps';
+  }
+
+  function fmtSpeedNumber(v) {
+    const n = Number(v) || 0;
+    return n >= 100 ? n.toFixed(0) : n >= 10 ? n.toFixed(1) : n.toFixed(2);
+  }
+
+  /** 字节/秒 → 指定单位的数值 */
+  function speedValueFromBytes(bytes, unit) {
+    const n = Number(bytes) || 0;
+    return unit === 'mbytes' ? n / 1e6 : (n * 8) / 1e6;
+  }
+
+  /** Mbps → 指定单位的数值 */
+  function speedValueFromMbps(mbps, unit) {
+    const n = Number(mbps) || 0;
+    return unit === 'mbytes' ? n / 8 : n;
+  }
+
+  function rateFromBytes(bytes, kind, settings) {
+    const unit = unitFor(kind, settings);
+    return fmtSpeedNumber(speedValueFromBytes(bytes, unit)) + ' ' + unitLabel(unit);
+  }
+
+  function rateFromMbps(mbps, kind, settings) {
+    const unit = unitFor(kind, settings);
+    return fmtSpeedNumber(speedValueFromMbps(mbps, unit)) + ' ' + unitLabel(unit);
+  }
+
+  /** 累计流量：bit 数自动选择 Gb / Mb / Kb */
+  function trafficText(bytes) {
+    const bits = Math.max(0, Number(bytes) || 0) * 8;
+    if (bits >= 1e9) return fmtSpeedNumber(bits / 1e9) + ' Gb';
+    if (bits >= 1e6) return fmtSpeedNumber(bits / 1e6) + ' Mb';
+    if (bits >= 1e3) return fmtSpeedNumber(bits / 1e3) + ' Kb';
+    return fmtSpeedNumber(bits) + ' b';
+  }
+
+  /* ---------------- 自定义鼠标拖拽（列表项移动到分组） ---------------- */
+  function dragMove(opts) {
+    const root = opts.root;
+    if (!root) return null;
+    const itemSel = opts.itemSelector;
+    const groupSel = opts.groupSelector;
+    const dropClass = opts.dropClass || 'drop-target';
+    let drag = null;
+    let ghost = null;
+    let justDragged = false;
+
+    const clearMarks = () => {
+      root.querySelectorAll('.' + dropClass).forEach((el) => el.classList.remove(dropClass));
+    };
+
+    function onDown(e) {
+      if (e.button !== 0) return;
+      if (e.target.closest && e.target.closest('button,input,select,textarea,a')) return;
+      const item = e.target.closest(itemSel);
+      if (!item || !root.contains(item)) return;
+      drag = { startX: e.clientX, startY: e.clientY, item, active: false, ids: [], groupEl: null };
+      window.addEventListener('mousemove', onMove, true);
+      window.addEventListener('mouseup', onUp, true);
+      window.addEventListener('blur', onBlur, true);
+    }
+
+    function onBlur() {
+      finish();
+    }
+
+    function onMove(e) {
+      if (!drag) return;
+      if (!drag.active) {
+        if (Math.abs(e.clientX - drag.startX) < 6 && Math.abs(e.clientY - drag.startY) < 6) return;
+        drag.active = true;
+        drag.ids = (opts.idsFor && opts.idsFor(drag.item)) || [];
+        drag.item.classList.add('dragging');
+        ghost = document.createElement('div');
+        ghost.className = 'drag-ghost';
+        ghost.textContent = (opts.ghostText && opts.ghostText(drag.ids)) || '移动';
+        document.body.appendChild(ghost);
+        document.body.classList.add('dragging-panel');
+      }
+      e.preventDefault();
+      if (ghost) {
+        ghost.style.left = e.clientX + 12 + 'px';
+        ghost.style.top = e.clientY + 12 + 'px';
+      }
+      const el = document.elementFromPoint(e.clientX, e.clientY);
+      const group = el && el.closest(groupSel);
+      if (group !== drag.groupEl) {
+        clearMarks();
+        drag.groupEl = group && root.contains(group) ? group : null;
+        if (drag.groupEl) drag.groupEl.classList.add(dropClass);
+      }
+    }
+
+    function finish() {
+      if (!drag) return null;
+      const d = drag;
+      drag = null;
+      window.removeEventListener('mousemove', onMove, true);
+      window.removeEventListener('mouseup', onUp, true);
+      window.removeEventListener('blur', onBlur, true);
+      if (ghost) {
+        ghost.remove();
+        ghost = null;
+      }
+      document.body.classList.remove('dragging-panel');
+      clearMarks();
+      d.item.classList.remove('dragging');
+      if (!d.active) return d;
+      justDragged = true;
+      setTimeout(() => { justDragged = false; }, 0);
+      return d;
+    }
+
+    function onUp(e) {
+      const d = finish();
+      if (!d || !d.active) return;
+      const el = document.elementFromPoint(e.clientX, e.clientY);
+      const group = el && el.closest(groupSel);
+      if (!group || !root.contains(group)) return;
+      const gid = opts.groupIdFor ? opts.groupIdFor(group) : group.dataset.gid;
+      if (gid) opts.onDrop(d.ids, gid, group);
+    }
+
+    root.addEventListener('mousedown', onDown, true);
+    root.addEventListener('click', (e) => {
+      if (!justDragged) return;
+      justDragged = false;
+      e.stopPropagation();
+      e.preventDefault();
+    }, true);
+    return { destroy: () => root.removeEventListener('mousedown', onDown, true) };
+  }
+
+  return {
+    qs,
+    qsa,
+    esc,
+    // 版本号与运行形态（由主进程提供，跟随 package.json / 是否是便携版）
+    appVersion: ((window.api && window.api.appInfo) || {}).version || '1.14.3',
+    dataFile: ((window.api && window.api.appInfo) || {}).dataFile || '',
+    isPortable: !!(window.api && window.api.appInfo && window.api.appInfo.portable),
+    versionText() {
+      return 'LIULI Shell v' + (((window.api && window.api.appInfo) || {}).version || '1.14.3');
+    },
+    fmtBytes,
+    fmtRate,
+    fmtSizeCell,
+    fmtTime,
+    debounce,
+    toast,
+    centerNotice,
+    openModal,
+    openSubModal,
+    confirmDialog,
+    confirmSub,
+    promptDialog,
+    ctxMenu,
+    dragMove,
+    initSelectMenus,
+    posix,
+    clamp,
+    shortName,
+    cleanError,
+    copy,
+    unitFor,
+    unitLabel,
+    speedValueFromBytes,
+    speedValueFromMbps,
+    rateFromBytes,
+    rateFromMbps,
+    trafficText
+  };
+})();
