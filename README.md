@@ -4,7 +4,7 @@
 
 <img src="docs/assets/icon.png" width="100" alt="LIULI Shell LOGO" /><br>
 
-<h2>源码公开、易用、免费、跨平台 的 SSH 终端</h2>
+<h2>开源 多功能 多语言 跨平台 的 SSH 终端</h2>
 
 [官网](https://shell.minecft.cn)　·　[GitHub 仓库](https://github.com/LIULIWANJIA/Liulishell)　·　[Gitee 仓库](https://gitee.com/liuliwanjiaweb/liuli-shell)
 
@@ -12,7 +12,8 @@
 
 当前版本：**v1.20.1** | Windows 10/11 · Linux GUI · macOS
 
-**使用限制：** 仅限个人、非营利、教育与研究等非商业用途；任何商业主体或商业场景禁止使用；衍生版本须在用户可见的明显区域署名原作者。详见 [LICENSE](LICENSE)。
+**使用限制：** 仅限个人、非营利、教育与研究等非商业用途；
+任何商业主体或商业场景禁止使用；衍生版本须在用户可见的明显区域署名原作者。详见 [LICENSE](LICENSE)。
 
 </div>
 
@@ -75,11 +76,6 @@ cd liuli-shell && bash scripts/build-linux.sh
 
 脚本自动识别发行版、补齐系统依赖，可选 `deb` / `AppImage`，打包完成后询问是否安装。产物在 `dist/`。
 
-只打 `.tar.gz`：
-
-```bash
-bash scripts/build-linux.sh tar
-```
 
 环境异常时先体检：
 
@@ -203,7 +199,6 @@ npx electron-builder --mac dmg zip --arm64
 ---
 
 ## 功能概览
-
 - **多标签 SSH 终端**：状态灯、断开重连、标签拖动排序、命令历史与补全
 - **SFTP 文件管理**：目录树 + 文件列表 + 内置编辑器，终端 `cd` 跟随；拖拽上传、整目录下载、权限管理、打包传输
 - **FinalShell 迁移**：支持直接导入 FinalShell 导出的 JSON 备份，也支持文件夹拖放导入
