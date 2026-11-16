@@ -507,7 +507,7 @@ window.Connections = (function () {
     const h = String(host || '').trim();
     if (!h) return;
     U.openModal({
-      title: `IP 信息 - ${h}`,
+      title: `${window.I18N ? I18N.t('IP 信息') : 'IP 信息'} - ${h}`,
       width: '440px',
       hideCancel: true,
       okText: '关闭',
@@ -543,7 +543,7 @@ window.Connections = (function () {
         .join('')}</div>`;
     } catch (err) {
       const body = U.qs('#modal-body');
-      if (body) body.innerHTML = `<div class="ipinfo-error">查询失败：${U.esc(U.cleanError(err))}</div>`;
+      if (body) body.innerHTML = `<div class="ipinfo-error"><span>查询失败</span>：${U.esc(U.cleanError(err))}</div>`;
     }
   }
 

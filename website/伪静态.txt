@@ -1,0 +1,49 @@
+# LIULI Shell 官网伪静态规则（SEO 友好版）
+# 语言由「构建时静态生成 + 页面右上角语言菜单」决定，
+# 不再按 Accept-Language 自动跳转，保证搜索引擎抓取到的语言
+# 与页面自身的 canonical / hreflang 完全一致。
+
+# 中文（默认语种）
+location = / {
+    index index.html;
+    try_files /index.html =404;
+}
+
+# 各语言短链接（301 永久重定向，权重归一）
+location = /en      { return 301 /en.html; }
+location = /en/     { return 301 /en.html; }
+location = /zh-Hant { return 301 /zh-Hant.html; }
+location = /zh-Hant/ { return 301 /zh-Hant.html; }
+location = /ja      { return 301 /ja.html; }
+location = /ja/     { return 301 /ja.html; }
+location = /ko      { return 301 /ko.html; }
+location = /ko/     { return 301 /ko.html; }
+location = /ru      { return 301 /ru.html; }
+location = /ru/     { return 301 /ru.html; }
+location = /fr      { return 301 /fr.html; }
+location = /fr/     { return 301 /fr.html; }
+location = /de      { return 301 /de.html; }
+location = /de/     { return 301 /de.html; }
+
+# 中文短链接（301 回到根路径）
+location = /zh      { return 301 /; }
+location = /zh/     { return 301 /; }
+
+# sitemap / robots 直接返回，避免被当成下载文件
+location = /sitemap.xml {
+    types { }
+    default_type application/xml;
+    try_files /sitemap.xml =404;
+}
+location = /robots.txt {
+    types { }
+    default_type text/plain;
+    try_files /robots.txt =404;
+}
+
+# 静态资源缓存
+location ~* \.(?:css|js|png|jpg|jpeg|gif|webp|svg|ico|woff2?)$ {
+    expires 30d;
+    add_header Cache-Control "public, max-age=2592000";
+    access_log off;
+}

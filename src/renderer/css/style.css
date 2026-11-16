@@ -1627,3 +1627,28 @@ body.dragging-panel { user-select: none; }
 .acp-sync-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-width: 0; }
 .acp-sync-head b { font-size: 11.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .acp-sync-sub { font-size: 10px; color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ===================== 非中文界面适配 ===================== */
+html:not([lang="zh-CN"]):not([lang="zh-Hant"]) .file-table-wrap.dragover::after { content: "Drop to upload"; }
+html:not([lang="zh-CN"]):not([lang="zh-Hant"]) .set-row > label { width: 148px; }
+html:not([lang="zh-CN"]):not([lang="zh-Hant"]) .set-row > label.check-inline { width: auto; }
+html:not([lang="zh-CN"]):not([lang="zh-Hant"]) .btn,
+html:not([lang="zh-CN"]):not([lang="zh-Hant"]) .tb-btn,
+html:not([lang="zh-CN"]):not([lang="zh-Hant"]) .tb-menu,
+html:not([lang="zh-CN"]):not([lang="zh-Hant"]) .pane-tab,
+html:not([lang="zh-CN"]):not([lang="zh-Hant"]) .snav { white-space: nowrap; }
+html:not([lang="zh-CN"]):not([lang="zh-Hant"]) .snav { font-size: 12px; padding: 0 10px; }
+html:not([lang="zh-CN"]):not([lang="zh-Hant"]) .pane-tab { padding: 0 10px; }
+html:not([lang="zh-CN"]):not([lang="zh-Hant"]) .left-foot { white-space: nowrap; }
+html:not([lang="zh-CN"]):not([lang="zh-Hant"]) .file-toolbar .btn { flex: 0 0 auto; }
+html:not([lang="zh-CN"]):not([lang="zh-Hant"]) .cmd-bar select#cmd-target { flex: 0 0 auto; min-width: 88px; }
+html:not([lang="zh-CN"]):not([lang="zh-Hant"]) .cmd-bar #btn-history,
+html:not([lang="zh-CN"]):not([lang="zh-Hant"]) #btn-send { flex: 0 0 auto; }
+html:not([lang="zh-CN"]):not([lang="zh-Hant"]) .footer,
+html:not([lang="zh-CN"]):not([lang="zh-Hant"]) .foot-hint { white-space: nowrap; }
+
+@media (max-width: 1000px) {
+  html:not([lang="zh-CN"]):not([lang="zh-Hant"]) .file-toolbar { gap: 3px; padding: 4px 5px; }
+  html:not([lang="zh-CN"]):not([lang="zh-Hant"]) .file-toolbar .btn { padding: 0 5px; font-size: 11px; }
+  html:not([lang="zh-CN"]):not([lang="zh-Hant"]) .file-toolbar .path { flex: 0 1 72px; min-width: 48px; }
+}

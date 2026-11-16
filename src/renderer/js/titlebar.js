@@ -47,7 +47,7 @@ window.TitleBar = (function () {
       ],
       help: [
         { label: '官方网站', onClick: () => openSite() },
-        { label: U.versionText() + (U.isPortable ? '（便携版）' : ''), onClick: () => openSite() },
+        { label: U.versionText() + (U.isPortable ? (window.I18N ? I18N.t('（便携版）') : '（便携版）') : ''), onClick: () => openSite() },
         { label: '作者：LIULIWANJIA', onClick: () => openSite() }
       ]
     };

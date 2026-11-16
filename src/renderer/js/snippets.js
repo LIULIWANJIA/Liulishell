@@ -291,7 +291,11 @@ window.Snippets = (function () {
   function sendEditor() {
     const ta = $('#editor-text');
     const text = String(ta.value || '').replace(/\s+$/, '');
-    if (!text.trim()) return U.toast('请先输入命令', 'error');
+    // 空内容时直接发送回车
+    if (!text.trim()) {
+      Term.sendRaw('', true);
+      return;
+    }
     const count = Term.sendRaw(text.replace(/\r?\n/g, '\r'));
     if (count) U.toast(`已发送到 ${count} 个会话`, 'ok', 1600);
   }

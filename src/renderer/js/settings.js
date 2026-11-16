@@ -489,7 +489,7 @@ window.Settings = (function () {
   const FONT_ZH = ['"Microsoft YaHei", "PingFang SC", sans-serif', '"PingFang SC", "Microsoft YaHei", sans-serif', '"Noto Sans CJK SC", sans-serif', 'SimSun, serif', 'SimHei, sans-serif', '"Segoe UI", sans-serif'];
 
   const DEFAULTS = {
-    theme: 'warm', netUnit: 'mbps', downloadDir: '', proxies: [], defaultProxyId: '',
+    theme: 'warm', language: 'zh', netUnit: 'mbps', downloadDir: '', proxies: [], defaultProxyId: '',
     units: { global: 'mbps', chart: 'global', netDetail: 'global', downloads: 'global' },
     fonts: { size: 13, en: FONT_EN[0], zh: FONT_ZH[0] },
     mouse: { middle: 'term-paste', right: 'term-menu' },
@@ -507,11 +507,17 @@ window.Settings = (function () {
   let zoomPercent = 100;
   const ZOOM_LEVELS = [100, 125, 150, 200];
 
+  function langValid(v) {
+    if (window.I18N) return I18N.LANGS.some((l) => l.id === v);
+    return v === 'zh' || v === 'en';
+  }
+
   function readCfg() {
     const s = App.settings || {};
     const merge = (base, raw) => Object.assign({}, base, raw || {});
     cfg = {
       theme: THEMES.some((t) => t.id === s.theme) ? s.theme : DEFAULTS.theme,
+      language: langValid(s.language) ? s.language : 'zh',
       netUnit: s.netUnit === 'bytes' ? 'bytes' : 'mbps',
       downloadDir: typeof s.downloadDir === 'string' ? s.downloadDir : '',
       units: merge(DEFAULTS.units, s.units),
@@ -560,9 +566,19 @@ window.Settings = (function () {
     document.body.classList.toggle('theme-dark', !!theme.dark);
     if (window.Term) Term.applyTheme(t);
 
+    // 界面语言
+    if (window.I18N) I18N.setLang(cfg.language);
+
     // 字体
     const f = cfg.fonts;
-    root.style.setProperty('--font-ui', `${f.zh}, "Segoe UI", sans-serif`);
+    const uiLang = window.I18N ? I18N.lang : 'zh';
+    let uiFont;
+    if (['en', 'ru', 'fr', 'de'].includes(uiLang)) uiFont = `"Segoe UI", ${f.zh}, sans-serif`;
+    else if (uiLang === 'ja') uiFont = `"Yu Gothic UI", "Meiryo", ${f.zh}, sans-serif`;
+    else if (uiLang === 'ko') uiFont = `"Malgun Gothic", ${f.zh}, sans-serif`;
+    else if (uiLang === 'zh-Hant') uiFont = `"Microsoft JhengHei", ${f.zh}, sans-serif`;
+    else uiFont = `${f.zh}, "Segoe UI", sans-serif`;
+    root.style.setProperty('--font-ui', uiFont);
     root.style.setProperty('--font-mono', `${f.en}, ${f.zh}, monospace`);
     root.style.setProperty('--ui-font-size', U.clamp(12.5 + (Number(f.size) - 13) * 0.3, 11, 16).toFixed(1) + 'px');
     if (window.Term) Term.applyFonts(`${f.en}, ${f.zh}, monospace`, Number(f.size) || 13);
@@ -672,6 +688,19 @@ window.Settings = (function () {
       </section>
 
       <section class="stab" data-tab="font">
+        <div class="set-group">
+          <h4>语言</h4>
+          <p class="set-desc">选择界面显示语言，修改后立即生效。</p>
+          <div class="set-row">
+            <label>界面语言</label>
+            <select id="set-language">
+              ${(window.I18N ? I18N.LANGS : [{ id: 'zh', label: '简体中文' }, { id: 'en', label: 'English' }])
+                .map((l) => `<option value="${l.id}"${cfg.language === l.id ? ' selected' : ''}>${U.esc(l.label)}</option>`)
+                .join('')}
+            </select>
+            <span class="set-note">切换后界面文字立即更新</span>
+          </div>
+        </div>
         <div class="set-group">
           <h4>字体</h4>
           <div class="set-row"><label>字号</label><input id="set-fontsize" type="number" min="10" max="24" value="${U.clamp(Number(f.size) || 13, 10, 24)}" /><span class="set-note">同时作用于终端与界面文字</span></div>
@@ -1050,6 +1079,9 @@ window.Settings = (function () {
     if (zoomReset) {
       zoomReset.addEventListener('click', () => changeZoom(100));
     }
+
+    // 语言
+    $('#set-language').addEventListener('change', (e) => persist({ language: langValid(e.target.value) ? e.target.value : 'zh' }));
 
     // 字体
     const fontPatch = () => ({

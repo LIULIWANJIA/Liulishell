@@ -1,0 +1,2041 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="google-adsense-account" content="ca-pub-2931673079859157">
+<title>琉璃 Shell - クロスプラットフォーム SHELL ツール - by LIULIWANJIA</title>
+<meta name="description" content="LIULI Shell はクロスプラットフォームの SSH クライアントです。サーバー管理、マルチタブターミナル、SFTP ファイル転送、リアルタイムモニタリング、WebDAV 設定同期、FinalShell 設定移行を統合しています。Windows 10 / 11、Linux、macOS に対応。" />
+<meta name="keywords" content="LIULIShell,琉璃Shell,LiuliShell,Finalshell,Finalshell代替,XShell,使いやすいSHELLツール,使いやすいSHELLターミナル" />
+<link rel="canonical" href="https://shell.minecft.cn/ja.html" />
+<meta name="robots" content="index,follow" />
+<meta name="author" content="LIULIWANJIA" />
+<meta name="application-name" content="LIULI Shell" />
+<meta name="theme-color" content="#f5f6f6" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="LIULI Shell" />
+<meta property="og:title" content="琉璃 Shell - クロスプラットフォーム SHELL ツール - by LIULIWANJIA" />
+<meta property="og:description" content="LIULI Shell はクロスプラットフォームの SSH クライアントです。サーバー管理、マルチタブターミナル、SFTP ファイル転送、リアルタイムモニタリング、WebDAV 設定同期、FinalShell 設定移行を統合しています。Windows 10 / 11、Linux、macOS に対応。" />
+<meta property="og:url" content="https://shell.minecft.cn/ja.html" />
+<meta property="og:image" content="https://shell.minecft.cn/img/hero-ja.webp" />
+<meta property="og:image:alt" content="LIULI Shell のメイン画面：サーバー、ターミナル、ファイル管理" />
+<meta property="og:locale" content="ja_JP" />
+<meta property="og:locale:alternate" content="zh_CN" />
+<meta property="og:locale:alternate" content="zh_TW" />
+<meta property="og:locale:alternate" content="en_US" />
+<meta property="og:locale:alternate" content="ko_KR" />
+<meta property="og:locale:alternate" content="ru_RU" />
+<meta property="og:locale:alternate" content="fr_FR" />
+<meta property="og:locale:alternate" content="de_DE" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="琉璃 Shell - クロスプラットフォーム SHELL ツール - by LIULIWANJIA" />
+<meta name="twitter:description" content="LIULI Shell はクロスプラットフォームの SSH クライアントです。サーバー管理、マルチタブターミナル、SFTP ファイル転送、リアルタイムモニタリング、WebDAV 設定同期、FinalShell 設定移行を統合しています。Windows 10 / 11、Linux、macOS に対応。" />
+<meta name="twitter:image" content="https://shell.minecft.cn/img/hero-ja.webp" />
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"LIULI Shell","alternateName":"琉璃 Shell","applicationCategory":"DeveloperApplication","operatingSystem":"Windows 10/11, Linux, macOS","description":"LIULI Shell はクロスプラットフォームの SSH クライアントです。サーバー管理、マルチタブターミナル、SFTP ファイル転送、リアルタイムモニタリング、WebDAV 設定同期、FinalShell 設定移行を統合しています。Windows 10 / 11、Linux、macOS に対応。","url":"https://shell.minecft.cn/ja.html","downloadUrl":"https://github.com/LIULIWANJIA/Liulishell/releases","image":"https://shell.minecft.cn/img/hero-ja.webp","screenshot":"https://shell.minecft.cn/img/hero-ja.webp","inLanguage":"ja","author":{"@type":"Person","name":"LIULIWANJIA"},"sameAs":["https://github.com/LIULIWANJIA/Liulishell"]}</script>
+<link rel="icon" href="icon.png" />
+<link rel="alternate" hreflang="zh-CN" href="https://shell.minecft.cn/" />
+<link rel="alternate" hreflang="zh-Hant" href="https://shell.minecft.cn/zh-Hant.html" />
+<link rel="alternate" hreflang="en" href="https://shell.minecft.cn/en.html" />
+<link rel="alternate" hreflang="ja" href="https://shell.minecft.cn/ja.html" />
+<link rel="alternate" hreflang="ko" href="https://shell.minecft.cn/ko.html" />
+<link rel="alternate" hreflang="ru" href="https://shell.minecft.cn/ru.html" />
+<link rel="alternate" hreflang="fr" href="https://shell.minecft.cn/fr.html" />
+<link rel="alternate" hreflang="de" href="https://shell.minecft.cn/de.html" />
+<link rel="alternate" hreflang="x-default" href="https://shell.minecft.cn/" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2931673079859157"
+     crossorigin="anonymous"></script>
+<style>
+  :root {
+    --bg: #f5f6f6;
+    --bg-2: #eef0f1;
+    --surface: #ffffff;
+    --surface-2: #fafbfb;
+    --line: #e2e4e6;
+    --line-2: #cfd3d7;
+    --text: #17191c;
+    --text-2: #555c65;
+    --muted: #7e858e;
+    --ink: #1d2126;
+    --accent: #2f5d73;
+    --accent-2: #4a7c95;
+    --accent-soft: #e9eff3;
+    --ok: #3f7d5f;
+    --warn: #946327;
+    --radius: 10px;
+    --shadow: 0 24px 70px rgba(20, 24, 28, .12);
+    --mono: Consolas, "Cascadia Mono", "SFMono-Regular", ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 84px; }
+  body {
+    margin: 0;
+    background:
+      radial-gradient(920px 520px at 84% -12%, #e9eef1 0%, transparent 62%),
+      radial-gradient(760px 500px at -6% 8%, #eef0ee 0%, transparent 60%),
+      var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: "";
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(30, 42, 52, .035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(30, 42, 52, .035) 1px, transparent 1px);
+    background-size: 64px 64px;
+    -webkit-mask-image: radial-gradient(ellipse at 50% 0%, #000 30%, transparent 76%);
+    mask-image: radial-gradient(ellipse at 50% 0%, #000 30%, transparent 76%);
+  }
+  a { color: inherit; text-decoration: none; }
+  img { max-width: 100%; }
+  .wrap { width: min(1200px, calc(100% - 44px)); margin: 0 auto; position: relative; z-index: 1; }
+  section[id] { scroll-margin-top: 0; }
+  a:focus-visible, .btn:focus-visible, button:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 2px;
+  }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: #c9ced3; border: 2px solid var(--bg); border-radius: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+
+  /* ---------- 顶栏 ---------- */
+  .site-head {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+    background: rgba(245, 246, 246, .78);
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(18px);
+    border-bottom: 1px solid transparent;
+    transition: background .25s ease, border-color .25s ease, box-shadow .25s ease;
+  }
+  .site-head.scrolled {
+    background: rgba(251, 251, 251, .94);
+    border-bottom-color: var(--line);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, .02);
+  }
+  .head-inner { height: 72px; display: flex; align-items: center; gap: 24px; }
+  .brand { display: flex; align-items: center; gap: 11px; flex: 0 0 auto; min-width: 0; }
+  .brand img {
+    width: 32px; height: 32px; border-radius: 9px; flex: 0 0 auto;
+    box-shadow: 0 0 0 1px var(--line), 0 4px 12px rgba(20, 24, 28, .08);
+  }
+  .brand b { display: block; font-size: 15px; letter-spacing: .2px; line-height: 1.2; }
+  .brand small {
+    display: block; margin-top: 2px; color: var(--muted);
+    font: 9px var(--mono); letter-spacing: 1.7px;
+  }
+  .nav { margin-left: auto; display: flex; align-items: center; gap: 2px; font-size: 13px; color: var(--text-2); }
+  .nav a { padding: 8px 12px; border-radius: 8px; transition: .16s ease; white-space: nowrap; }
+  .nav a:hover { color: var(--text); background: var(--bg-2); }
+  .head-cta { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; }
+  .nav-toggle {
+    display: none; flex: 0 0 auto; width: 38px; height: 38px; padding: 0;
+    border: 1px solid var(--line-2); border-radius: 9px; background: var(--surface);
+    align-items: center; justify-content: center; flex-direction: column; gap: 4px; cursor: pointer;
+  }
+  .nav-toggle i { display: block; width: 16px; height: 2px; border-radius: 2px; background: var(--text); transition: .2s ease; }
+  .nav-toggle.open i:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+  .nav-toggle.open i:nth-child(2) { opacity: 0; }
+  .nav-toggle.open i:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+  /* ---------- 按钮 ---------- */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    height: 42px; padding: 0 18px; border-radius: 10px;
+    border: 1px solid var(--line-2); background: var(--surface);
+    color: var(--text); font: 500 13px/1 inherit; font-family: inherit;
+    cursor: pointer; white-space: nowrap;
+    transition: transform .16s ease, border-color .16s ease, background .16s ease, color .16s ease, box-shadow .16s ease;
+  }
+  .btn:hover {
+    transform: translateY(-1px); border-color: var(--accent); color: var(--accent);
+    box-shadow: 0 6px 18px rgba(20, 24, 28, .07);
+  }
+  .btn.primary {
+    background: var(--ink); border-color: var(--ink); color: #fff;
+    box-shadow: 0 8px 24px rgba(20, 24, 28, .16);
+  }
+  .btn.primary:hover { background: #000; border-color: #000; color: #fff; }
+  .btn.big { height: 48px; padding: 0 22px; font-size: 13.5px; border-radius: 10px; }
+  .btn.soft { border-color: transparent; background: var(--accent-soft); color: var(--accent); }
+  .btn.soft:hover { background: #dfe9ef; border-color: transparent; }
+  .btn.sm { height: 34px; padding: 0 13px; font-size: 12px; border-radius: 8px; }
+  .btn.lang { font: 600 11px/1 var(--mono); letter-spacing: .8px; }
+  .ext { font-size: 11px; opacity: .6; }
+
+  /* ---------- Hero ---------- */
+  .hero { padding: 146px 0 46px; position: relative; }
+  .hero-grid { display: grid; grid-template-columns: 1.02fr .98fr; gap: 34px; align-items: center; }
+  .hero-grid > * { min-width: 0; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 9px; padding: 6px 12px;
+    border: 1px solid var(--line); border-radius: 999px;
+    background: rgba(255, 255, 255, .7); color: var(--accent);
+    font: 10.5px/1.5 var(--mono); letter-spacing: .6px;
+    max-width: 100%; white-space: normal;
+  }
+  .eyebrow i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2.4s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+  h1 {
+    margin: 22px 0 18px; font-size: clamp(40px, 5.4vw, 70px);
+    line-height: 1.06; letter-spacing: -2.2px; font-weight: 800;
+  }
+  h1 .grad {
+    color: var(--accent);
+    background: linear-gradient(transparent 64%, rgba(47, 93, 115, .13) 64%);
+  }
+  .lead { margin: 0; max-width: 530px; color: #6f7881; font-size: 13.5px; line-height: 1.85; }
+  .lead b { color: inherit; font-weight: 400; }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 54px; }
+  .hero-meta {
+    display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 24px;
+    color: var(--muted); font: 10.5px var(--mono); letter-spacing: .2px;
+  }
+  .hero-meta span { display: inline-flex; align-items: center; gap: 6px; }
+  .hero-meta i { width: 5px; height: 5px; border-radius: 50%; background: var(--ok); }
+
+  .frame-wrap { position: relative; min-width: 0; }
+  .frame-wrap::before {
+    content: ""; position: absolute; inset: 10% 0 -12%;
+    background: radial-gradient(ellipse at 50% 50%, rgba(47, 93, 115, .16), transparent 68%);
+    filter: blur(46px); z-index: -1;
+  }
+  .frame {
+    position: relative; overflow: hidden; border-radius: 10px;
+    border: 1px solid var(--line-2); background: var(--surface);
+    box-shadow: var(--shadow), 0 2px 6px rgba(20, 24, 28, .05);
+    transform: perspective(1400px) rotateY(-3deg) rotateX(1.2deg);
+  }
+  .frame-bar {
+    height: 38px; display: flex; align-items: center; gap: 7px; padding: 0 14px;
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(180deg, #fbfbfb, #f4f5f5);
+    color: var(--muted); font: 10.5px var(--mono);
+  }
+  .lights { display: flex; gap: 5px; margin-right: 8px; }
+  .lights i { width: 8px; height: 8px; border-radius: 50%; background: #d9dcdf; }
+  .lights i:nth-child(1) { background: #e0a39d; }
+  .lights i:nth-child(2) { background: #ddc38a; }
+  .lights i:nth-child(3) { background: #9ac3a9; }
+  .frame img { display: block; width: 100%; height: auto; }
+  .float {
+    position: absolute; z-index: 2; padding: 7px 11px; border-radius: 9px;
+    border: 1px solid var(--line); background: rgba(255, 255, 255, .92);
+    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+    color: var(--text-2); font: 10px var(--mono); letter-spacing: .5px;
+    box-shadow: 0 10px 26px rgba(20, 24, 28, .1);
+  }
+  .float b { color: var(--accent); font-weight: 600; }
+  .f1 { left: -18px; top: 18%; }
+  .f2 { right: -14px; top: 52%; }
+  .f3 { left: 8%; bottom: -14px; }
+
+  .stats {
+    display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 52px;
+    border: 1px solid var(--line); border-radius: 10px; overflow: hidden;
+    background: var(--surface); box-shadow: 0 1px 2px rgba(20, 24, 28, .03);
+  }
+  .stat { padding: 20px 24px; border-right: 1px solid var(--line); }
+  .stat:last-child { border-right: 0; }
+  .stat b { display: block; margin-bottom: 4px; font-size: 15px; letter-spacing: .2px; }
+  .stat span { color: var(--muted); font: 10.5px var(--mono); letter-spacing: .3px; }
+
+  /* ---------- 通用区块 ---------- */
+  section { padding: 78px 0; position: relative; }
+  section.band { background: linear-gradient(180deg, rgba(29, 33, 38, .022), rgba(29, 33, 38, 0)); }
+  .sec-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 26px; margin-bottom: 30px; }
+  .sec-tag {
+    display: flex; align-items: center; gap: 10px;
+    color: var(--accent); font: 10.5px var(--mono); letter-spacing: 1.5px; text-transform: uppercase;
+  }
+  .sec-tag::before { content: ""; width: 24px; height: 1px; background: linear-gradient(90deg, var(--accent), transparent); }
+  h2 { margin: 12px 0 10px; font-size: clamp(26px, 3vw, 38px); line-height: 1.16; letter-spacing: -1.1px; }
+  .sec-head p { margin: 0; max-width: 760px; color: var(--text-2); font-size: 13px; line-height: 1.85; }
+  .kicker { color: var(--accent); font: 10.5px var(--mono); letter-spacing: 1.4px; text-transform: uppercase; }
+  code {
+    font-family: var(--mono); font-size: .92em; color: var(--accent);
+    background: rgba(47, 93, 115, .07); padding: 1px 4px; border-radius: 4px;
+  }
+  pre {
+    margin: 0; padding: 16px 18px; overflow: auto; max-width: 100%;
+    background: #1d2228; border: 1px solid #2c333b; border-radius: 10px;
+    color: #d9e0e6; font: 11.5px/1.8 var(--mono); -webkit-overflow-scrolling: touch;
+  }
+  pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+  .c-cm { color: #8b98a5; }
+
+  /* ---------- 功能 ---------- */
+  .bento { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .f-card {
+    position: relative; display: flex; flex-direction: column; min-width: 0;
+    padding: 24px; border: 1px solid var(--line); border-radius: var(--radius);
+    background: var(--surface); box-shadow: 0 1px 2px rgba(20, 24, 28, .03);
+    transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+  }
+  .f-card:hover {
+    transform: translateY(-3px); border-color: var(--line-2);
+    box-shadow: 0 16px 40px rgba(20, 24, 28, .08);
+  }
+  .f-ico {
+    display: flex; align-items: center; justify-content: center;
+    width: 38px; height: 38px; margin-bottom: 16px; border-radius: 10px;
+    border: 1px solid var(--line); background: #f3f5f6;
+    color: var(--accent); font: 600 15px var(--mono);
+  }
+  .f-card h3 { margin: 0 0 8px; font-size: 16px; }
+  .f-card p { margin: 0; color: var(--text-2); font-size: 12.5px; line-height: 1.8; flex: 1; }
+  .f-num { position: absolute; top: 18px; right: 20px; color: #b4bac1; font: 11px var(--mono); }
+  .term-demo {
+    margin-top: 18px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px;
+    background: #f7f8f8; color: #5f6870; font: 10.5px/1.8 var(--mono);
+  }
+  .term-demo div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .term-demo .p { color: var(--accent); font-weight: 700; }
+  .term-demo .ok { color: var(--ok); }
+  .term-demo .dim { color: #8b939b; }
+
+  /* ---------- 界面 ---------- */
+  .layout-notes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+  .layout-note {
+    padding: 16px 18px; border: 1px solid var(--line); border-radius: 10px;
+    background: var(--surface); display: flex; gap: 12px; align-items: flex-start;
+  }
+  .layout-note b {
+    flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center;
+    width: 24px; height: 24px; border-radius: 7px;
+    background: var(--accent-soft); color: var(--accent); font: 700 10px var(--mono);
+  }
+  .layout-note span { color: var(--text-2); font-size: 11.5px; line-height: 1.75; }
+  .layout-note span b { display: inline; width: auto; height: auto; background: none; color: var(--text); font: 600 12px inherit; }
+  .shots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .shots > * { min-width: 0; }
+  .shot {
+    margin: 0; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius);
+    background: var(--surface); box-shadow: 0 1px 2px rgba(20, 24, 28, .03);
+    transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+  }
+  .shot:hover { transform: translateY(-3px); border-color: var(--line-2); box-shadow: 0 16px 40px rgba(20, 24, 28, .08); }
+  .shot img { display: block; width: 100%; height: auto; }
+  .shot figcaption {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+    padding: 13px 15px; border-top: 1px solid var(--line);
+  }
+  .shot b { font-size: 12.5px; }
+  .shot span { color: var(--muted); font: 10px var(--mono); text-align: right; }
+
+  /* ---------- 多语言 ---------- */
+  .lang-menu { position: relative; }
+  .lang-menu > summary {
+    list-style: none; cursor: pointer; user-select: none;
+    display: inline-flex; align-items: center; gap: 6px;
+    height: 34px; padding: 0 12px; border: 1px solid var(--line-2); border-radius: 8px;
+    background: var(--surface); color: var(--text); font-size: 12px; white-space: nowrap;
+    transition: border-color .16s ease, color .16s ease;
+  }
+  .lang-menu > summary::-webkit-details-marker { display: none; }
+  .lang-menu > summary:hover { border-color: var(--accent); color: var(--accent); }
+  .lang-menu[open] > summary { border-color: var(--accent); color: var(--accent); }
+  .lang-menu > summary i { font-style: normal; font-size: 9px; opacity: .55; }
+  .lang-list {
+    position: absolute; right: 0; top: calc(100% + 8px); z-index: 60;
+    display: grid; gap: 2px; min-width: 176px; padding: 6px;
+    border: 1px solid var(--line); border-radius: 10px; background: var(--surface);
+    box-shadow: 0 18px 42px rgba(20, 24, 28, .14);
+  }
+  .lang-list a {
+    padding: 9px 10px; border-radius: 7px; font-size: 13px; color: var(--text-2);
+    white-space: nowrap; transition: background .14s ease, color .14s ease;
+  }
+  .lang-list a:hover { background: var(--bg-2); color: var(--text); }
+  .lang-list a[aria-current="page"] { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+  .lang-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .lang-cards > * { min-width: 0; }
+  .lang-card {
+    padding: 16px 16px 14px; border: 1px solid var(--line); border-radius: 10px;
+    background: var(--surface); box-shadow: 0 1px 2px rgba(20, 24, 28, .03);
+  }
+  .lang-card.on { border-color: var(--accent); background: var(--accent-soft); }
+  .lang-card b { display: block; font-size: 14px; letter-spacing: .2px; }
+  .lang-card i {
+    display: block; margin-top: 6px; color: var(--muted);
+    font: 10.5px var(--mono); font-style: normal; letter-spacing: .3px;
+  }
+  @media (max-width: 980px) { .lang-cards { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 520px) { .lang-cards { grid-template-columns: 1fr; } }
+
+  /* ---------- 下载 ---------- */
+  .dl-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .dl-grid > * { min-width: 0; }
+  .dl-card {
+    display: flex; flex-direction: column; min-height: 262px; min-width: 0;
+    padding: 24px; border: 1px solid var(--line); border-radius: var(--radius);
+    background: var(--surface); box-shadow: 0 1px 2px rgba(20, 24, 28, .03);
+  }
+  .dl-card.rec {
+    border-color: #b9ccd6;
+    background: linear-gradient(165deg, #ffffff 0%, #f4f8fa 100%);
+    box-shadow: 0 14px 36px rgba(47, 93, 115, .08);
+  }
+  .badge {
+    align-self: flex-start; margin-bottom: 13px; padding: 4px 9px; border-radius: 999px;
+    border: 1px solid #c9d9e1; background: var(--accent-soft);
+    color: var(--accent); font: 10px var(--mono); letter-spacing: .4px;
+  }
+  .badge.ghost { border-color: var(--line); background: var(--bg-2); color: var(--text-2); }
+  .dl-card h3 { margin: 0 0 8px; font-size: 17px; }
+  .dl-card p { margin: 0 0 14px; color: var(--text-2); font-size: 12px; line-height: 1.75; }
+  .dl-card .btn { margin-top: auto; align-self: flex-start; }
+  .filemeta { margin: 0 0 9px; color: var(--muted); font: 10.5px/1.7 var(--mono); }
+  .filemeta a { color: var(--accent); text-decoration: none; word-break: break-all; }
+  .filemeta a:hover { text-decoration: underline; }
+  .dl-build {
+    display: flex; align-items: center; justify-content: space-between; gap: 22px; margin-top: 14px;
+    padding: 22px 24px; border: 1px solid var(--line); border-radius: var(--radius);
+    background: var(--surface);
+  }
+  .dl-build h3 { margin: 8px 0 6px; font-size: 16px; }
+  .dl-build p { margin: 0; max-width: 730px; color: var(--text-2); font-size: 12px; line-height: 1.75; }
+  .dl-build .btn { flex: 0 0 auto; }
+  .note { margin-top: 16px; color: var(--muted); font-size: 11px; line-height: 1.85; }
+  .note b { color: var(--text-2); font-weight: 600; }
+  .note a { color: var(--accent); text-decoration: none; }
+  .note a:hover { text-decoration: underline; }
+
+  /* ---------- 快速构建 ---------- */
+  .console {
+    overflow: hidden; border: 1px solid var(--line-2); border-radius: 10px;
+    background: var(--surface); box-shadow: 0 18px 50px rgba(20, 24, 28, .07);
+  }
+  .console-bar {
+    display: flex; align-items: center; gap: 9px; padding: 12px 16px;
+    border-bottom: 1px solid var(--line); background: #f8f9f9;
+    color: var(--muted); font: 11px var(--mono);
+  }
+  .console-bar .tag { margin-left: auto; color: var(--accent); }
+  .console-body { padding: 28px; min-width: 0; }
+  .qs-head h3 { margin: 8px 0 8px; font-size: 20px; letter-spacing: -.3px; }
+  .qs-head p { margin: 0 0 18px; max-width: 920px; color: var(--text-2); font-size: 12.5px; line-height: 1.8; }
+  .qs-tabs { display: flex; gap: 6px; margin-bottom: 16px; }
+  .qs-tab {
+    padding: 8px 18px; border-radius: 8px; border: 1px solid var(--line);
+    background: var(--surface); color: var(--text-2); font: 11.5px var(--mono); cursor: pointer;
+    transition: .16s ease; white-space: nowrap;
+  }
+  .qs-tab:hover { border-color: var(--line-2); color: var(--text); }
+  .qs-tab.active { border-color: #b9ccd6; background: var(--accent-soft); color: var(--accent); }
+  .qs-panel { display: none; min-width: 0; }
+  .qs-panel.active { display: block; animation: fadeUp .22s ease; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(-5px); } }
+  .qs-lead { margin: 0 0 12px !important; color: var(--text-2) !important; font-size: 11.5px !important; line-height: 1.8 !important; }
+  .qs-lead b { color: var(--text); }
+  .qs-note { margin: 12px 0 0; color: var(--muted); font-size: 11px; line-height: 1.8; }
+  .qs-trouble {
+    margin-top: 18px; padding: 16px; border: 1px solid #e5d6bd;
+    border-radius: 10px; background: #fbf6ec;
+  }
+  .qs-trouble-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+  .qs-trouble-head b { color: var(--warn); font-size: 12.5px; }
+  .qs-trouble-head span { color: var(--muted); font: 10.5px var(--mono); }
+  .source-note {
+    margin-top: 16px; padding: 16px 18px; border: 1px solid var(--line);
+    border-radius: 10px; background: var(--surface-2);
+  }
+  .source-note > div { margin: 3px 0; color: var(--text-2); font-size: 11.5px; }
+  .source-note b { color: var(--text); }
+  .source-note code { overflow-wrap: anywhere; }
+  .source-note p { margin: 9px 0 0; color: var(--text-2); font-size: 11.5px; line-height: 1.8; }
+  .code { position: relative; margin: 12px 0; min-width: 0; }
+  .code pre { margin: 0; padding-right: 62px; }
+  .copy {
+    position: absolute; top: 10px; right: 10px; height: 27px; padding: 0 10px;
+    border: 1px solid rgba(255, 255, 255, .18); border-radius: 7px;
+    background: rgba(255, 255, 255, .09); color: #d6dee5;
+    font: 10.5px var(--mono); cursor: pointer; transition: .16s ease;
+  }
+  .copy:hover { background: rgba(255, 255, 255, .16); color: #fff; }
+  .copy.done { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  /* ---------- 配置迁移 ---------- */
+  .migrate-panel {
+    position: relative; overflow: hidden;
+    display: grid; grid-template-columns: 1fr .95fr; gap: 44px; align-items: center;
+    padding: 46px; border: 1px solid var(--line); border-radius: 10px;
+    background: linear-gradient(160deg, #ffffff 0%, #f1f4f5 100%);
+    box-shadow: 0 18px 50px rgba(20, 24, 28, .06);
+  }
+  .migrate-panel > * { min-width: 0; }
+  .migrate-copy h2 { margin: 12px 0 12px; font-size: clamp(24px, 2.8vw, 34px); line-height: 1.2; letter-spacing: -.9px; }
+  .lead2 { margin: 0 0 22px; color: var(--text-2); font-size: 12.5px; line-height: 1.9; }
+  .migrate-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+  .migrate-list li { display: flex; gap: 13px; align-items: flex-start; }
+  .mk {
+    flex: 0 0 auto; display: flex; align-items: center; justify-content: center;
+    width: 27px; height: 27px; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--surface);
+    color: var(--accent); font: 700 11px var(--mono);
+  }
+  .migrate-list b { display: block; margin-bottom: 3px; font-size: 12.5px; }
+  .migrate-list span { display: block; color: var(--text-2); font-size: 11.5px; line-height: 1.75; }
+  .migrate-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 22px; }
+  .migrate-step { padding: 15px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+  .migrate-step i {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 21px; height: 21px; margin-bottom: 9px; border-radius: 6px;
+    background: var(--ink); color: #fff;
+    font: 700 10px var(--mono); font-style: normal;
+  }
+  .migrate-step b { display: block; margin-bottom: 3px; font-size: 12px; }
+  .migrate-step span { color: var(--muted); font-size: 10.5px; line-height: 1.65; }
+
+  .mock-win {
+    overflow: hidden; border: 1px solid var(--line-2); border-radius: 10px;
+    background: var(--surface); box-shadow: 0 24px 60px rgba(20, 24, 28, .12);
+  }
+  .mock-bar {
+    display: flex; align-items: center; gap: 7px; height: 36px; padding: 0 13px;
+    border-bottom: 1px solid var(--line); background: linear-gradient(180deg, #fbfbfb, #f5f6f6);
+    color: var(--muted); font: 10.5px var(--mono);
+  }
+  .mock-body { padding: 20px; }
+  .mock-body h3 { margin: 0 0 4px; font-size: 15px; }
+  .mock-sub { margin: 0 0 15px; color: var(--muted); font-size: 10.5px; line-height: 1.65; }
+  .mock-drop {
+    padding: 17px 12px; border: 1.5px dashed #b9ccd6; border-radius: 10px;
+    background: #f8fafb; text-align: center;
+  }
+  .mock-drop b { display: block; margin-bottom: 3px; font-size: 12px; }
+  .mock-drop > span { color: var(--muted); font-size: 10.5px; }
+  .mock-btns { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 12px; }
+  .mock-chip {
+    display: inline-flex; align-items: center; height: 27px; padding: 0 11px; border-radius: 7px;
+    border: 1px solid var(--line-2); background: var(--surface);
+    color: var(--text-2); font: 10.5px var(--mono); white-space: nowrap;
+  }
+  .mock-chip.primary { background: var(--ink); border-color: var(--ink); color: #fff; font-weight: 600; }
+  .mock-plan {
+    margin-top: 14px; padding: 11px 13px; border-radius: 9px;
+    border: 1px solid #d5e1e8; background: var(--accent-soft);
+    color: #355564; font-size: 10.5px; line-height: 1.75;
+  }
+  .mock-plan b { color: var(--accent); }
+  .mock-row { display: flex; align-items: center; gap: 8px; margin-top: 12px; color: var(--text-2); font-size: 10.5px; }
+  .mock-row label { flex: 0 0 auto; color: var(--muted); }
+  .mock-sel {
+    flex: 1 1 auto; min-width: 0; padding: 6px 9px; border: 1px solid var(--line);
+    border-radius: 7px; background: var(--surface); color: var(--text-2);
+    font-size: 10.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .mock-note { margin: 10px 0 0; color: var(--muted); font-size: 10px; line-height: 1.7; }
+  .mock-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+  .mock-result { color: var(--ok); font-size: 10.5px; line-height: 1.6; }
+
+  /* ---------- 设置 ---------- */
+  .set-grid { display: grid; grid-template-columns: .86fr 1.14fr; gap: 16px; align-items: stretch; }
+  .set-grid > * { min-width: 0; }
+  .set-shot { overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); box-shadow: 0 1px 2px rgba(20, 24, 28, .03); }
+  .set-shot img { display: block; width: 100%; height: auto; }
+  .set-shot .cap { padding: 12px 15px; border-top: 1px solid var(--line); color: var(--muted); font-size: 10.5px; line-height: 1.75; }
+  .set-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .set-card { padding: 19px 20px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+  .set-card h3 { margin: 0 0 9px; font-size: 13.5px; }
+  .set-card ul { margin: 0; padding-left: 16px; color: var(--text-2); font-size: 11.5px; line-height: 1.9; }
+  .set-card strong { color: var(--text); font-weight: 600; }
+  .theme-head { margin: 34px 0 14px; }
+  .theme-head h3 { margin: 6px 0 5px; font-size: 18px; letter-spacing: -.3px; }
+  .theme-head p { margin: 0; color: var(--text-2); font-size: 12px; line-height: 1.7; }
+  .theme-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .theme-card {
+    display: flex; flex-direction: column; gap: 4px; padding: 14px 16px;
+    border: 1px solid var(--line); border-radius: 10px; background: var(--surface);
+  }
+  .theme-card b { color: var(--text); font-size: 12.5px; }
+  .theme-card span { color: var(--muted); font-size: 10.5px; }
+  .swatch { display: block; height: 7px; margin-top: 9px; border-radius: 999px; }
+
+  /* ---------- 交流 ---------- */
+  .comm-grid { display: grid; grid-template-columns: 1.12fr .88fr; gap: 14px; }
+  .comm-grid > * { min-width: 0; }
+  .comm-card {
+    display: flex; flex-direction: column; min-height: 210px; padding: 26px;
+    border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface);
+    box-shadow: 0 1px 2px rgba(20, 24, 28, .03);
+  }
+  .comm-card h3 { margin: 6px 0 6px; font-size: 17px; }
+  .comm-card p { margin: 0 0 16px; color: var(--text-2); font-size: 11.5px; line-height: 1.75; }
+  .group-no {
+    align-self: flex-start; margin: 0 0 16px; padding: 8px 13px;
+    border: 1px dashed #b9ccd6; border-radius: 9px; background: var(--accent-soft);
+    color: var(--accent); font: 600 15px/1.4 var(--mono); letter-spacing: .8px; user-select: all;
+  }
+  .comm-card .btn { margin-top: auto; align-self: flex-start; }
+
+  /* ---------- 进阶 ---------- */
+  .manual {
+    overflow: hidden; border: 1px solid var(--line); border-radius: 10px;
+    background: var(--surface); box-shadow: 0 1px 2px rgba(20, 24, 28, .03);
+  }
+  .manual > summary {
+    display: grid; grid-template-columns: 1fr auto; gap: 6px 16px;
+    padding: 22px 24px; cursor: pointer; list-style: none;
+  }
+  .manual > summary::-webkit-details-marker { display: none; }
+  .manual > summary b { grid-column: 1; font-size: 16px; }
+  .manual-hint { grid-column: 1; color: var(--muted); font-size: 11.5px; line-height: 1.8; }
+  .chev { grid-column: 2; grid-row: 1 / 3; align-self: center; color: var(--accent); font-style: normal; font-size: 18px; transition: transform .2s ease; }
+  .manual[open] .chev { transform: rotate(180deg); }
+  .manual-body { padding: 6px 24px 26px; border-top: 1px solid var(--line); }
+  .linux-build { margin-top: 18px; padding: 18px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); }
+  .linux-build h3 { margin: 0 0 6px; font-size: 14px; }
+  .linux-build h4 { margin: 20px 0 6px; font-size: 12.5px; }
+  .os-lead { margin: 0 0 10px; color: var(--text-2); font-size: 11.5px; line-height: 1.8; }
+  .os-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
+  .os-tab {
+    padding: 6px 12px; border: 1px solid var(--line); border-radius: 8px;
+    background: var(--surface); color: var(--text-2); font: 11.5px var(--mono);
+    cursor: pointer; transition: .16s ease; white-space: nowrap;
+  }
+  .os-tab:hover { border-color: var(--line-2); color: var(--text); }
+  .os-tab.active { border-color: #b9ccd6; background: var(--accent-soft); color: var(--accent); }
+  .os-panel { display: none; min-width: 0; }
+  .os-panel.active { display: block; animation: fadeUp .2s ease; }
+  .os-callout {
+    margin: 12px 0 4px; padding: 11px 13px; border: 1px solid #d5e1e8;
+    border-radius: 10px; background: var(--accent-soft);
+    color: #355564; font-size: 11.5px; line-height: 1.8;
+  }
+  .os-details { margin: 14px 0 6px; padding: 12px 15px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+  .os-details > summary { cursor: pointer; list-style: none; font-size: 12px; font-weight: 600; }
+  .os-details > summary::-webkit-details-marker { display: none; }
+  .os-details > summary::before { content: '＋'; margin-right: 6px; color: var(--accent); font-weight: 700; }
+  .os-details[open] > summary::before { content: '－'; }
+  .os-details[open] > summary { margin-bottom: 4px; }
+  .dev-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; margin-top: 18px; }
+  .dev-grid > div { min-width: 0; }
+  .dev h3 { margin: 0 0 8px; font-size: 13.5px; }
+  .dev p { margin: 0 0 10px; color: var(--text-2); font-size: 11.5px; line-height: 1.8; }
+  .dev-note { margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--line); }
+  .dev-note h3 { margin: 0 0 10px; font-size: 14px; }
+  .dev-note ul { margin: 0 0 12px; padding-left: 18px; color: var(--text-2); font-size: 11.5px; line-height: 1.95; }
+  .dev-note li { margin-bottom: 4px; }
+  .err-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 11.5px; }
+  .err-table th, .err-table td { padding: 10px 11px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; line-height: 1.7; }
+  .err-table th { background: #f4f6f7; color: var(--text); font-weight: 600; }
+  .err-table td { color: var(--text-2); }
+  .err-table td:first-child { color: var(--text); font-family: var(--mono); font-size: 11px; }
+  .err-table tr:last-child td { border-bottom: 0; }
+
+  /* ---------- 底部 ---------- */
+  footer {
+    margin-top: 20px; padding: 46px 0 56px;
+    border-top: 1px solid var(--line);
+    background: linear-gradient(180deg, #f0f2f2, #eceeee);
+  }
+  .foot-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 30px; }
+  .foot-brand { display: flex; align-items: center; gap: 11px; margin-bottom: 14px; }
+  .foot-brand img { width: 34px; height: 34px; border-radius: 9px; box-shadow: 0 0 0 1px var(--line); }
+  .foot-brand b { display: block; font-size: 15px; }
+  .foot-brand small { display: block; margin-top: 2px; color: var(--muted); font: 9px var(--mono); letter-spacing: 1.6px; }
+  .foot-desc { margin: 0; max-width: 340px; color: var(--muted); font-size: 11.5px; line-height: 1.85; }
+  .foot-col b { display: block; margin-bottom: 12px; color: var(--text-2); font: 10.5px var(--mono); letter-spacing: 1.2px; text-transform: uppercase; }
+  .foot-col a { display: block; margin-bottom: 9px; color: var(--muted); font-size: 11.5px; transition: .15s ease; }
+  .foot-col a:hover { color: var(--accent); }
+  .foot-bottom {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+    margin-top: 36px; padding-top: 20px; border-top: 1px solid var(--line);
+    color: var(--muted); font: 10.5px var(--mono);
+  }
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width: 1080px) {
+    .hero-grid { gap: 34px; }
+    .float { display: none; }
+  }
+  @media (max-width: 980px) {
+    .head-inner { position: relative; gap: 12px; }
+    .nav-toggle { display: flex; }
+    .head-cta { margin-left: auto; }
+    .nav {
+      display: none; position: absolute; top: calc(100% + 1px); left: 0; right: 0;
+      margin: 0; flex-direction: column; align-items: stretch; gap: 0;
+      padding: 8px 18px 18px; border: 1px solid var(--line); border-top: 0;
+      border-radius: 0 0 10px 10px; background: rgba(251, 251, 251, .99);
+      box-shadow: 0 22px 44px rgba(20, 24, 28, .12); font-size: 13px;
+    }
+    .nav.open { display: flex; }
+    .nav a { padding: 12px 4px; border-bottom: 1px solid var(--line); border-radius: 0; }
+    .nav a:last-child { border-bottom: 0; }
+    .hero { padding-top: 118px; }
+    .hero-grid, .shots, .dl-grid, .set-grid, .migrate-panel, .comm-grid, .foot-grid { grid-template-columns: 1fr; }
+    .frame { transform: none; max-width: 760px; }
+    .bento { grid-template-columns: repeat(2, 1fr); }
+    .layout-notes { grid-template-columns: 1fr; }
+    .migrate-panel { padding: 32px; gap: 30px; }
+    .theme-grid { grid-template-columns: repeat(2, 1fr); }
+    .dl-build { align-items: flex-start; flex-direction: column; }
+    .foot-grid { gap: 24px; }
+  }
+  @media (max-width: 640px) {
+    .wrap { width: calc(100% - 28px); }
+    .head-inner { height: 64px; gap: 8px; }
+    .brand small { display: none; }
+    .brand b { font-size: 14px; }
+    .head-cta .btn span:not(.ext) { display: none; }
+    .head-cta .btn { padding: 0 11px; }
+    .nav-toggle { width: 34px; height: 34px; }
+    section { padding: 58px 0; }
+    .hero { padding-top: 100px; }
+    h1 { letter-spacing: -1.3px; }
+    .hero-actions .btn { flex: 1 1 auto; }
+    .stats { grid-template-columns: 1fr 1fr; }
+    .stat { padding: 16px; border-bottom: 1px solid var(--line); }
+    .stat:nth-child(2) { border-right: 0; }
+    .stat:nth-child(3), .stat:nth-child(4) { border-bottom: 0; }
+    .bento { grid-template-columns: 1fr; }
+    .set-cards, .migrate-steps { grid-template-columns: 1fr; }
+    .theme-grid { grid-template-columns: 1fr; }
+    .sec-head { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .console-body { padding: 18px; }
+    .qs-tabs, .os-tabs { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
+    pre { font-size: 10.5px; padding: 13px; }
+    .code pre { padding-right: 54px; }
+    .migrate-panel { padding: 22px; }
+    .manual > summary { padding: 18px; }
+    .manual-body { padding: 4px 18px 20px; }
+    .err-table { display: block; overflow-x: auto; white-space: nowrap; }
+    .foot-bottom { align-items: flex-start; flex-direction: column; }
+  }
+  @media (max-width: 380px) {
+    .brand b { display: none; }
+    .head-cta .btn { padding: 0 10px; }
+    h1 { font-size: 34px; letter-spacing: -1px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+  }
+</style>
+<style>
+  /* ===== v2 布局：首页下载入口 + 全宽主界面 + 编辑式板块 ===== */
+  .nav { margin-left: 12px; }
+  .head-cta { margin-left: auto; }
+  section { padding: 44px 0; }
+  h1 { font-size: clamp(32px, 4.2vw, 54px); letter-spacing: -1.5px; }
+  /* 日/韩/德文的标题更长，单独收一点字号，避免单词被拆到多行 */
+  html[lang="ja"] h1, html[lang="ko"] h1 { font-size: clamp(26px, 3vw, 40px); letter-spacing: -1px; }
+  html[lang="de"] h1 { font-size: clamp(28px, 3.3vw, 44px); letter-spacing: -1.2px; }
+
+  .hero { padding: 132px 0 34px; }
+  .hero-grid { grid-template-columns: .92fr 1.08fr; gap: 48px; }
+  .hero-copy { min-width: 0; }
+  .hero .stats { margin-top: 20px; }
+
+  .sec-head {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px; align-items: end;
+    border-top: 1px solid var(--line); padding-top: 18px; margin-bottom: 22px;
+  }
+  .sec-head > div { min-width: 0; }
+  .sec-tag { letter-spacing: 1.8px; }
+  h2 { margin: 14px 0 10px; font-size: clamp(30px, 3.3vw, 42px); letter-spacing: -1.5px; }
+  .sec-head p { max-width: 700px; }
+
+  .bento { grid-template-columns: repeat(3, 1fr); gap: 0 34px; border-top: 1px solid var(--line); }
+  .f-card {
+    padding: 26px 0 28px; border: 0; border-bottom: 1px solid var(--line);
+    border-radius: 0; background: transparent; box-shadow: none;
+  }
+  .f-card:hover { transform: none; border-color: var(--line); background: transparent; box-shadow: none; }
+  .f-ico {
+    width: 30px; height: 30px; margin-bottom: 12px; border: 0; border-radius: 0;
+    background: transparent; color: var(--accent); font-size: 17px;
+  }
+  .f-card h3 { margin-bottom: 7px; font-size: 15px; }
+  .f-card p { font-size: 12px; line-height: 1.8; }
+  .f-num { top: 28px; right: 0; color: #b9c0c7; }
+
+  #features { background: linear-gradient(180deg, #eef1f2 0%, #f6f7f7 100%); }
+  #features .bento { gap: 14px; border-top: 0; }
+  #features .f-card {
+    padding: 22px 22px 24px; border: 1px solid var(--line); border-radius: 10px;
+    background: var(--surface); box-shadow: 0 1px 2px rgba(20, 24, 28, .03);
+  }
+  #features .f-card:hover {
+    transform: translateY(-2px); border-color: var(--line-2);
+    box-shadow: 0 12px 30px rgba(20, 24, 28, .07);
+  }
+  #features .f-ico {
+    width: 36px; height: 36px; margin-bottom: 14px;
+    border: 1px solid var(--line); border-radius: 9px; background: #f3f5f6;
+  }
+  #features .f-num { top: 20px; right: 20px; }
+
+  .dl-grid { grid-template-columns: 1fr 1fr; gap: 14px; }
+  .dl-card.rec {
+    grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) auto;
+    gap: 6px 26px; align-items: center; min-height: 0; padding: 30px 32px;
+    background: linear-gradient(120deg, #ffffff 0%, #f2f6f8 100%);
+  }
+  .dl-card.rec .badge { grid-column: 1; justify-self: start; margin-bottom: 4px; }
+  .dl-card.rec h3 { grid-column: 1; margin: 0; font-size: 22px; }
+  .dl-card.rec p { grid-column: 1; margin: 0; max-width: 680px; }
+  .dl-card.rec .filemeta { grid-column: 1; margin: 0; }
+  .dl-card.rec .btn { grid-column: 2; grid-row: 1 / 6; align-self: center; justify-self: end; margin-top: 0; }
+  .dl-card:not(.rec) { min-height: 240px; }
+
+  .comm-grid {
+    grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--line);
+    border-radius: 10px; overflow: hidden; background: var(--surface);
+    box-shadow: 0 1px 2px rgba(20, 24, 28, .03);
+  }
+  .comm-card {
+    min-height: 0; padding: 30px; border: 0; border-radius: 0;
+    background: transparent; box-shadow: none;
+  }
+  .comm-card:first-child { border-right: 1px solid var(--line); }
+
+  .migrate-list { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .migrate-list li { padding: 14px; border: 1px solid var(--line); border-radius: 10px; background: rgba(255, 255, 255, .6); }
+  .migrate-list b { font-size: 12px; }
+  .migrate-list span { font-size: 11px; }
+
+  /* 新增功能介绍板块 */
+  .feature-detail { display: grid; grid-template-columns: 1fr 1.08fr; gap: 44px; align-items: center; }
+  .feature-detail.rev { grid-template-columns: 1.08fr 1fr; }
+  .fd-copy { min-width: 0; }
+  .fd-kicker { margin-bottom: 8px; color: var(--accent); font: 10px var(--mono); letter-spacing: 1.4px; text-transform: uppercase; }
+  .fd-copy h3 { margin: 0 0 10px; font-size: 24px; letter-spacing: -.6px; }
+  .fd-copy p { margin: 0 0 18px; color: var(--text-2); font-size: 12.5px; line-height: 1.9; }
+  .fd-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+  .fd-list li { display: grid; grid-template-columns: 76px 1fr; gap: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+  .fd-list b { color: var(--text); font-size: 12px; }
+  .fd-list span { color: var(--text-2); font-size: 11.5px; line-height: 1.75; }
+  .mock-panel {
+    overflow: hidden; border: 1px solid var(--line); border-radius: 10px;
+    background: var(--surface); box-shadow: 0 18px 50px rgba(20, 24, 28, .08);
+  }
+  .mp-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 14px 18px; border-bottom: 1px solid var(--line);
+    background: #f8f9f9; color: var(--text); font-size: 12px; font-weight: 600;
+  }
+  .mp-tag { color: var(--accent); font: 9.5px var(--mono); letter-spacing: 1px; }
+  .snippet-mock { padding-bottom: 18px; }
+  .snip-tabs { display: flex; flex-wrap: wrap; gap: 6px; padding: 16px 18px 0; }
+  .snip-tabs span {
+    display: inline-flex; align-items: center; height: 26px; padding: 0 11px;
+    border: 1px solid var(--line); border-radius: 7px; color: var(--text-2); font-size: 10.5px;
+  }
+  .snip-tabs .active { border-color: #c9d9e1; background: var(--accent-soft); color: var(--accent); }
+  .snip-add { margin-left: auto; border-style: dashed !important; }
+  .snip-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 14px 18px; }
+  .snip-grid span {
+    display: flex; align-items: center; justify-content: center; height: 34px;
+    border: 1px solid var(--line); border-radius: 8px; background: #fff;
+    color: var(--text-2); font-size: 10.5px;
+  }
+  .mini-editor { margin: 4px 18px 0; overflow: hidden; border: 1px solid var(--line); border-radius: 10px; }
+  .me-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 8px 11px; border-bottom: 1px solid var(--line);
+    background: #f8f9f9; color: var(--text-2); font-size: 10px;
+  }
+  .me-head span { color: var(--muted); font: 9.5px var(--mono); }
+  .me-body { padding: 10px 12px; background: #fbfcfc; color: #5f6870; font: 10px/1.9 var(--mono); }
+  .me-body em { display: inline-block; width: 16px; color: #b3bac1; font-style: normal; }
+  .monitor-mock { padding-bottom: 18px; }
+  .mon-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 16px 18px 10px; }
+  .mon-cell { padding: 11px 12px; border: 1px solid var(--line); border-radius: 9px; background: #fafbfb; }
+  .mon-cell span { color: var(--muted); font-size: 10px; }
+  .mon-cell b { display: block; margin: 4px 0 8px; color: var(--text); font: 600 15px var(--mono); }
+  .mon-cell i { display: block; height: 4px; overflow: hidden; border-radius: 4px; background: #e9ecee; }
+  .mon-cell u { display: block; height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
+  .mon-net { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 18px; }
+  .mon-net div { padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px; background: #fff; }
+  .mon-net span { color: var(--muted); font-size: 10px; }
+  .mon-net b { display: block; margin-top: 4px; color: var(--accent); font: 600 13px var(--mono); }
+  .mon-proc { padding: 4px 18px 0; }
+  .mp-sub { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 12px 0 4px; color: var(--text); font-size: 10.5px; font-weight: 600; }
+  .mp-sub span { color: var(--muted); font: 9.5px var(--mono); }
+  .proc-row { display: grid; grid-template-columns: 1.2fr .7fr .7fr; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--line); color: var(--text-2); font: 10px var(--mono); }
+  .proc-row:last-child { border-bottom: 0; }
+  .security-mock { padding-bottom: 16px; }
+  .sec-item { display: flex; gap: 11px; padding: 12px 18px; border-bottom: 1px solid var(--line); }
+  .sec-item:last-child { border-bottom: 0; }
+  .tick {
+    flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center;
+    width: 20px; height: 20px; border-radius: 50%; background: var(--accent-soft);
+    color: var(--accent); font-size: 11px; font-weight: 700;
+  }
+  .sec-item div b { display: block; margin-bottom: 2px; font-size: 11.5px; }
+  .sec-item div span { display: block; color: var(--text-2); font-size: 10.5px; line-height: 1.7; }
+
+  @media (max-width: 980px) {
+    .nav { margin-left: 0; }
+    .hero { padding-top: 118px; }
+    .hero-grid { grid-template-columns: 1fr; gap: 28px; }
+    .bento { grid-template-columns: repeat(2, 1fr); }
+    .dl-grid { grid-template-columns: 1fr; }
+    .dl-card.rec { grid-column: auto; grid-template-columns: 1fr; }
+    .dl-card.rec .btn { grid-column: 1; grid-row: auto; justify-self: start; margin-top: 10px; }
+    .comm-grid { grid-template-columns: 1fr; }
+    .comm-card:first-child { border-right: 0; border-bottom: 1px solid var(--line); }
+    .migrate-list { grid-template-columns: 1fr; }
+    .feature-detail, .feature-detail.rev { grid-template-columns: 1fr; gap: 24px; }
+    .feature-detail.rev .fd-copy { order: -1; }
+  }
+  @media (max-width: 640px) {
+    section { padding: 36px 0; }
+    .hero { padding-top: 96px; }
+    h1 { font-size: 36px; }
+    .hero-actions { margin-top: 34px; }
+    .bento { grid-template-columns: 1fr; }
+    .sec-head { padding-top: 20px; }
+    h2 { font-size: 30px; }
+    .dl-card.rec { padding: 22px; }
+    .comm-card { padding: 22px; }
+    .fd-copy h3 { font-size: 21px; }
+    .fd-list li { grid-template-columns: 1fr; gap: 3px; }
+    .snip-grid { grid-template-columns: repeat(2, 1fr); }
+    .mon-grid { grid-template-columns: 1fr 1fr; }
+    .mock-panel { border-radius: 10px; }
+  }
+  @media (max-width: 380px) {
+    h1 { font-size: 30px; }
+  }
+</style>
+<style>
+  /* English layout tweaks (kept in the shared template) */
+  html:not([lang="zh-CN"]):not([lang="zh-Hant"]) .fd-list li { grid-template-columns: 140px 1fr; }
+  @media (max-width: 640px) { html:not([lang="zh-CN"]):not([lang="zh-Hant"]) .fd-list li { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body id="top">
+
+  <header class="site-head" id="site-head">
+    <div class="wrap head-inner">
+      <a class="brand" href="#top" id="brand-top" aria-label="LIULI Shell ホーム">
+        <img src="icon.png" alt="LIULI Shell" />
+        <span><b>LIULI Shell</b><small>SSH WORKSPACE</small></span>
+      </a>
+      <nav class="nav" id="site-nav">
+        <a href="#top">ホーム</a>
+        <a href="#download">ダウンロード</a>
+        <a href="#dev">クイックビルド</a>
+        <a href="#migrate">FinalShell インポート</a>
+        <a href="#community">グループ</a>
+      </nav>
+      <div class="head-cta">
+        <details class="lang-menu"><summary aria-label="日本語">日本語 <i>▾</i></summary><div class="lang-list"><a href="index.html" hreflang="zh-CN">简体中文</a><a href="zh-Hant.html" hreflang="zh-Hant">繁體中文</a><a href="en.html" hreflang="en">English</a><a href="ja.html" hreflang="ja" aria-current="page">日本語</a><a href="ko.html" hreflang="ko">한국어</a><a href="ru.html" hreflang="ru">Русский</a><a href="fr.html" hreflang="fr">Français</a><a href="de.html" hreflang="de">Deutsch</a></div></details>
+        <a class="btn sm primary" href="https://pan.quark.cn/s/3b9930496416?pwd=YKXY" target="_blank" rel="noopener noreferrer">ダウンロード <span class="ext">↗</span></a>
+      </div>
+      <button class="nav-toggle" id="nav-toggle" type="button" aria-label="メニューを開く" aria-expanded="false">
+        <i></i><i></i><i></i>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="wrap">
+        <div class="hero-grid">
+          <div class="hero-copy">
+            <span class="eyebrow"><i></i>デスクトップ SSH クライアント · Windows / Linux / macOS</span>
+            <h1>接続・ターミナル・ファイル<br /><span class="grad">をひとつのウィンドウに</span></h1>
+            <p class="lead"><br>
+              LIULI Shell はクロスプラットフォームの SSH クライアントです。<br>
+              接続管理、インタラクティブなターミナル、SFTP ファイル転送、稼働状態のモニタリング、設定同期を 1 つのデスクトップアプリに統合しました。複数のサーバーを同時に管理する開発者や運用担当者に適しています。
+            </p>
+            <div class="hero-actions">
+              <a class="btn primary big" href="#download">Windows 版をダウンロード</a>
+              <a class="btn big" href="https://github.com/LIULIWANJIA/Liulishell/releases" target="_blank" rel="noopener noreferrer">GitHub Releases <span class="ext">↗</span></a>
+              <a class="btn big" href="#dev">クイックビルド</a>
+            </div>
+            <div class="hero-meta">
+              <span><i></i>インストーラー版 / ポータブル版</span>
+              <span>クロスプラットフォームのクラウド同期</span>
+              <span>FinalShell のバックアップをインポート可能</span>
+              <span>8 種類の UI テーマ</span>
+            </div>
+          </div>
+          <div class="frame-wrap">
+            <div class="frame">
+              <img src="img/hero-ja.webp" width="1132" height="896" fetchpriority="high" alt="LIULI Shell のメイン画面：左側にサーバーとモニタリング、中央にターミナルとファイル、右側にサーバー情報とプロセス" />
+            </div>
+          </div>
+        </div>
+        <div class="stats">
+          <div class="stat"><b>セッション</b><span>マルチタブ SSH と切断後の再接続</span></div>
+          <div class="stat"><b>ファイル</b><span>すばやく読み込める SFTP の閲覧・編集</span></div>
+          <div class="stat"><b>モニタリング</b><span>リソース、ネットワーク、プロセス</span></div>
+          <div class="stat"><b>同期</b><span>公式クラウドサービス / カスタム WebDAV</span></div>
+        </div>
+      </div>
+    </section>
+
+  
+    <!-- ============ 下载 ============ -->
+    <section id="download">
+      <div class="wrap">
+        <div class="sec-head">
+          <div>
+            <div class="sec-tag">01 — ダウンロード</div>
+            <h2>用途に合ったインストール方法を選択</h2>
+            <p>Windows 10 / 11 はインストーラー版とポータブル版を用意しています。Linux と macOS はソースからビルドします。インストーラー版とポータブル版の機能は同じです。</p>
+          </div>
+        </div>
+        <div class="dl-grid">
+          <div class="dl-card rec">
+            <h3>インストーラー版とポータブル版</h3>
+            <p>インストーラー版はセットアップウィザードとショートカットを作成します。ポータブル版は解凍するだけで使え、USB メモリや一時的な環境に適しています。</p>
+            <div class="filemeta">Windows 10 / 11 x64 · Setup.exe / Portable.exe</div>
+            <div class="filemeta">抽出コード YKXY（リンクに含まれているため入力不要）</div>
+            <a class="btn primary" href="https://pan.quark.cn/s/3b9930496416?pwd=YKXY" target="_blank" rel="noopener noreferrer">夸克网盘を開く <span class="ext">↗</span></a>
+          </div>
+          <div class="dl-card">
+            <span class="badge ghost">GitHub</span>
+            <h3>GitHub Releases</h3>
+            <p>海外のネットワークからのアクセスに適しており、リリースの添付ファイルとリポジトリのコミットは同期して更新されます。</p>
+            <div class="filemeta">ソースリポジトリ：<a href="https://github.com/LIULIWANJIA/Liulishell" target="_blank" rel="noopener noreferrer">github.com/LIULIWANJIA/Liulishell</a></div>
+            <a class="btn" href="https://github.com/LIULIWANJIA/Liulishell/releases" target="_blank" rel="noopener noreferrer">GitHub Releases へ <span class="ext">↗</span></a>
+          </div>
+          <div class="dl-card">
+            <span class="badge ghost">Gitee</span>
+            <h3>Gitee Releases</h3>
+            <p>中国国内のネットワークからのアクセスに適しており、ポータブル版の添付ファイルを提供します。リポジトリとリリースは同期しています。</p>
+            <div class="filemeta">ソースリポジトリ：<a href="https://gitee.com/liuliwanjiaweb/liuli-shell" target="_blank" rel="noopener noreferrer">gitee.com/liuliwanjiaweb/liuli-shell</a></div>
+            <a class="btn" href="https://gitee.com/liuliwanjiaweb/liuli-shell/releases" target="_blank" rel="noopener noreferrer">Gitee Releases へ <span class="ext">↗</span></a>
+          </div>
+        </div>
+        <div class="dl-build">
+          <div>
+            <span class="badge ghost">ソースからビルド</span>
+            <h3>Linux / macOS</h3>
+            <p>対象システムに依存関係をインストールしてパッケージ化します。deb、AppImage、tar.gz、および macOS の dmg と zip に対応しています。</p>
+          </div>
+          <a class="btn soft" href="#dev">ビルドコマンドを表示</a>
+        </div>
+        <div class="note">
+          設定はデフォルトで次の場所に保存されます： <code>%APPDATA%\LIULI Shell</code>。アップグレードや再インストールでも削除されません。別のパソコンに移行する場合は、クラウド同期によるバックアップ、または設定で設定ファイルをエクスポートして移行できます。
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 快速构建 ============ -->
+    <section id="dev" class="band">
+      <div class="wrap">
+        <div class="sec-head">
+          <div>
+            <div class="sec-tag">02 — クイックビルド</div>
+            <h2>ソースからインストーラーを生成</h2>
+            <p>Linux と macOS ではローカルでのビルドが必要です。以下のコマンドは 1 行ずつ実行してください。まとめて貼り付けないでください。スクリプトはディストリビューションを識別し、依存関係をインストールして、パッケージの種類を確認します。</p>
+          </div>
+        </div>
+
+        <div class="console" id="quick-start">
+          <div class="console-bar">
+            <span class="lights"><i></i><i></i><i></i></span>
+            build.sh — quick start
+            <span class="tag">copy &amp; run</span>
+          </div>
+          <div class="console-body">
+            <div class="qs-head">
+              <div class="kicker">Quick Build</div>
+              <h3>Linux / macOS のビルドコマンド</h3>
+              <p>まずソースの取得元（Gitee または GitHub のいずれか一方）を選び、ディレクトリに移動してビルドスクリプトを実行します。
+			  <br>Gitee のデフォルトのクローン先は <code>liuli-shell</code>、GitHub のデフォルトディレクトリは <code>Liulishell</code>です。以下では統一して <code>liuli-shell</code>にクローンし、以降のコマンドもこれに合わせます。</p>
+            </div>
+            <div class="qs-tabs" role="tablist">
+              <button class="qs-tab active" type="button" role="tab" data-qs="linux">Linux GUI</button>
+              <button class="qs-tab" type="button" role="tab" data-qs="mac">macOS</button>
+            </div>
+
+            <div class="qs-panel active" data-qs="linux" role="tabpanel">
+              <p class="qs-note qs-lead"><b>Git が必要です。</b>ステップ 0 で Git をインストールし、ステップ 1 ではソースを 1 つだけ残し、ステップ 2 でビルドスクリプトを実行します。クローンが完了してからビルドコマンドを実行してください。</p>
+              <pre><span class="c-cm"># 0) Git が必要です。インストール済みなら自動的にスキップ（他のディストリビューションでは dnf / pacman に置き換え）</span>
+command -v git &gt;/dev/null || sudo apt-get update &amp;&amp; sudo apt-get install -y git
+
+<span class="c-cm"># 1) 古いディレクトリを削除してからソースをクローン（Gitee / GitHub のいずれか）</span>
+<span class="c-cm"># Gitee（中国国内推奨、デフォルトディレクトリは liuli-shell）</span>
+rm -rf liuli-shell Liulishell &amp;&amp; git clone https://gitee.com/liuliwanjiaweb/liuli-shell.git liuli-shell
+<span class="c-cm"># GitHub（海外推奨、デフォルトディレクトリは Liulishell。ここでは明示的に liuli-shell を指定）</span>
+rm -rf liuli-shell Liulishell &amp;&amp; git clone https://github.com/LIULIWANJIA/Liulishell.git liuli-shell
+
+<span class="c-cm"># 2) プロジェクトに移動してビルド：ディストリビューションを識別 → システム依存関係を補完 → deb / AppImage を選択 → パッケージ化 → インストールを確認</span>
+cd liuli-shell &amp;&amp; bash scripts/build-linux.sh</pre>
+              <p class="qs-note">成果物は <code>dist/</code>に出力されます。スクリプトは次の中から選択を求めます： <code>1 = deb</code> / <code>2 = AppImage</code> / <code>3 = 両方</code>。一方だけを作る場合は <code>.tar.gz</code> を使用します <code>bash scripts/build-linux.sh tar</code>。スクリプトは Ubuntu 24.04 以降の <code>*t64</code> パッケージ名のフォールバックを自動的に処理します。CI などの非対話環境では自動インストールされないため、成果物を手動でインストールしてください。環境に問題がある場合は <code>bash scripts/build-linux.sh check</code> で診断できます。Electron のダウンロードが遅い場合、スクリプトは自動的にミラーを切り替えます。</p>
+
+              <div class="qs-trouble">
+                <div class="qs-trouble-head">
+                  <b>依存関係が不足している場合やビルドに失敗した場合</b>
+                  <span>これらを順番に 1 行ずつ実行してください。通常のビルドでは実行不要です</span>
+                </div>
+                <pre><span class="c-cm"># 3) 依存関係のインストールに失敗した場合やビルドでエラーが出た場合は、次の順に試す</span>
+bash scripts/build-linux.sh repair
+bash scripts/build-linux.sh deps
+bash scripts/build-linux.sh</pre>
+              </div>
+            </div>
+
+            <div class="qs-panel" data-qs="mac" role="tabpanel">
+              <p class="qs-note qs-lead"><b>基本環境がインストール済みの場合は自動的にスキップされます。</b>Homebrew のインストール中に現在のユーザーのパスワード入力が必要です。クローン後に依存関係をインストールしてパッケージ化します。Intel と Apple Silicon は必要に応じて選択できます。</p>
+              <pre><span class="c-cm"># 基本環境（インストール済みなら自動的にスキップ。xcode-select はダイアログを表示するので、インストール完了まで待つ）</span>
+xcode-select --install 2&gt;/dev/null || true
+command -v brew &gt;/dev/null || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+<span class="c-cm"># Homebrew を新規インストールしたら現在のターミナルの PATH に追加（Intel は /usr/local/bin/brew）</span>
+if [ -x /opt/homebrew/bin/brew ]; then eval "$(/opt/homebrew/bin/brew shellenv)"; elif [ -x /usr/local/bin/brew ]; then eval "$(/usr/local/bin/brew shellenv)"; fi
+<span class="c-cm"># Node ≥ 18 が必要。未導入またはバージョンが古い場合は 20 をインストールしてから確認</span>
+node -v 2&gt;/dev/null | grep -qE '^v(1[89]|[2-9][0-9])' || brew install node@20
+brew link --overwrite --force node@20 &gt;/dev/null 2&gt;&amp;1 || true
+node -v &amp;&amp; npm -v
+
+<span class="c-cm"># 古いディレクトリを削除してからソースをクローン（Gitee / GitHub のいずれか）</span>
+rm -rf liuli-shell Liulishell
+<span class="c-cm"># Gitee（中国国内推奨、デフォルトディレクトリは liuli-shell）</span>
+git clone https://gitee.com/liuliwanjiaweb/liuli-shell.git liuli-shell
+<span class="c-cm"># GitHub（海外推奨、デフォルトディレクトリは Liulishell。ここでは明示的に liuli-shell を指定）</span>
+git clone https://github.com/LIULIWANJIA/Liulishell.git liuli-shell<br>
+cd liuli-shell
+npm ci || npm install      <span class="c-cm"># 失敗時は自動的に npm install にフォールバック</span>
+npm run vendor
+<span class="c-cm"># 中国国内で Electron のダウンロードが遅い場合は、次の 2 行のコメントを解除（任意）</span>
+<span class="c-cm"># export ELECTRON_MIRROR=https://registry.npmmirror.com/-/binary/electron/</span>
+<span class="c-cm"># export ELECTRON_BUILDER_BINARIES_MIRROR=https://registry.npmmirror.com/-/binary/electron-builder-binaries/</span>
+npm run dist:mac                              <span class="c-cm"># x64 + arm64 をまとめて出力</span>
+npx electron-builder --mac dmg zip --arm64    <span class="c-cm"># Apple Silicon のみ</span></pre>
+              <p class="qs-note">成果物は <code>dist/</code>（<code>.dmg</code> / <code>.zip</code>）。<code>npm run vendor</code> xterm のリソースを次の場所にコピーします： <code>src/renderer/vendor</code>。パッケージ化の前に必ず実行してください。Intel と Apple Silicon の成果物は混在できません。署名のないアプリが Gatekeeper にブロックされた場合は、右クリックで「開く」を選んで許可します。</p>
+            </div>
+
+            <div class="source-note">
+              <p>中国国内のネットワークでは Gitee を推奨します。Electron のダウンロードが遅い場合はミラー変数を設定してください。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FinalShell 导入 ============ -->
+    <section id="migrate">
+      <div class="wrap">
+        <div class="migrate-panel">
+          <div class="migrate-copy">
+            <div class="kicker">03 — データ移行</div>
+            <h2>FinalShell バックアップのインポート対応</h2>
+            <p class="lead2">
+              FinalShell がエクスポートした JSON ファイル、または設定フォルダー全体をインポートできます。インポート時には接続情報を読み取り、グループ階層を再構築し、書き込み前に統計を表示します。
+            </p>
+            <ul class="migrate-list">
+              <li>
+                <div><b>2 種類の取得元</b><span>複数の JSON を一度に選択することも、設定フォルダー全体を選択することもできます。</span></div>
+              </li>
+              <li>
+                <div><b>階層の復元</b><span>元のディレクトリ構造に従って最大 3 階層のグループを作成し、それより深いディレクトリは対応する 1 階層目のグループに自動的にまとめます。</span></div>
+              </li>
+              <li>
+                <div><b>パスワードの扱い</b><span>復号後、本ソフトウェアの暗号化方式で再保存します。復号できない項目は空欄にし、明確に通知します。</span></div>
+              </li>
+              <li>
+                <div><b>安全な書き込み</b><span>インポート前に作成されるグループと接続の数をプレビューし、重複項目は自動的にスキップします。失敗しても既存の設定には影響しません。</span></div>
+              </li>
+            </ul>
+          </div>
+
+          <div class="mock-win" aria-label="FinalShell 設定のインポート画面のイメージ">
+            <div class="mock-bar">
+              <span class="lights"><i></i><i></i><i></i></span>
+              FinalShell 設定のインポート · LIULI Shell
+            </div>
+            <div class="mock-body">
+              <h3>FinalShell 設定のインポート</h3>
+              <p class="mock-sub">ファイルをドラッグするだけで、複数の JSON または設定フォルダー全体を選択できます。</p>
+
+              <div class="mock-drop">
+                <b>JSON ファイルまたはフォルダーをドロップ</b>
+                <span>下のボタンから選択することもできます</span>
+                <div class="mock-btns">
+                  <span class="mock-chip primary">JSON ファイルを選択</span>
+                  <span class="mock-chip">フォルダーを選択</span>
+                </div>
+              </div>
+
+              <div class="mock-plan">
+                予定： <b>2</b> 個の新しい 1 階層目グループ　<b>3</b> 個の新しい 2 階層目グループ　<b>1</b> 個の新しい 3 階層目グループ 合計 <b>14</b> 個のサーバー設定
+              </div>
+
+              <div class="mock-row">
+                <label>保存先グループ</label>
+                <span class="mock-sel">自動：FinalShell インポート（JSON を直接指定）</span>
+              </div>
+              <p class="mock-note">フォルダーは階層に従って自動的にグループを作成します（最大 3 階層）。3 階層より深いフォルダー内の JSON は、保存先グループに関係なく対応する 1 階層目のグループにまとめます。</p>
+
+              <div class="mock-foot">
+                <span class="mock-chip primary">インポートを開始</span>
+                <span class="mock-result">インポート完了：14 件追加、重複 2 件をスキップ · 新規グループ：1 階層目 2 / 2 階層目 3 / 3 階層目 1</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="migrate-steps">
+          <div class="migrate-step">
+            <i>1</i><b>取得元を選択</b>
+            <span>1 つまたは複数の FinalShell JSON を選択するか、設定フォルダー全体を選択します。</span>
+          </div>
+          <div class="migrate-step">
+            <i>2</i><b>計画を確認</b>
+            <span>作成されるグループ階層と接続数を自動的に集計し、確認してから書き込みます。</span>
+          </div>
+          <div class="migrate-step">
+            <i>3</i><b>インポートを完了</b>
+            <span>重複を除いて書き込み、一覧を更新します。新しいグループはデフォルトで折りたたまれ、現在の作業を妨げません。</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 群组 ============ -->
+    <section id="community" class="band">
+      <div class="wrap">
+        <div class="sec-head">
+          <div>
+            <div class="sec-tag">04 — コミュニティとフィードバック</div>
+            <h2>サポートとリリース情報の入手</h2>
+            <p>利用上の質問、機能の提案、バージョンの最新情報はグループで共有されます。よく使うプラットフォームに参加してください。</p>
+          </div>
+        </div>
+        <div class="comm-grid">
+          <div class="comm-card">
+            <span class="badge">QQ グループ · 中国国内</span>
+            <h3>QQ グループ</h3>
+            <p>中国国内のユーザーは QQ グループで問題の報告や設定、利用経験の共有ができます。</p>
+            <div class="group-no">1127112572</div>
+            <a class="btn" href="https://qm.qq.com/q/30jvArYWDm" target="_blank" rel="noopener noreferrer">QQ グループに参加 <span class="ext">↗</span></a>
+          </div>
+          <div class="comm-card">
+            <span class="badge ghost">Telegram · 海外</span>
+            <h3>TG グループ</h3>
+            <p>海外のユーザーは Telegram グループで同じ通知とディスカッションを得られます。</p>
+            <div class="group-no">t.me/liulishell</div>
+            <a class="btn soft" href="https://t.me/liulishell" target="_blank" rel="noopener noreferrer">TG グループを開く <span class="ext">↗</span></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 功能 ============ -->
+    <section id="features">
+      <div class="wrap">
+        <div class="sec-head">
+          <div>
+            <div class="sec-tag">05 — 主要機能</div>
+            <h2>日常の運用をカバーする 9 つのモジュール</h2>
+            <p>サーバーへの接続からファイル転送、状態確認、設定の移行まで、主な操作はクライアント内で完結します。以下で各モジュールの内容を説明します。</p>
+          </div>
+        </div>
+        <div class="bento">
+          <article class="f-card">
+            <span class="f-num">01</span>
+            <div class="f-ico">▤</div>
+            <h3>サーバー管理</h3>
+            <p>グループでサーバーを整理し、複数選択、ドラッグでの移動、設定のコピーに対応します。削除した接続は 30 日間のゴミ箱に入り、いつでも復元できます。</p>
+          </article>
+          <article class="f-card">
+            <span class="f-num">02</span>
+            <div class="f-ico">❯_</div>
+            <h3>ターミナルセッション</h3>
+            <p>各タブは独立した SSH セッションで、コマンド履歴、クイック入力、切断後の再接続、タブのドラッグによる並べ替えに対応します。プロキシ接続にはステータス表示が付きます。</p>
+          </article>
+          <article class="f-card">
+            <span class="f-num">03</span>
+            <div class="f-ico">▥</div>
+            <h3>ファイル管理</h3>
+            <p>SFTP のディレクトリツリーとファイル一覧が連動し、ターミナルでディレクトリを切り替えると自動的に追従します。アップロード、ダウンロード、権限の変更、内蔵テキストエディタに対応します。</p>
+          </article>
+          <article class="f-card">
+            <span class="f-num">04</span>
+            <div class="f-ico">◎</div>
+            <h3>リアルタイムモニタリング</h3>
+            <p>CPU、メモリ、Swap、ディスク、ネットワーク、プロセスを継続的に収集します。グラフのレンジは自動的に調整され、異常な負荷をその場で特定できます。</p>
+          </article>
+          <article class="f-card">
+            <span class="f-num">05</span>
+            <div class="f-ico">⇅</div>
+            <h3>転送センター</h3>
+            <p>ダウンロードタスクは独立したウィンドウで管理し、一時停止、キャンセル、クリアが可能です。進捗、速度、タスクの状態をリアルタイムに表示します。</p>
+          </article>
+          <article class="f-card">
+            <span class="f-num">06</span>
+            <div class="f-ico">☁</div>
+            <h3>クラウド同期</h3>
+            <p>公式クラウドサービスとカスタム WebDAV に対応し、サーバー設定、グループ、お気に入りを暗号化して同期し、複数デバイス間で双方向にマージします。手動での同期やバックアップも可能です。</p>
+          </article>
+          <article class="f-card">
+            <span class="f-num">07</span>
+            <div class="f-ico">⇄</div>
+            <h3>設定の移行</h3>
+            <p>FinalShell の JSON バックアップまたは設定ディレクトリ全体を読み取り、元の階層でグループを再構築します。インポート前にプレビューし、重複項目は自動的にスキップします。</p>
+          </article>
+          <article class="f-card">
+            <span class="f-num">08</span>
+            <div class="f-ico">◐</div>
+            <h3>外観と操作</h3>
+            <p>ライトとダークのテーマを 8 種類内蔵し、フォント、サイズ、画面の拡大率、マウス操作、ショートカットを調整でき、自動的に保存されます。</p>
+          </article>
+          <article class="f-card">
+            <span class="f-num">09</span>
+            <div class="f-ico">⌁</div>
+            <h3>ネットワークプロキシ</h3>
+            <p>接続ごとまたはグローバルに HTTP / SOCKS5 プロキシを設定できます。デフォルトプロキシと直接接続へのフォールバックに対応し、社内ネットワークや制限されたネットワークに適しています。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 快捷命令 ============ -->
+    <section id="snippets">
+      <div class="wrap">
+        <div class="sec-head">
+          <div>
+            <div class="sec-tag">06 — スニペット</div>
+            <h2>よく使うコマンドをワンクリックで</h2>
+            <p>頻繁に使うコマンドをセクションごとに整理し、ターミナルで長いコマンドを何度も入力する手間を減らします。変更が必要なときはコマンドエディタで編集できます。</p>
+          </div>
+        </div>
+        <div class="feature-detail">
+          <div class="fd-copy">
+            <div class="fd-kicker">Snippets & Command Editor</div>
+            <h3>セクションごとに整理し、繰り返しの入力をなくす</h3>
+            <p>よく使うもの、Docker、ネットワークなどのセクションを分けて管理します。ボタンには名前だけを表示して画面をすっきり保ち、セクションとコマンドはどちらもドラッグで並べ替えできます。</p>
+            <ul class="fd-list">
+              <li><b>実行方法</b><span>シングルクリックで直接実行するか、コマンド欄に入力してから確認するように設定できます。</span></li>
+              <li><b>コマンドエディタ</b><span>複数行のスクリプトは右側で編集し、Ctrl + Enter で現在のセッションに送信します。</span></li>
+              <li><b>履歴とセッション</b><span>コマンド履歴と現在のセッションを切り替え、前回の入力をすばやく呼び出します。</span></li>
+            </ul>
+          </div>
+          <div class="mock-panel snippet-mock" aria-label="スニペット画面のイメージ">
+            <div class="mp-head"><span>スニペット</span><span class="mp-tag">SNIPPETS</span></div>
+            <div class="snip-tabs">
+              <span class="active">よく使う</span><span>Docker</span><span>ネットワーク</span><span class="snip-add">＋</span>
+            </div>
+            <div class="snip-grid">
+              <span>ディスクを確認</span><span>メモリを確認</span><span>プロセスを確認</span><span>画面をクリア</span>
+            </div>
+            <div class="mini-editor">
+              <div class="me-head">コマンドエディタ <span>Ctrl + Enter</span></div>
+              <div class="me-body"><em>1</em>docker compose pull<br /><em>2</em>docker compose up -d<br /><em>3</em>docker compose ps</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 实时监控 ============ -->
+    <section id="monitor" class="band">
+      <div class="wrap">
+        <div class="sec-head">
+          <div>
+            <div class="sec-tag">07 — リアルタイムモニタリング</div>
+            <h2>リソース、ネットワーク、プロセスを 1 画面で把握</h2>
+            <p>接続後に稼働状態を自動的に収集します。異常な負荷はまずクライアント内で特定し、その後ターミナルで対応するか判断します。</p>
+          </div>
+        </div>
+        <div class="feature-detail rev">
+          <div class="mock-panel monitor-mock" aria-label="サーバーモニタリング画面のイメージ">
+            <div class="mp-head"><span>サーバーモニタリング</span><span class="mp-tag">LIVE · 2s</span></div>
+            <div class="mon-grid">
+              <div class="mon-cell"><span>CPU</span><b>64%</b><i><u style="width:64%"></u></i></div>
+              <div class="mon-cell"><span>メモリ</span><b>62%</b><i><u style="width:62%"></u></i></div>
+              <div class="mon-cell"><span>Swap</span><b>14%</b><i><u style="width:14%"></u></i></div>
+            </div>
+            <div class="mon-net">
+              <div><span>下り</span><b>1.36 Mbps</b></div>
+              <div><span>上り</span><b>0.21 Mbps</b></div>
+            </div>
+            <div class="mon-proc">
+              <div class="mp-sub">プロセスプレビュー <span>CPU 順</span></div>
+              <div class="proc-row"><span>nginx</span><span>12.5%</span><span>340 MB</span></div>
+              <div class="proc-row"><span>worker-1</span><span>12.0%</span><span>17.6 MB</span></div>
+              <div class="proc-row"><span>worker-2</span><span>11.7%</span><span>20.1 MB</span></div>
+              <div class="proc-row"><span>worker-3</span><span>11.4%</span><span>22.7 MB</span></div>
+            </div>
+          </div>
+          <div class="fd-copy">
+            <div class="fd-kicker">Monitor & Processes</div>
+            <h3>サーバーにログインせずに状態を確認</h3>
+            <p>左側にリソースの概要、右側にネットワーク速度とプロセスの使用状況を表示します。更新間隔と速度の単位は設定で調整できます。</p>
+            <ul class="fd-list">
+              <li><b>リソース概要</b><span>CPU、メモリ、Swap、ディスクパーティションの使用率を表示し、グラフのレンジは自動的に調整されます。</span></li>
+              <li><b>ネットワーク速度</b><span>リアルタイムの下り / 上りと累計トラフィックを同じ画面で確認でき、単位を切り替えられます。</span></li>
+              <li><b>プロセスプレビュー</b><span>CPU またはメモリで並べ替え、負荷の高いプロセスをすばやく特定できます。</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 数据与安全 ============ -->
+    <section id="security">
+      <div class="wrap">
+        <div class="sec-head">
+          <div>
+            <div class="sec-tag">08 — データとセキュリティ</div>
+            <h2>設定はローカルに保存され、変更はバックアップされます</h2>
+            <p>接続の認証情報、設定のバックアップ、削除からの復元はすべてクライアント内で完結し、外部サービスや手作業への依存を減らします。</p>
+          </div>
+        </div>
+        <div class="feature-detail">
+          <div class="fd-copy">
+            <div class="fd-kicker">Local Data & Security</div>
+            <h3>パスワードは暗号化して保存、誤削除も復元可能</h3>
+            <p>接続の認証情報は暗号化された文字列のみを保存し、画面に平文を表示しません。設定の書き込み前に自動的にバックアップし、誤って削除したサーバーとグループはゴミ箱に入ります。</p>
+            <ul class="fd-list">
+              <li><b>認証情報の保護</b><span>パスワードと鍵は本機の鍵で暗号化し、設定のエクスポート時にさらにパスワードを設定できます。</span></li>
+              <li><b>自動バックアップ</b><span>書き込み前にバックアップを作成し、設定ファイルに異常があった場合は直近の状態に復元できます。</span></li>
+              <li><b>ゴミ箱</b><span>削除したサーバーとグループは 30 日間保持され、いつでも復元できます。</span></li>
+            </ul>
+          </div>
+          <div class="mock-panel security-mock" aria-label="データとセキュリティ画面のイメージ">
+            <div class="mp-head"><span>データとセキュリティ</span><span class="mp-tag">LOCAL</span></div>
+            <div class="sec-item"><span class="tick">✓</span><div><b>認証情報を暗号化して保存</b><span>パスワードと鍵は暗号化された文字列のみを保存し、画面に平文を表示しません。</span></div></div>
+            <div class="sec-item"><span class="tick">✓</span><div><b>書き込み前に自動バックアップ</b><span>設定ファイルが壊れた場合は直近のバックアップに復元できます。</span></div></div>
+            <div class="sec-item"><span class="tick">✓</span><div><b>30 日間のゴミ箱</b><span>誤って削除したサーバーとグループをいつでも復元できます。</span></div></div>
+            <div class="sec-item"><span class="tick">✓</span><div><b>暗号化エクスポート / インポート</b><span>別のパソコンへの移行時に、パスワード付きで設定ファイルをエクスポートできます。</span></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 界面 ============ -->
+    <section id="interface" class="band">
+      <div class="wrap">
+        <div class="sec-head">
+          <div>
+            <div class="sec-tag">09 — 画面構成</div>
+            <h2>メイン画面は左・中央・右の 3 カラム</h2>
+            <p>3 つのカラムの幅はドラッグで調整でき、必要に応じて非表示にできます。上部はセッションタブとウィンドウ操作、下部のステータスバーは現在の接続数を表示します。</p>
+          </div>
+        </div>
+        <div class="layout-notes">
+          <div class="layout-note">
+            <b>左</b>
+            <span><b>サーバーとモニタリング。</b>グループ一覧、検索、接続状態、および CPU、メモリ、Swap、ディスクの概要。</span>
+          </div>
+          <div class="layout-note">
+            <b>中央</b>
+            <span><b>作業エリア。</b>SSH ターミナル、コマンド入力、ファイルマネージャー、スニペットパネル。</span>
+          </div>
+          <div class="layout-note">
+            <b>右</b>
+            <span><b>接続の詳細。</b>サーバー情報、ネットワーク速度、プロセス一覧、コマンドエディタ。</span>
+          </div>
+        </div>
+        <div class="shots">
+          <figure class="shot">
+            <img src="img/ui-terminal.webp" alt="右カラムを閉じたターミナル作業エリア" />
+            <figcaption><b>ターミナル作業エリア</b><span>右カラムを閉じてターミナルを広く表示</span></figcaption>
+          </figure>
+          <figure class="shot">
+            <img src="img/ui-settings.webp" alt="ソフトウェア設定センター" />
+            <figcaption><b>設定センター</b><span>テーマ、フォント、拡大率、データのオプション</span></figcaption>
+          </figure>
+          <figure class="shot">
+            <img src="img/ui-snippets.webp" alt="スニペットパネル" />
+            <figcaption><b>スニペット</b><span>セクションごとに整理し、そのまま実行</span></figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 多语言 ============ -->
+    <section id="i18n">
+      <div class="wrap">
+        <div class="sec-head">
+          <div>
+            <div class="sec-tag">多言語</div>
+            <h2>8 言語のインターフェースと公式サイト</h2>
+            <p>クライアントのインターフェースと本サイトは、簡体字中国語、繁体字中国語、英語、ロシア語、フランス語、ドイツ語、日本語、韓国語に対応しています。言語を切り替えるとページの URL と hreflang の表記も連動して変わり、どの言語も同じ機能とスクリーンショットに対応しています。</p>
+          </div>
+        </div>
+        <div class="lang-cards"><div class="lang-card"><b>简体中文</b><i>Chinese (Simplified) · zh-CN</i></div><div class="lang-card"><b>繁體中文</b><i>Chinese (Traditional) · zh-Hant</i></div><div class="lang-card"><b>English</b><i>English · en</i></div><div class="lang-card on"><b>日本語</b><i>Japanese · ja</i></div><div class="lang-card"><b>한국어</b><i>Korean · ko</i></div><div class="lang-card"><b>Русский</b><i>Russian · ru</i></div><div class="lang-card"><b>Français</b><i>French · fr</i></div><div class="lang-card"><b>Deutsch</b><i>German · de</i></div></div>
+      </div>
+    </section>
+
+    <!-- ============ 设置 ============ -->
+    <section id="settings">
+      <div class="wrap">
+        <div class="sec-head">
+          <div>
+            <div class="sec-tag">10 — 設定とテーマ</div>
+            <h2>自分の作業スタイルに合わせて調整</h2>
+            <p>設定項目は用途ごとにグループ化され、変更はすぐに反映され自動保存されます。以下はよく使う 6 つのグループです。</p>
+          </div>
+        </div>
+        <div class="set-grid">
+          <div class="set-shot">
+            <div class="frame-bar">
+              <span class="lights"><i></i><i></i><i></i></span>
+              LIULI Shell · 設定センター
+            </div>
+            <img src="img/ui-settings.webp" alt="LIULI Shell 設定センター" />
+            <div class="cap">左側のメニューは用途ごとにグループ化され、右側は現在のカテゴリの項目です。下部からデフォルト設定に戻せます。</div>
+          </div>
+          <div class="set-cards">
+            <article class="set-card">
+              <h3>外観とテーマ</h3>
+              <ul>
+                <li>8 種類の配色で、ターミナルの背景と ANSI カラーパレットが連動して切り替わります</li>
+                <li>3 カラムの幅と下部の高さはドラッグで調整でき、記憶されます</li>
+                <li>不要なパネルは個別に非表示にできます</li>
+              </ul>
+            </article>
+            <article class="set-card">
+              <h3>フォントと拡大率</h3>
+              <ul>
+                <li>日本語・英語のフォント、サイズ、行間を個別に設定</li>
+                <li>画面の拡大率 <strong>100 / 125 / 150 / 200%</strong></li>
+                <li>拡大率の変更には確認が必要です。<strong>Ctrl+Shift+0</strong> でリセットできます</li>
+              </ul>
+            </article>
+            <article class="set-card">
+              <h3>マウスとショートカット</h3>
+              <ul>
+                <li>中ボタンと右ボタンのターミナルでの動作を調整できます</li>
+                <li>グローバルショートカットは変更でき、競合時にはすぐに通知されます</li>
+                <li>スニペットはドラッグで並べ替えできます</li>
+              </ul>
+            </article>
+            <article class="set-card">
+              <h3>スニペット</h3>
+              <ul>
+                <li>よく使うコマンドをセクションごとに整理</li>
+                <li>操作エリアは先頭の行に固定され、セクションが収まらない場合は自動的に行が増えます</li>
+                <li>シングルクリックまたはダブルクリックでの実行に対応</li>
+              </ul>
+            </article>
+            <article class="set-card">
+              <h3>同期とプロキシ</h3>
+              <ul>
+                <li>WebDAV のアドレス、アカウント、認証情報を個別に保存</li>
+                <li>設定、グループ、お気に入りを双方向にマージ</li>
+                <li>HTTP / SOCKS5 プロキシに対応し、デフォルトプロキシを指定可能</li>
+              </ul>
+            </article>
+            <article class="set-card">
+              <h3>データとセキュリティ</h3>
+              <ul>
+                <li>設定の書き込み前に自動バックアップし、異常時には復元可能</li>
+                <li>パスワードと鍵は暗号化された文字列のみを保存し、画面に平文を表示しない</li>
+                <li>データの消去には再確認とカウントダウンが必要</li>
+              </ul>
+            </article>
+          </div>
+        </div>
+
+        <div class="theme-head">
+          <div class="kicker">Themes</div>
+          <h3>8 種類のテーマ配色</h3>
+          <p>ライト 6 種類、ダーク 2 種類。切り替えると画面、ターミナルの背景、ANSI 配色が連動して変わります。</p>
+        </div>
+        <div class="theme-grid">
+          <div class="theme-card"><b>ウォームホワイト · 深緑</b><span>デフォルト · 低コントラストで目にやさしい</span><i class="swatch" style="background:linear-gradient(90deg,#f7f6f2 0 55%,#16665a 55% 75%,#2f8b7c 75% 100%)"></i></div>
+          <div class="theme-card"><b>ミストブルー · インディゴ</b><span>爽やかな寒色</span><i class="swatch" style="background:linear-gradient(90deg,#f3f7fc 0 55%,#2f7cf6 55% 75%,#6aa7ff 75% 100%)"></i></div>
+          <div class="theme-card"><b>ベージュ · テラコッタ</b><span>温かみのある紙のような質感</span><i class="swatch" style="background:linear-gradient(90deg,#faf5ee 0 55%,#b4552f 55% 75%,#d57a4d 75% 100%)"></i></div>
+          <div class="theme-card"><b>グラファイト · クールグレー</b><span>ニュートラルで高コントラスト</span><i class="swatch" style="background:linear-gradient(90deg,#eef0f2 0 55%,#3b6ea5 55% 75%,#6e9bd0 75% 100%)"></i></div>
+          <div class="theme-card"><b>ナイト · ディープインク</b><span>ダークな画面</span><i class="swatch" style="background:linear-gradient(90deg,#171c22 0 55%,#5fc2b0 55% 75%,#8ad9cb 75% 100%)"></i></div>
+          <div class="theme-card"><b>ロータスピンク · ベリーパープル</b><span>柔らかな暖かい紫</span><i class="swatch" style="background:linear-gradient(90deg,#fbf5f8 0 55%,#a04a86 55% 75%,#c477ad 75% 100%)"></i></div>
+          <div class="theme-card"><b>セラドン · パイングリーン</b><span>淡く上品な青緑</span><i class="swatch" style="background:linear-gradient(90deg,#f1f7f3 0 55%,#3f7d5f 55% 75%,#6ba587 75% 100%)"></i></div>
+          <div class="theme-card"><b>ディープシー · インディゴブルー</b><span>暗めのブルートーン</span><i class="swatch" style="background:linear-gradient(90deg,#101820 0 55%,#5aa9e6 55% 75%,#8bc7f2 75% 100%)"></i></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 进阶 ============ -->
+    <section id="manual">
+      <div class="wrap">
+        <div class="sec-head">
+          <div>
+            <div class="sec-tag">11 — 上級リファレンス</div>
+            <h2>手動ビルドとトラブルシューティング</h2>
+            <p>ビルドの流れを手動で制御する場合、ディストリビューションごとに依存関係を用意する場合、パッケージ化のエラーを調べる場合は、以下の詳細なリファレンスを展開してください。</p>
+          </div>
+        </div>
+        <details class="manual">
+          <summary>
+            <b>Linux / macOS の完全ビルドガイド</b>
+            <span class="manual-hint">各ディストリビューションの依存関係コマンド、AppImage / deb / dmg のパッケージ化、デスクトップアイコン、FUSE の扱い、よくあるエラーの対照表を含みます。</span>
+            <i class="chev">▾</i>
+          </summary>
+          <div class="manual-body">
+            <div class="linux-build">
+              <h3>Linux x64（AppImage / .deb / tar.gz）</h3>
+              <p class="os-lead">ディストリビューションによってシステムライブラリのパッケージ名が異なり、Ubuntu 24.04 以降は <code>*t64</code>に変更されました。3 種類の成果物の用途：AppImage はインストール不要、deb はパッケージ管理、tar.gz は解凍するだけで使え FUSE に依存しません。</p>
+              <div class="os-tabs" id="os-tabs" role="tablist"></div>
+              <div id="os-panels"></div>
+              <div class="os-callout">互換性のポイント：AppImage は <b>glibc がビルド環境より古くない</b>システムでのみ実行できます。20.04 ～ 26.04 で共通に使うには、最も古い Ubuntu 20.04 でビルドしてください。リポジトリ内の <code>scripts/build-linux.sh</code> はディストリビューションを自動的に識別し、t64 パッケージ名へのフォールバックを処理します。</div>
+              <div class="os-callout">依存関係を手動でインストールしたくない場合：<code>bash scripts/build-linux.sh</code> 1 つのコマンドで「ディストリビューションの識別 → システム依存関係の補完 → パッケージ種別の選択 → パッケージ化 → インストールの確認」を実行し、apt / dnf / pacman に対応しています。依存関係のインストールだけなら <code>... deps</code>、診断だけなら <code>... check</code>、環境が壊れた場合は <code>... repair</code>を使用します。インストール段階：deb は <code>apt install</code> を実行してデスクトップアイコンを作成し、AppImage は <code>~/Applications/LIULI-Shell</code> にコピーしてアプリメニューとデスクトップアイコンを生成します。</div>
+
+              <h4>実行とインストール</h4>
+              <pre>chmod +x dist/LIULI-Shell-*-x86_64.AppImage
+./dist/LIULI-Shell-*-x86_64.AppImage
+
+# Debian / Ubuntu で deb をインストール
+sudo apt install ./dist/LIULI-Shell-*_amd64.deb
+
+# 解凍してすぐ使える（FUSE 不要、システムディレクトリにも書き込まない）
+mkdir -p ~/Applications
+tar -xzf dist/LIULI-Shell-*-x86_64.tar.gz -C ~/Applications
+~/Applications/LIULI-Shell-*/liuli-shell</pre>
+
+              <h4>AppImage の実行時エラー dlopen(): error loading libfuse.so.2</h4>
+              <p class="os-lead">AppImage は type-2 ランタイムを使用するため、システムの FUSE 2 が必要です。Ubuntu 22.04 以前は標準で含まれていますが、24.04 / 26.04 では手動でインストールする必要があります。FUSE をインストールしなくても一時的に展開して実行できます。</p>
+              <pre># Ubuntu 24.04 / 26.04
+sudo apt install -y libfuse2t64
+# Ubuntu 20.04 / 22.04、Debian 12
+sudo apt install -y libfuse2
+
+# FUSE をインストールせずに直接実行（起動はやや遅いが機能は同じ）
+./LIULI-Shell-*-x86_64.AppImage --appimage-extract-and-run
+
+# または tar.gz 版を使えば FUSE にまったく依存しない</pre>
+
+              <details class="os-details">
+                <summary>アプリ一覧のアイコン / デスクトップアイコンを追加（AppImage）</summary>
+                <pre># 1) 固定の場所に配置
+mkdir -p ~/Applications
+cp dist/LIULI-Shell-*-x86_64.AppImage ~/Applications/LIULI-Shell.AppImage
+chmod +x ~/Applications/LIULI-Shell.AppImage
+
+# 2) アイコンを取り出す（--appimage-extract はカレントディレクトリに squashfs-root を展開）
+cd /tmp &amp;&amp; ~/Applications/LIULI-Shell.AppImage --appimage-extract '*.png' &gt;/dev/null 2&gt;&amp;1
+mkdir -p ~/.local/share/icons/hicolor/512x512/apps
+cp /tmp/squashfs-root/*.png ~/.local/share/icons/hicolor/512x512/apps/liuli-shell.png 2&gt;/dev/null \
+  || cp /tmp/squashfs-root/liuli-shell.png ~/.local/share/icons/hicolor/512x512/apps/ 2&gt;/dev/null
+
+# 3) アプリ一覧の項目を書き込む（$HOME は現在のユーザーディレクトリに展開）
+mkdir -p ~/.local/share/applications
+cat &gt; ~/.local/share/applications/liuli-shell.desktop &lt;&lt;EOF
+[Desktop Entry]
+Type=Application
+Name=LIULI Shell
+Comment=クロスプラットフォームの SSH ターミナルとサーバー管理ツール
+Exec=$HOME/Applications/LIULI-Shell.AppImage %U
+Icon=liuli-shell
+Terminal=false
+Categories=Development;System;Network;
+StartupWMClass=LIULI Shell
+EOF
+chmod +x ~/.local/share/applications/liuli-shell.desktop
+update-desktop-database ~/.local/share/applications 2&gt;/dev/null || true
+
+# 4) デスクトップアイコンが必要な場合は、もう一度コピーして信頼済みに設定
+cp ~/.local/share/applications/liuli-shell.desktop ~/Desktop/
+gio set ~/Desktop/liuli-shell.desktop metadata::trusted true 2&gt;/dev/null || true
+# 日本語環境ではデスクトップディレクトリ名が異なる場合があるため、環境に合わせて置き換える</pre>
+                <p class="os-lead">.deb をインストールしたユーザーはこれらの手順は不要です。deb のインストール時に自動的に書き込まれ <code>/usr/share/applications</code>、アプリ一覧にそのまま表示されます。</p>
+              </details>
+            </div>
+
+            <div class="dev-grid">
+              <div class="dev">
+                <h3>macOS（dmg + zip、x64 / arm64）</h3>
+                <p><b>動作要件：</b>macOS 12 以降（Intel または Apple Silicon）、Xcode Command Line Tools、Homebrew、Git、Node.js 20/22 LTS。dmg は <b>Windows / Linux 上では</b>ビルドできません。</p>
+                <p><b>1. 基本ツール</b>（<code>xcode-select</code> はダイアログを表示するので、インストール完了まで待ってから続行）</p>
+                <pre>xcode-select --install
+/bin/bash -c "$(curl -fsSL \
+  https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Apple Silicon では brew を PATH に追加（Intel は /usr/local/bin/brew。再実行しても重複して追加されない）
+grep -qsF 'brew shellenv' ~/.zshrc || echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' &gt;&gt; ~/.zshrc
+source ~/.zshrc</pre>
+                <p><b>2. Node 20 と Git</b></p>
+                <pre>brew install node@20 git
+brew link --overwrite --force node@20
+node -v &amp;&amp; npm -v          # 期待される出力：v20.x</pre>
+                <p><b>3. ソースと依存関係</b>（古いディレクトリを先に削除し、残留ファイルによる不具合を避けます。Gitee / GitHub のいずれか。Gitee のデフォルトディレクトリは <code>liuli-shell</code>、GitHub のデフォルトディレクトリは <code>Liulishell</code>です。ここでは統一して明示的に <code>liuli-shell</code>にクローンします）</p>
+                <pre>rm -rf liuli-shell Liulishell
+# Gitee（中国国内推奨）
+git clone https://gitee.com/liuliwanjiaweb/liuli-shell.git liuli-shell
+# GitHub（海外推奨。次の行のコメントを解除し、上の Gitee の行をコメントアウト）
+# git clone https://github.com/LIULIWANJIA/Liulishell.git liuli-shell
+cd liuli-shell
+npm ci || npm install      # ロックファイルとプラットフォームが一致しない場合は npm install にフォールバック
+npm run vendor             # xterm リソースを src/renderer/vendor にコピー。パッケージ化の前に必須</pre>
+                <p><b>4. パッケージ化</b>（現在のアーキテクチャだけなら最速。両方必要な場合は <code>dist:mac</code>を指定）</p>
+                <pre>npm run dist:mac                              # x64 + arm64 をまとめて出力
+npx electron-builder --mac dmg zip --arm64    # Apple Silicon のみ
+npx electron-builder --mac dmg zip --x64      # Intel のみ</pre>
+                <p><b>5. 成果物とキャッシュ：</b>成果物は <code>~/liuli-shell/dist/</code>（<code>*.dmg</code>、<code>*.zip</code>）；Electron とパッケージツールのダウンロードキャッシュは <code>~/Library/Caches/electron/</code>、<code>~/Library/Caches/electron-builder/</code>にあり、削除すると強制的に再ダウンロードできます。</p>
+                <p><b>6. 署名なしインストール：</b>「アプリケーション」にドラッグした後 Gatekeeper にブロックされた場合は、右クリックで「開く」を選んで許可するか、次を実行します：</p>
+                <pre>xattr -dr com.apple.quarantine "/Applications/LIULI Shell.app"
+spctl --assess --type execute -vv "/Applications/LIULI Shell.app"   # ブロックされた理由を確認</pre>
+                <p>外部に配布するには Apple Developer ID 証明書と notarize が必要です。次を設定します： <code>CSC_LINK</code>（.p12 のパスまたは base64）、<code>CSC_KEY_PASSWORD</code>；公証にはさらに <code>APPLE_ID</code>、<code>APPLE_APP_SPECIFIC_PASSWORD</code>、<code>APPLE_TEAM_ID</code>が必要で、electron-builder が署名と公証を自動的に行います。</p>
+                <div class="os-callout">Intel と Apple Silicon の成果物に互換性はありません。1 つのパッケージで両方のマシンに対応するには <code>npx electron-builder --mac dmg --universal</code>を使用します（サイズは単一アーキテクチャの約 2 倍で、ビルドも明らかに遅くなります）。</div>
+              </div>
+            </div>
+
+            <div class="dev-note">
+              <h3>よくあるエラー対照表</h3>
+              <table class="err-table">
+                <thead>
+                  <tr><th>エラー / 症状</th><th>原因と対処</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>パッケージ libasound2 が見つからない</td>
+                    <td>Ubuntu 24.04 / Debian 13 以降でシステムライブラリが一斉に改名され <code>*t64</code>（例： <code>libasound2t64</code>、<code>libgtk-3-0t64</code>）。まず旧名でインストールし、失敗時は自動的にフォールバック：<code>bash scripts/build-linux.sh deps</code> にはこのロジックが組み込まれています。</td>
+                  </tr>
+                  <tr>
+                    <td>dlopen(): error loading libfuse.so.2</td>
+                    <td>AppImage の実行には FUSE 2 が必要です。24.04 以降では <code>libfuse2t64</code>を、22.04 以前では <code>libfuse2</code>をインストールします。FUSE をインストールしない場合は <code>--appimage-extract-and-run</code>を使うか、 <code>.tar.gz</code>に切り替えてください。</td>
+                  </tr>
+                  <tr>
+                    <td>Electron のダウンロードがタイムアウト / downloading で止まる</td>
+                    <td>ミラーを設定して再試行：<code>export ELECTRON_MIRROR=https://registry.npmmirror.com/-/binary/electron/</code>、<code>export ELECTRON_BUILDER_BINARIES_MIRROR=https://registry.npmmirror.com/-/binary/electron-builder-binaries/</code>。</td>
+                  </tr>
+                  <tr>
+                    <td>npm ci が失敗 / ロックファイルとプラットフォームが一致しない</td>
+                    <td>次のファイルを削除し、 <code>node_modules</code> に切り替えてください <code>npm install</code>。Node のバージョンが古い（&lt; 18）場合はインストールできないため、Node 20 を使用してください。</td>
+                  </tr>
+                  <tr>
+                    <td>rpmbuild not found</td>
+                    <td>rpm を作るときだけ必要です。Fedora では <code>rpm-build</code>を、Debian/Ubuntu では <code>rpm</code> と <code>rpm2cpio</code> 関連のパッケージをインストールするか、rpm ターゲットをスキップしてください。</td>
+                  </tr>
+                  <tr>
+                    <td>Permission denied（AppImage の実行時）</td>
+                    <td>実行権限がありません：<code>chmod +x dist/LIULI-Shell-*-x86_64.AppImage</code>。</td>
+                  </tr>
+                  <tr>
+                    <td>errSecInternalComponent / 署名に失敗（macOS）</td>
+                    <td>keychain がロックされています：<code>security unlock-keychain -p &lt;パスワード&gt; ~/Library/Keychains/login.keychain-db</code> を実行してから再実行してください。CI ではさらに <code>security set-key-partition-list</code>が必要です。</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <h3 style="margin-top:20px">共通の注意事項</h3>
+              <ul>
+                <li><b>ビルドディレクトリ：</b>すべての成果物はデフォルトでプロジェクトルートの <code>dist/</code>に出力されます。Linux では <code>LIULI-Shell-*-x86_64</code> / <code>*-arm64</code> の <code>.AppImage</code> / <code>.deb</code> / <code>.tar.gz</code>（スクリプトがアーキテクチャを自動識別）、macOS では <code>.dmg</code> / <code>.zip</code>。</li>
+                <li><b>パッケージ化の前に必須：</b><code>npm run vendor</code> は xterm.js などのフロントエンドリソースを <code>src/renderer/vendor/</code>にコピーします。この手順がないと、パッケージ化したターミナルが空白になります。</li>
+                <li><b>ビルド環境の選択：</b>AppImage は glibc がビルド環境より古くないシステムでのみ動作します。20.04 ～ 26.04 で共通に使うには、最も古い Ubuntu 20.04 でビルドしてください。自分専用ならローカルでのビルドが最速です。</li>
+                <li><b>クロスビルド：</b>Linux パッケージは Linux で、macOS パッケージは macOS でビルドする必要があり、成果物に互換性はありません。Windows パッケージも同様です。対応する OS の CI（例： <code>ubuntu-22.04</code>、<code>macos-14</code> runner）でビルドすることを推奨します。</li>
+                <li><b>リリース：</b> <code>dist/</code> にある各プラットフォーム向けのインストーラーとポータブル版を Release の添付ファイルとしてアップロードしてください（Windows の <code>*.blockmap</code> は差分更新専用のため、アップロードする必要はありません）；ソースリポジトリには <code>node_modules/</code> と <code>dist/</code>をコミットしないでください。</li>
+              </ul>
+            </div>
+          </div>
+        </details>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <div class="foot-grid">
+        <div>
+          <div class="foot-brand">
+            <img src="icon.png" alt="LIULI Shell" />
+            <span><b>LIULI Shell</b><small>by LIULIWANJIA</small></span>
+          </div>
+          <p class="foot-desc">クロスプラットフォームの SSH クライアント。接続管理、ターミナル、SFTP ファイル転送、リアルタイムモニタリング、設定同期を統合しています。</p>
+        </div>
+        <div class="foot-col">
+          <b>プロジェクト</b>
+          <a href="https://shell.minecft.cn" target="_blank" rel="noopener noreferrer">公式サイト shell.minecft.cn</a>
+          <a href="https://github.com/LIULIWANJIA/Liulishell" target="_blank" rel="noopener noreferrer">GitHub リポジトリ</a>
+          <a href="https://gitee.com/liuliwanjiaweb/liuli-shell" target="_blank" rel="noopener noreferrer">Gitee リポジトリ</a>
+        </div>
+        <div class="foot-col">
+          <b>ダウンロードとコミュニティ</b>
+          <a href="https://pan.quark.cn/s/3b9930496416?pwd=YKXY" target="_blank" rel="noopener noreferrer">夸克网盘（YKXY）</a>
+          <a href="https://github.com/LIULIWANJIA/Liulishell/releases" target="_blank" rel="noopener noreferrer">GitHub Releases</a>
+          <a href="https://gitee.com/liuliwanjiaweb/liuli-shell/releases" target="_blank" rel="noopener noreferrer">Gitee Releases</a>
+          <a href="https://qm.qq.com/q/30jvArYWDm" target="_blank" rel="noopener noreferrer">QQ グループ 1127112572</a>
+          <a href="https://t.me/liulishell" target="_blank" rel="noopener noreferrer">Telegram グループ</a>
+        </div>
+      </div>
+      <div class="foot-bottom">
+        <span>© LIULIWANJIA · LIULI Shell</span>
+        <span>非商業・氏名表示ライセンス · Windows / Linux / macOS</span>
+      </div>
+    </div>
+  </footer>
+
+<script>
+/* 顶栏滚动状态 + 顶部 LOGO 平滑回顶 */
+(function () {
+  var head = document.getElementById('site-head');
+  function onScroll() {
+    if (!head) return;
+    head.classList.toggle('scrolled', window.scrollY > 8);
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  var brand = document.getElementById('brand-top');
+  if (!brand) return;
+  brand.addEventListener('click', function (e) {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
+</script>
+<script>
+/* 手机端折叠菜单 */
+(function () {
+  var btn = document.getElementById('nav-toggle');
+  var nav = document.getElementById('site-nav');
+  if (!btn || !nav) return;
+  function setOpen(open) {
+    nav.classList.toggle('open', open);
+    btn.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    btn.setAttribute('aria-label', open ? "メニューを閉じる" : "メニューを開く");
+  }
+  btn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    setOpen(!nav.classList.contains('open'));
+  });
+  nav.addEventListener('click', function (e) {
+    if (e.target.closest('a')) setOpen(false);
+  });
+  document.addEventListener('click', function (e) {
+    if (nav.classList.contains('open') && !nav.contains(e.target) && e.target !== btn) setOpen(false);
+  });
+  window.addEventListener('resize', function () {
+    if (window.innerWidth > 980) setOpen(false);
+  });
+})();
+</script>
+<script>
+/* Linux 各发行版构建命令（Tab 切换）。包名差异集中在系统依赖，其余步骤一致。 */
+(function () {
+  var CLONE = [
+    "# 古いディレクトリを削除し、GitHub のデフォルトディレクトリ Liulishell も削除",
+    'rm -rf liuli-shell Liulishell',
+    "# Gitee（中国国内推奨、デフォルトディレクトリは liuli-shell）",
+    'git clone https://gitee.com/liuliwanjiaweb/liuli-shell.git liuli-shell',
+    "# GitHub（海外推奨、デフォルトディレクトリは Liulishell。明示的に liuli-shell を指定）",
+    '# git clone https://github.com/LIULIWANJIA/Liulishell.git liuli-shell',
+    'cd liuli-shell',
+    'npm ci || npm install',
+    'npm run vendor'
+  ];
+  var BUILD = [
+    'npm run dist:linux            # AppImage + deb + tar.gz',
+    "# 単一のターゲットのみ作成：",
+    'npm run dist:linux:appimage',
+    'npm run dist:linux:deb',
+    'npm run dist:linux:tar',
+    '',
+    "# またはワンクリックスクリプト（ディストリビューションの自動識別、t64 パッケージの自動処理、対話式）",
+    'bash scripts/build-linux.sh',
+    '',
+    "# 依存関係が入らない、ビルドでエラーが出る場合",
+    'bash scripts/build-linux.sh repair && bash scripts/build-linux.sh deps'
+  ];
+  var NVM = [
+    "# システムの Node は 18 より古いことが多いため、nvm で 20 をインストールすることを推奨",
+    'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash',
+    'source ~/.nvm/nvm.sh',
+    'nvm install 20 && nvm use 20',
+    'node -v && npm -v'
+  ];
+  var OS = [
+    {
+      id: 'u2004',
+      label: 'Ubuntu 20.04 / 22.04',
+      deps: [
+        'sudo apt update',
+        'sudo apt install -y git curl build-essential python3 fakeroot dpkg-dev \\',
+        '  nodejs npm libnss3 libgbm1 libxss1 libxtst6 libx11-xcb1 libxcb-dri3-0 \\',
+        '  libxshmfence1 libdrm2 libcairo2 libpango-1.0-0 libasound2 libgtk-3-0 \\',
+        '  libatk-bridge2.0-0 libcups2 libnotify4 libatspi2.0-0 libsecret-1-0 libfuse2'
+      ],
+      node: NVM,
+      notes: ["22.04 は libfuse2 が標準で含まれており、AppImage を直接実行できます。20.04 で FUSE がない場合は <code>sudo apt install -y libfuse2</code> を実行してください。"]
+    },
+    {
+      id: 'u2404',
+      label: 'Ubuntu 24.04',
+      deps: [
+        'sudo apt update',
+        'sudo apt install -y git curl build-essential python3 fakeroot dpkg-dev nodejs npm \\',
+        '  libnss3 libgbm1 libxss1 libxtst6 libx11-xcb1 libxcb-dri3-0 libxshmfence1 \\',
+        '  libdrm2 libcairo2 libpango-1.0-0 libasound2t64 libgtk-3-0t64 \\',
+        '  libatk-bridge2.0-0t64 libcups2t64 libnotify4t64 libatspi2.0-0t64 \\',
+        '  libsecret-1-0t64 libfuse2t64'
+      ],
+      node: NVM,
+      notes: ["24.04 からシステムライブラリは <code>*t64</code> に改名され、<code>libasound2</code> と書くと「パッケージが見つかりません」と表示されます。これが最もよくあるエラーの原因です。"]
+    },
+    {
+      id: 'u2604',
+      label: 'Ubuntu 26.04',
+      deps: [
+        'sudo apt update',
+        'sudo apt install -y git curl build-essential python3 fakeroot dpkg-dev nodejs npm',
+        '',
+        "# 24.04 からシステムライブラリは t64 命名に変更：まず旧名でインストールし、失敗時は t64 に自動フォールバック",
+        'for p in libasound2 libgtk-3-0 libatk-bridge2.0-0 libatk1.0-0 libcups2 \\',
+        '         libnotify4 libatspi2.0-0 libsecret-1-0; do',
+        '  sudo apt install -y "$p" 2>/dev/null || sudo apt install -y "${p}t64"',
+        'done',
+        '',
+        'sudo apt install -y libnss3 libgbm1 libxss1 libxtst6 libx11-xcb1 \\',
+        '  libxcb-dri3-0 libxshmfence1 libdrm2 libcairo2 libpango-1.0-0 libfuse2t64'
+      ],
+      node: NVM,
+      notes: [
+        "このループは 22.04 ～ 26.04 でそのまま使え、パッケージ名に <code>t64</code> が付くかどうかで失敗することはなくなります。",
+        "<code>scripts/build-linux.sh deps</code> も同じロジックなので、依存関係のインストールだけを実行できます。"
+      ]
+    },
+    {
+      id: 'debian',
+      label: 'Debian 12 / 13',
+      deps: [
+        'sudo apt update',
+        'sudo apt install -y git curl build-essential python3 fakeroot dpkg-dev nodejs npm',
+        '',
+        "# Debian 12 は旧パッケージ名、Debian 13（trixie）以降は t64 に変更 —— ループが自動的に適応",
+        'for p in libasound2 libgtk-3-0 libatk-bridge2.0-0 libatk1.0-0 libcups2 \\',
+        '         libnotify4 libatspi2.0-0 libsecret-1-0; do',
+        '  sudo apt install -y "$p" 2>/dev/null || sudo apt install -y "${p}t64"',
+        'done',
+        '',
+        'sudo apt install -y libnss3 libgbm1 libxss1 libxtst6 libx11-xcb1 \\',
+        '  libxcb-dri3-0 libxshmfence1 libdrm2 libcairo2 libpango-1.0-0 libfuse2'
+      ],
+      node: NVM,
+      notes: ["Debian 12 は libfuse2 を標準で含み、Debian 13 は <code>libfuse2t64</code> を使用します。見つからない場合は tar.gz 版を使用してください。"]
+    },
+    {
+      id: 'fedora',
+      label: 'Fedora / RHEL',
+      deps: [
+        'sudo dnf install -y git curl gcc-c++ make python3 rpm-build nodejs npm \\',
+        '  nss gtk3 alsa-lib libXScrnSaver libXtst libxkbcommon at-spi2-atk \\',
+        '  cups-libs libsecret libnotify mesa-libgbm libdrm fuse-libs'
+      ],
+      node: ['sudo dnf install -y nodejs npm', 'node -v && npm -v', "# v18 より古い場合は nvm または NodeSource でアップグレード"],
+      notes: ["rpm パッケージが必要な場合はターゲットを 1 つ追加するだけです：<code>npx electron-builder --linux rpm --x64</code>。"]
+    },
+    {
+      id: 'arch',
+      label: 'Arch / Manjaro',
+      deps: [
+        'sudo pacman -Sy --needed base-devel git curl nodejs npm python \\',
+        '  nss gtk3 alsa-lib libxss libxtst libxkbcommon at-spi2-core \\',
+        '  cups libsecret libnotify mesa fuse2'
+      ],
+      node: ['sudo pacman -Sy --needed nodejs npm', 'node -v && npm -v'],
+      notes: ["Arch はローリングリリースのため、通常はパッケージ名の追加対応は不要です。<code>fuse2</code> をインストールすれば AppImage を直接実行できます。"]
+    }
+  ];
+
+  var tabs = document.getElementById('os-tabs');
+  var panels = document.getElementById('os-panels');
+  if (!tabs || !panels) return;
+
+  function esc(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+  function pre(lines) {
+    return '<pre>' + lines.map(esc).join('\n') + '</pre>';
+  }
+
+  tabs.innerHTML = OS.map(function (o, i) {
+    return '<button class="os-tab' + (i === 0 ? ' active' : '') + '" type="button" role="tab" data-os="' +
+      o.id + '">' + o.label + '</button>';
+  }).join('');
+
+  panels.innerHTML = OS.map(function (o, i) {
+    return '<div class="os-panel' + (i === 0 ? ' active' : '') + '" role="tabpanel" data-os="' + o.id + '">' +
+      "<p><b>1. システム依存関係をインストール</b></p>" + pre(o.deps) +
+      "<p><b>2. Node 20 と npm をインストール / 確認</b></p>" + pre(o.node) +
+      "<p><b>3. ソースを取得して依存関係をインストール</b></p>" + pre(CLONE) +
+      "<p><b>4. パッケージ化</b></p>" + pre(BUILD) +
+      (o.notes || []).map(function (n) { return '<div class="os-callout">' + n + '</div>'; }).join('') +
+      '</div>';
+  }).join('');
+
+  tabs.addEventListener('click', function (e) {
+    var btn = e.target.closest('.os-tab');
+    if (!btn) return;
+    Array.prototype.forEach.call(tabs.querySelectorAll('.os-tab'), function (b) {
+      b.classList.toggle('active', b === btn);
+    });
+    Array.prototype.forEach.call(panels.querySelectorAll('.os-panel'), function (p) {
+      p.classList.toggle('active', p.dataset.os === btn.dataset.os);
+    });
+  });
+})();
+</script>
+<script>
+/* 快速构建安装：Linux / macOS 切换 */
+(function () {
+  var box = document.getElementById('quick-start');
+  if (!box) return;
+  var tabs = box.querySelectorAll('.qs-tab');
+  var panels = box.querySelectorAll('.qs-panel');
+
+  Array.prototype.forEach.call(tabs, function (tab) {
+    tab.addEventListener('click', function () {
+      var key = tab.getAttribute('data-qs');
+      Array.prototype.forEach.call(tabs, function (t) { t.classList.toggle('active', t === tab); });
+      Array.prototype.forEach.call(panels, function (p) {
+        p.classList.toggle('active', p.getAttribute('data-qs') === key);
+      });
+    });
+  });
+})();
+</script>
+<script>
+/* 为所有命令块添加复制按钮 */
+(function () {
+  function fallbackCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.top = '-1000px';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch (_) {}
+    document.body.removeChild(ta);
+  }
+  function copyText(text, btn) {
+    var done = function () {
+      btn.textContent = "コピーしました";
+      btn.classList.add('done');
+      setTimeout(function () {
+        btn.textContent = "コピー";
+        btn.classList.remove('done');
+      }, 1600);
+    };
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(done).catch(function () { fallbackCopy(text); done(); });
+    } else {
+      fallbackCopy(text);
+      done();
+    }
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('pre'), function (pre) {
+    if (pre.parentElement && pre.parentElement.classList.contains('code')) return;
+    var box = document.createElement('div');
+    box.className = 'code';
+    pre.parentNode.insertBefore(box, pre);
+    box.appendChild(pre);
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'copy';
+    btn.textContent = "コピー";
+    btn.setAttribute('aria-label', "コマンドをコピー");
+    btn.addEventListener('click', function () {
+      var text = (pre.innerText || pre.textContent || '').replace(/\s+$/, '');
+      copyText(text, btn);
+    });
+    box.appendChild(btn);
+  });
+})();
+</script>
+</body>
+</html>

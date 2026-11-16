@@ -114,6 +114,7 @@ function defaults() {
       window: { width: 0, height: 0, x: null, y: null },
       layout: null,
       theme: 'warm',
+      language: 'zh',
       netUnit: 'mbps',
       units: { global: 'mbps', chart: 'global', netDetail: 'global', downloads: 'global' },
       detailRefresh: 3000,
@@ -155,6 +156,8 @@ function defaults() {
 function normalizeSettings(raw) {
   const base = defaults().settings;
   const s = Object.assign({}, base, raw || {});
+  const langs = ['zh', 'zh-Hant', 'en', 'ru', 'fr', 'de', 'ja', 'ko'];
+  s.language = raw && langs.includes(raw.language) ? raw.language : 'zh';
   for (const k of ['fonts', 'mouse', 'shortcuts', 'panels', 'window', 'units', 'webdav', 'cloud']) {
     s[k] = Object.assign({}, base[k], (raw && raw[k]) || {});
   }

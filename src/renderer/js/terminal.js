@@ -372,6 +372,7 @@ window.Term = (function () {
       nic: '',
       netHistory: [],
       remotePath: null,
+      termCwd: null,
       status: 'connecting',
       error: '',
       term: null,
@@ -461,6 +462,7 @@ window.Term = (function () {
         nic: '',
         netHistory: [],
         remotePath: null,
+        termCwd: null,
         status: 'online',
         error: '',
         term: null,
@@ -701,6 +703,9 @@ window.Term = (function () {
 
   function handleCwd(sess, path) {
     if (!path || path[0] !== '/') return;
+    // 只响应终端 cwd 的真实变化，避免每条命令执行后都把文件管理器拉回终端目录
+    if (sess.termCwd === path) return;
+    sess.termCwd = path;
     if (sess.remotePath === path) return;
     sess.remotePath = path;
     if (App.state.activeId !== sess.id) return;
@@ -1014,10 +1019,17 @@ window.Term = (function () {
 
   function sendCommand() {
     const cmd = cmdInput.value;
-    if (!cmd.trim()) return;
     const list = targets();
     if (!list.length) {
       U.toast('当前没有已连接的终端', 'error');
+      return;
+    }
+    // 空内容时直接发送回车，方便确认交互式提示或重复执行上一条命令
+    if (!cmd.trim()) {
+      list.forEach((s) => window.api.termWrite({ sessionId: s.id, data: '\r' }));
+      cmdInput.value = '';
+      const active = App.active;
+      if (active && active.term) active.term.focus();
       return;
     }
     list.forEach((s) => window.api.termWrite({ sessionId: s.id, data: cmd + '\r' }));

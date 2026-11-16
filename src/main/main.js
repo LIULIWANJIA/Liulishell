@@ -3,6 +3,7 @@ const { app, BrowserWindow, ipcMain, dialog, Menu, shell, screen, net } = requir
 const path = require('path');
 const fs = require('fs');
 const https = require('https');
+const dns = require('dns');
 
 /* ---------- 数据目录 ----------
  * 1. 显式指定（测试 / 多配置）优先：LIULI_USER_DATA
@@ -37,6 +38,27 @@ let appQuitting = false;
 let downloadReady = false;
 let downloadShowWhenReady = false;
 let webdavSyncing = false;
+
+const NATIVE_I18N = require('./native-i18n');
+
+function currentLang() {
+  try {
+    return (store.publicState().settings || {}).language || 'zh';
+  } catch (_) {
+    return 'zh';
+  }
+}
+function isEn() {
+  return currentLang() !== 'zh' && currentLang() !== 'zh-Hant';
+}
+function isHant() {
+  return currentLang() === 'zh-Hant';
+}
+function msg(text) {
+  const lang = currentLang();
+  const map = NATIVE_I18N[lang] || NATIVE_I18N.en;
+  return (map && map[text]) || NATIVE_I18N.en[text] || text;
+}
 /* 界面缩放百分比（独立存储，不写进 liulishell-data.json，卸载 / 重装即重置） */
 let zoomPercent = zoomPref.DEFAULT_PERCENT;
 
@@ -520,7 +542,7 @@ function ensureDownloadWindow() {
   downloadWin = new BrowserWindow({
     ...centeredOverMain(820, 480),
     minWidth: 620, minHeight: 360,
-    title: '下载管理器 - LIULI Shell',
+    title: msg('下载管理器 - LIULI Shell'),
     backgroundColor: '#f7f6f2',
     transparent: false,
     frame: false,
@@ -598,7 +620,7 @@ function ensureFinalShellImportWindow() {
   }
   importWin = new BrowserWindow({
     width: 880, height: 720, minWidth: 700, minHeight: 560,
-    title: '导入 FinalShell 配置 - LIULI Shell',
+    title: msg('导入 FinalShell 配置 - LIULI Shell'),
     backgroundColor: '#f7f6f2',
     frame: process.platform === 'darwin',
     thickFrame: process.platform === 'win32' ? false : undefined,
@@ -628,7 +650,7 @@ function ensureEditorWindow() {
     height: 720,
     minWidth: 700,
     minHeight: 460,
-    title: '文件编辑器 - LIULI Shell',
+    title: msg('文件编辑器 - LIULI Shell'),
     backgroundColor: '#f7f6f2',
     frame: process.platform === 'darwin',
     thickFrame: process.platform === 'win32' ? false : undefined,
@@ -808,24 +830,24 @@ function buildMenu() {
   const template = [
     ...(isMac ? [{ role: 'appMenu' }] : []),
     {
-      label: '文件',
+      label: msg('文件'),
       submenu: [
         {
-          label: '新增 SSH 配置',
+          label: msg('新增 SSH 配置'),
           accelerator: 'CmdOrCtrl+N',
           click: () => broadcast('ui:new-connection')
         },
         { type: 'separator' },
-        { label: '导出配置（加密）…', click: () => broadcast('ui:export-config') },
-        { label: '导入配置…', click: () => broadcast('ui:import-config') },
+        { label: msg('导出配置（加密）…'), click: () => broadcast('ui:export-config') },
+        { label: msg('导入配置…'), click: () => broadcast('ui:import-config') },
         { type: 'separator' },
-        isMac ? { role: 'close' } : { role: 'quit', label: '退出' }
+        isMac ? { role: 'close' } : { role: 'quit', label: msg('退出') }
       ]
     },
-    { label: '编辑', submenu: [{ role: 'copy', label: '复制' }, { role: 'paste', label: '粘贴' }, { role: 'selectAll', label: '全选' }] },
+    { label: msg('编辑'), submenu: [{ role: 'copy', label: msg('复制') }, { role: 'paste', label: msg('粘贴') }, { role: 'selectAll', label: msg('全选') }] },
     {
-      label: '视图',
-      submenu: [{ role: 'reload', label: '重新加载' }]
+      label: msg('视图'),
+      submenu: [{ role: 'reload', label: msg('重新加载') }]
     }
   ];
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
@@ -870,7 +892,7 @@ function crashLog(kind, err) {
   // 启动即崩溃时用户只会看到"闪退"，这里补一个提示窗，告知日志位置
   if (kind === 'uncaughtException' && app.isReady()) {
     try {
-      dialog.showErrorBox('LIULI Shell 运行异常', `错误已记录到：\n${file}\n\n${(err && err.message) || String(err)}`);
+      dialog.showErrorBox(msg('LIULI Shell 运行异常'), `${isEn() ? 'Error logged to:' : isHant() ? '錯誤已記錄到：' : '错误已记录到：'}\n${file}\n\n${(err && err.message) || String(err)}`);
     } catch (_) {}
   }
 }
@@ -896,7 +918,8 @@ ipcMain.on('app:version', (e) => {
   e.returnValue = {
     version: app.getVersion(),
     portable: !!process.env.PORTABLE_EXECUTABLE_DIR,
-    dataFile: path.join(app.getPath('userData'), 'liulishell-data.json')
+    dataFile: path.join(app.getPath('userData'), 'liulishell-data.json'),
+    language: (store.publicState().settings || {}).language || 'zh'
   };
 });
 
@@ -919,11 +942,14 @@ function httpsJson(url, timeout = 9000, depth = 0) {
         }
       });
       res.on('end', () => {
-        try {
-          resolve(JSON.parse(data));
-        } catch (_) {
-          reject(new Error('返回内容不是有效 JSON'));
+        const text = data.trim();
+        if (text) {
+          try {
+            resolve(JSON.parse(text));
+            return;
+          } catch (_) {}
         }
+        reject(new Error(res.statusCode >= 400 ? `HTTP ${res.statusCode}` : '返回内容不是有效 JSON'));
       });
     });
     req.setTimeout(timeout, () => req.destroy(new Error('查询超时')));
@@ -950,21 +976,50 @@ function isLocalAddress(host) {
   return false;
 }
 
-ipcMain.handle('net:ipInfo', async (_e, { host }) => {  const h = String(host || '').trim().replace(/^https?:\/\//i, '').split('/')[0];
+/** 是否是 IP 字面量（IPv4 / IPv6），用于区分域名与 IP */
+function isIpLiteral(s) {
+  if (/^\d{1,3}(\.\d{1,3}){3}$/.test(s)) return true;
+  return s.includes(':') && /^[0-9a-f:.]+$/i.test(s);
+}
+
+ipcMain.handle('net:ipInfo', async (_e, { host }) => {
+  let h = String(host || '').trim().replace(/^https?:\/\//i, '').split('/')[0];
+  // 去掉可能手工填写的端口
+  if (/^\[[^\]]+\](:\d+)?$/.test(h)) h = h.replace(/^\[([^\]]+)\](:\d+)?$/, '$1');
+  else if (/^[^:]+:\d+$/.test(h)) h = h.split(':')[0];
   if (!h) return { ok: false, error: '主机地址为空' };
   if (isLocalAddress(h)) {
     return { ok: true, local: true, ip: h, reason: '本机或内网地址，不进行公网归属查询。' };
   }
+  const notFound = '未找到该地址的归属信息：请确认域名已解析，或填写有效的公网 IP';
   try {
-    const json = await httpsJson(`https://ipwho.is/${encodeURIComponent(h)}`);
+    // ipwho.is 只接受 IP 字面量，域名会返回 404；先把域名解析成 IP 再查询
+    let target = h;
+    let domain = '';
+    if (!isIpLiteral(h)) {
+      try {
+        const addr = await new Promise((resolve, reject) => {
+          dns.lookup(h, (err, a) => (err ? reject(err) : resolve(a)));
+        });
+        if (addr) {
+          target = addr;
+          domain = h;
+        }
+      } catch (_) {
+        return { ok: false, error: '无法解析域名：请确认域名拼写或网络 DNS 正常' };
+      }
+    }
+    const json = await httpsJson(`https://ipwho.is/${encodeURIComponent(target)}`);
     if (!json || json.success === false) {
-      return { ok: false, error: (json && json.message) || '查询失败' };
+      const detail = (json && json.message) || '查询失败';
+      return { ok: false, error: /404|not found/i.test(detail) ? notFound : detail };
     }
     const conn = json.connection || {};
     const tz = json.timezone || {};
     return {
       ok: true,
       ip: json.ip || '',
+      domain: domain,
       type: json.type || '',
       country: json.country || '',
       countryCode: json.country_code || '',
@@ -979,7 +1034,11 @@ ipcMain.handle('net:ipInfo', async (_e, { host }) => {  const h = String(host ||
       longitude: json.longitude
     };
   } catch (err) {
-    return { ok: false, error: (err && err.message) || String(err) };
+    const msg = (err && err.message) || String(err);
+    if (/HTTP 404/.test(msg)) {
+      return { ok: false, error: notFound };
+    }
+    return { ok: false, error: msg };
   }
 });
 
@@ -1106,7 +1165,7 @@ ipcMain.handle('downloads:close', () => {
 });
 ipcMain.handle('settings:pickDownloadDir', async () => {
   const r = await dialog.showOpenDialog(win, {
-    title: '选择下载文件夹',
+    title: msg('选择下载文件夹'),
     properties: ['openDirectory', 'createDirectory'],
     defaultPath: defaultDownloadDir()
   });
@@ -1199,14 +1258,17 @@ ipcMain.handle('settings:save', (_e, patch) => {
   }
   // 字体 / 速率单位等设置变更同步到下载管理器等独立窗口
   broadcastSettings();
+  if (process.platform === 'darwin') {
+    try { buildMenu(); } catch (_) {}
+  }
   // 返回安全视图：保证 hasPassword / hasSyncPass 等标记不丢失，也不把凭据下发到渲染进程
   return store.publicState().settings;
 });
 ipcMain.handle('dialog:pickKey', async () => {
   const r = await dialog.showOpenDialog(win, {
-    title: '选择私钥文件',
+    title: msg('选择私钥文件'),
     properties: ['openFile', 'showHiddenFiles'],
-    filters: [{ name: '私钥', extensions: ['pem', 'key', 'ppk', 'txt', '*'] }]
+    filters: [{ name: msg('私钥'), extensions: ['pem', 'key', 'ppk', 'txt', '*'] }]
   });
   if (r.canceled || !r.filePaths.length) return null;
   const p = r.filePaths[0];
@@ -1342,9 +1404,9 @@ ipcMain.handle('config:export', async (_e, { passphrase }) => {
   const d = new Date();
   const stamp = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
   const r = await dialog.showSaveDialog(win, {
-    title: '导出配置',
+    title: msg('导出配置'),
     defaultPath: path.join(defaultDownloadDir(), `liuli-config-${stamp}.lscfg`),
-    filters: [{ name: 'LIULI 加密配置', extensions: ['lscfg'] }]
+    filters: [{ name: msg('LIULI 加密配置'), extensions: ['lscfg'] }]
   });
   if (r.canceled || !r.filePath) return { ok: false };
   fs.writeFileSync(r.filePath, encryptConfigFile({ exportedAt: Date.now(), ...bundle }, passphrase), 'utf8');
@@ -1354,9 +1416,9 @@ ipcMain.handle('config:export', async (_e, { passphrase }) => {
 ipcMain.handle('config:import', async (_e, { passphrase }) => {
   if (!passphrase) throw new Error('请输入配置文件密码');
   const r = await dialog.showOpenDialog(win, {
-    title: '导入配置',
+    title: msg('导入配置'),
     properties: ['openFile'],
-    filters: [{ name: 'LIULI 加密配置', extensions: ['lscfg', 'json'] }]
+    filters: [{ name: msg('LIULI 加密配置'), extensions: ['lscfg', 'json'] }]
   });
   if (r.canceled || !r.filePaths.length) return { ok: false };
   const bundle = decryptConfigFile(fs.readFileSync(r.filePaths[0], 'utf8'), passphrase);
@@ -1506,16 +1568,16 @@ ipcMain.handle('finalshell:open', () => {
 
 ipcMain.handle('finalshell:pickFiles', async () => {
   const r = await dialog.showOpenDialog(importWin || win, {
-    title: '选择 FinalShell JSON 配置',
+    title: msg('选择 FinalShell JSON 配置'),
     properties: ['openFile', 'multiSelections'],
-    filters: [{ name: 'FinalShell 配置', extensions: ['json'] }]
+    filters: [{ name: msg('FinalShell 配置'), extensions: ['json'] }]
   });
   return r.canceled ? [] : r.filePaths;
 });
 
 ipcMain.handle('finalshell:pickFolder', async () => {
   const r = await dialog.showOpenDialog(importWin || win, {
-    title: '选择包含 FinalShell 配置的文件夹',
+    title: msg('选择包含 FinalShell 配置的文件夹'),
     properties: ['openDirectory']
   });
   return r.canceled || !r.filePaths.length ? null : r.filePaths[0];
@@ -2159,7 +2221,7 @@ ipcMain.handle('fs:upload', async (_e, { sessionId, remoteDir, localPaths, kind 
   if (!files || !files.length) {
     const folder = kind === 'folder';
     const r = await dialog.showOpenDialog(win, {
-      title: folder ? '选择要上传的文件夹' : '选择要上传的文件',
+      title: folder ? msg('选择要上传的文件夹') : msg('选择要上传的文件'),
       properties: folder ? ['openDirectory', 'multiSelections'] : ['openFile', 'multiSelections']
     });
     if (r.canceled || !r.filePaths.length) return { ok: false };

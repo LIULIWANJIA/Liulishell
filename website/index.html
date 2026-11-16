@@ -3,10 +3,47 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="google-adsense-account" content="ca-pub-2931673079859157">
 <title>琉璃 Shell - 跨平台 SHELL 工具 - by LIULIWANJIA</title>
 <meta name="description" content="LIULI Shell 是一款跨平台 SSH 客户端，整合服务器管理、多标签终端、SFTP 文件传输、实时监控、WebDAV 配置同步与 FinalShell 配置迁移。支持 Windows 10 / 11、Linux 与 macOS。" />
 <meta name="keywords" content="LIULIShell,琉璃Shell,LiuliShell,Finalshell,Finalshell替代品,XShell,好用的SHELL工具,好用的SHELL终端" />
+<link rel="canonical" href="https://shell.minecft.cn/" />
+<meta name="robots" content="index,follow" />
+<meta name="author" content="LIULIWANJIA" />
+<meta name="application-name" content="LIULI Shell" />
+<meta name="theme-color" content="#f5f6f6" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="LIULI Shell" />
+<meta property="og:title" content="琉璃 Shell - 跨平台 SHELL 工具 - by LIULIWANJIA" />
+<meta property="og:description" content="LIULI Shell 是一款跨平台 SSH 客户端，整合服务器管理、多标签终端、SFTP 文件传输、实时监控、WebDAV 配置同步与 FinalShell 配置迁移。支持 Windows 10 / 11、Linux 与 macOS。" />
+<meta property="og:url" content="https://shell.minecft.cn/" />
+<meta property="og:image" content="https://shell.minecft.cn/img/hero-zh.webp" />
+<meta property="og:image:alt" content="LIULI Shell 主界面：服务器、终端与文件管理" />
+<meta property="og:locale" content="zh_CN" />
+<meta property="og:locale:alternate" content="zh_TW" />
+<meta property="og:locale:alternate" content="en_US" />
+<meta property="og:locale:alternate" content="ja_JP" />
+<meta property="og:locale:alternate" content="ko_KR" />
+<meta property="og:locale:alternate" content="ru_RU" />
+<meta property="og:locale:alternate" content="fr_FR" />
+<meta property="og:locale:alternate" content="de_DE" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="琉璃 Shell - 跨平台 SHELL 工具 - by LIULIWANJIA" />
+<meta name="twitter:description" content="LIULI Shell 是一款跨平台 SSH 客户端，整合服务器管理、多标签终端、SFTP 文件传输、实时监控、WebDAV 配置同步与 FinalShell 配置迁移。支持 Windows 10 / 11、Linux 与 macOS。" />
+<meta name="twitter:image" content="https://shell.minecft.cn/img/hero-zh.webp" />
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"LIULI Shell","alternateName":"琉璃 Shell","applicationCategory":"DeveloperApplication","operatingSystem":"Windows 10/11, Linux, macOS","description":"LIULI Shell 是一款跨平台 SSH 客户端，整合服务器管理、多标签终端、SFTP 文件传输、实时监控、WebDAV 配置同步与 FinalShell 配置迁移。支持 Windows 10 / 11、Linux 与 macOS。","url":"https://shell.minecft.cn/","downloadUrl":"https://github.com/LIULIWANJIA/Liulishell/releases","image":"https://shell.minecft.cn/img/hero-zh.webp","screenshot":"https://shell.minecft.cn/img/hero-zh.webp","inLanguage":"zh-CN","author":{"@type":"Person","name":"LIULIWANJIA"},"sameAs":["https://github.com/LIULIWANJIA/Liulishell"]}</script>
 <link rel="icon" href="icon.png" />
+<link rel="alternate" hreflang="zh-CN" href="https://shell.minecft.cn/" />
+<link rel="alternate" hreflang="zh-Hant" href="https://shell.minecft.cn/zh-Hant.html" />
+<link rel="alternate" hreflang="en" href="https://shell.minecft.cn/en.html" />
+<link rel="alternate" hreflang="ja" href="https://shell.minecft.cn/ja.html" />
+<link rel="alternate" hreflang="ko" href="https://shell.minecft.cn/ko.html" />
+<link rel="alternate" hreflang="ru" href="https://shell.minecft.cn/ru.html" />
+<link rel="alternate" hreflang="fr" href="https://shell.minecft.cn/fr.html" />
+<link rel="alternate" hreflang="de" href="https://shell.minecft.cn/de.html" />
+<link rel="alternate" hreflang="x-default" href="https://shell.minecft.cn/" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2931673079859157"
+     crossorigin="anonymous"></script>
 <style>
   :root {
     --bg: #f5f6f6;
@@ -123,11 +160,12 @@
   .btn.soft { border-color: transparent; background: var(--accent-soft); color: var(--accent); }
   .btn.soft:hover { background: #dfe9ef; border-color: transparent; }
   .btn.sm { height: 34px; padding: 0 13px; font-size: 12px; border-radius: 8px; }
+  .btn.lang { font: 600 11px/1 var(--mono); letter-spacing: .8px; }
   .ext { font-size: 11px; opacity: .6; }
 
   /* ---------- Hero ---------- */
   .hero { padding: 146px 0 46px; position: relative; }
-  .hero-grid { display: grid; grid-template-columns: 1.02fr .98fr; gap: 54px; align-items: center; }
+  .hero-grid { display: grid; grid-template-columns: 1.02fr .98fr; gap: 34px; align-items: center; }
   .hero-grid > * { min-width: 0; }
   .eyebrow {
     display: inline-flex; align-items: center; gap: 9px; padding: 6px 12px;
@@ -148,7 +186,7 @@
   }
   .lead { margin: 0; max-width: 530px; color: #6f7881; font-size: 13.5px; line-height: 1.85; }
   .lead b { color: inherit; font-weight: 400; }
-  .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 54px; }
   .hero-meta {
     display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 24px;
     color: var(--muted); font: 10.5px var(--mono); letter-spacing: .2px;
@@ -284,6 +322,46 @@
   }
   .shot b { font-size: 12.5px; }
   .shot span { color: var(--muted); font: 10px var(--mono); text-align: right; }
+
+  /* ---------- 多语言 ---------- */
+  .lang-menu { position: relative; }
+  .lang-menu > summary {
+    list-style: none; cursor: pointer; user-select: none;
+    display: inline-flex; align-items: center; gap: 6px;
+    height: 34px; padding: 0 12px; border: 1px solid var(--line-2); border-radius: 8px;
+    background: var(--surface); color: var(--text); font-size: 12px; white-space: nowrap;
+    transition: border-color .16s ease, color .16s ease;
+  }
+  .lang-menu > summary::-webkit-details-marker { display: none; }
+  .lang-menu > summary:hover { border-color: var(--accent); color: var(--accent); }
+  .lang-menu[open] > summary { border-color: var(--accent); color: var(--accent); }
+  .lang-menu > summary i { font-style: normal; font-size: 9px; opacity: .55; }
+  .lang-list {
+    position: absolute; right: 0; top: calc(100% + 8px); z-index: 60;
+    display: grid; gap: 2px; min-width: 176px; padding: 6px;
+    border: 1px solid var(--line); border-radius: 10px; background: var(--surface);
+    box-shadow: 0 18px 42px rgba(20, 24, 28, .14);
+  }
+  .lang-list a {
+    padding: 9px 10px; border-radius: 7px; font-size: 13px; color: var(--text-2);
+    white-space: nowrap; transition: background .14s ease, color .14s ease;
+  }
+  .lang-list a:hover { background: var(--bg-2); color: var(--text); }
+  .lang-list a[aria-current="page"] { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+  .lang-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .lang-cards > * { min-width: 0; }
+  .lang-card {
+    padding: 16px 16px 14px; border: 1px solid var(--line); border-radius: 10px;
+    background: var(--surface); box-shadow: 0 1px 2px rgba(20, 24, 28, .03);
+  }
+  .lang-card.on { border-color: var(--accent); background: var(--accent-soft); }
+  .lang-card b { display: block; font-size: 14px; letter-spacing: .2px; }
+  .lang-card i {
+    display: block; margin-top: 6px; color: var(--muted);
+    font: 10.5px var(--mono); font-style: normal; letter-spacing: .3px;
+  }
+  @media (max-width: 980px) { .lang-cards { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 520px) { .lang-cards { grid-template-columns: 1fr; } }
 
   /* ---------- 下载 ---------- */
   .dl-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
@@ -603,7 +681,6 @@
     .brand b { font-size: 14px; }
     .head-cta .btn span:not(.ext) { display: none; }
     .head-cta .btn { padding: 0 11px; }
-    .head-cta .btn.gh { display: none; }
     .nav-toggle { width: 34px; height: 34px; }
     section { padding: 58px 0; }
     .hero { padding-top: 100px; }
@@ -643,48 +720,13 @@
   .head-cta { margin-left: auto; }
   section { padding: 44px 0; }
   h1 { font-size: clamp(32px, 4.2vw, 54px); letter-spacing: -1.5px; }
+  /* 日/韩/德文的标题更长，单独收一点字号，避免单词被拆到多行 */
+  html[lang="ja"] h1, html[lang="ko"] h1 { font-size: clamp(26px, 3vw, 40px); letter-spacing: -1px; }
+  html[lang="de"] h1 { font-size: clamp(28px, 3.3vw, 44px); letter-spacing: -1.2px; }
 
   .hero { padding: 132px 0 34px; }
   .hero-grid { grid-template-columns: .92fr 1.08fr; gap: 48px; }
-  .hero-top { display: grid; grid-template-columns: 1.08fr .92fr; gap: 46px; align-items: center; }
   .hero-copy { min-width: 0; }
-  .quick-card {
-    position: relative; padding: 28px 26px; border: 1px solid var(--line); border-radius: 10px;
-    background: linear-gradient(165deg, #ffffff 0%, #f6f9fa 100%);
-    box-shadow: 0 20px 60px rgba(20, 24, 28, .09);
-  }
-  .quick-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
-  .quick-head .badge { margin-bottom: 0; }
-  .quick-ver { color: var(--muted); font: 10px var(--mono); white-space: nowrap; }
-  .quick-card h2 { margin: 0 0 8px; font-size: 24px; letter-spacing: -.6px; }
-  .quick-card p { margin: 0 0 18px; color: var(--text-2); font-size: 12px; line-height: 1.8; }
-  .quick-card .btn { width: 100%; height: 46px; margin-bottom: 8px; font-size: 13px; }
-  .quick-link {
-    display: flex; align-items: center; justify-content: space-between; gap: 10px;
-    padding: 11px 0; border-top: 1px solid var(--line);
-    color: var(--text-2); font-size: 12px; transition: color .15s ease;
-  }
-  .quick-link:hover { color: var(--accent); }
-  .quick-link span { font-size: 11px; opacity: .6; }
-  .quick-note { margin-top: 12px; color: var(--muted); font: 10px/1.7 var(--mono); }
-
-  .hero-show { margin-top: 34px; }
-  .show-frame {
-    position: relative; overflow: hidden; border: 1px solid var(--line-2); border-radius: 10px;
-    background: var(--surface); box-shadow: 0 30px 80px rgba(20, 24, 28, .13);
-  }
-  .show-img { aspect-ratio: 16 / 10; overflow: hidden; background: #eef0f2; }
-  .show-img img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top center; }
-  .show-chip {
-    position: absolute; z-index: 2; display: inline-flex; align-items: center; gap: 6px;
-    padding: 7px 11px; border: 1px solid rgba(255, 255, 255, .65); border-radius: 9px;
-    background: rgba(255, 255, 255, .92); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
-    color: var(--text-2); font: 10px var(--mono); letter-spacing: .4px;
-    box-shadow: 0 8px 24px rgba(20, 24, 28, .12);
-  }
-  .show-chip b { color: var(--accent); }
-  .c1 { left: 16px; bottom: 16px; }
-  .c2 { right: 16px; bottom: 16px; }
   .hero .stats { margin-top: 20px; }
 
   .sec-head {
@@ -826,16 +868,10 @@
   .sec-item div b { display: block; margin-bottom: 2px; font-size: 11.5px; }
   .sec-item div span { display: block; color: var(--text-2); font-size: 10.5px; line-height: 1.7; }
 
-  @media (max-width: 1080px) {
-    .hero-top { gap: 32px; }
-  }
   @media (max-width: 980px) {
     .nav { margin-left: 0; }
     .hero { padding-top: 118px; }
     .hero-grid { grid-template-columns: 1fr; gap: 28px; }
-    .hero-top { grid-template-columns: 1fr; gap: 28px; }
-    .quick-card { max-width: 560px; }
-    .hero-show { margin-top: 32px; }
     .bento { grid-template-columns: repeat(2, 1fr); }
     .dl-grid { grid-template-columns: 1fr; }
     .dl-card.rec { grid-column: auto; grid-template-columns: 1fr; }
@@ -847,14 +883,10 @@
     .feature-detail.rev .fd-copy { order: -1; }
   }
   @media (max-width: 640px) {
-    .head-cta .btn.gh { display: inline-flex; }
     section { padding: 36px 0; }
     .hero { padding-top: 96px; }
     h1 { font-size: 36px; }
-    .hero-top { gap: 22px; }
-    .quick-card { padding: 22px; }
-    .show-img { aspect-ratio: 4 / 3; }
-    .show-chip { display: none; }
+    .hero-actions { margin-top: 34px; }
     .bento { grid-template-columns: 1fr; }
     .sec-head { padding-top: 20px; }
     h2 { font-size: 30px; }
@@ -869,6 +901,11 @@
   @media (max-width: 380px) {
     h1 { font-size: 30px; }
   }
+</style>
+<style>
+  /* English layout tweaks (kept in the shared template) */
+  html:not([lang="zh-CN"]):not([lang="zh-Hant"]) .fd-list li { grid-template-columns: 140px 1fr; }
+  @media (max-width: 640px) { html:not([lang="zh-CN"]):not([lang="zh-Hant"]) .fd-list li { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body id="top">
@@ -887,7 +924,7 @@
         <a href="#community">群组</a>
       </nav>
       <div class="head-cta">
-        <a class="btn sm gh" href="https://github.com/LIULIWANJIA/Liulishell" target="_blank" rel="noopener noreferrer">GitHub <span class="ext">↗</span></a>
+        <details class="lang-menu"><summary aria-label="简体中文">简体中文 <i>▾</i></summary><div class="lang-list"><a href="index.html" hreflang="zh-CN" aria-current="page">简体中文</a><a href="zh-Hant.html" hreflang="zh-Hant">繁體中文</a><a href="en.html" hreflang="en">English</a><a href="ja.html" hreflang="ja">日本語</a><a href="ko.html" hreflang="ko">한국어</a><a href="ru.html" hreflang="ru">Русский</a><a href="fr.html" hreflang="fr">Français</a><a href="de.html" hreflang="de">Deutsch</a></div></details>
         <a class="btn sm primary" href="https://pan.quark.cn/s/3b9930496416?pwd=YKXY" target="_blank" rel="noopener noreferrer">下载 <span class="ext">↗</span></a>
       </div>
       <button class="nav-toggle" id="nav-toggle" type="button" aria-label="打开菜单" aria-expanded="false">
@@ -903,7 +940,7 @@
           <div class="hero-copy">
             <span class="eyebrow"><i></i>桌面端 SSH 客户端 · Windows / Linux / macOS</span>
             <h1>连接、终端、文件<br /><span class="grad">放进同一个窗口</span></h1>
-            <p class="lead">
+            <p class="lead"><br>
               LIULI Shell 是一款跨平台 SSH 客户端。<br>
               它把连接管理、交互式终端、SFTP 文件传输、运行状态监控与配置同步整合到一个桌面应用中，适合需要同时维护多台服务器的开发者与运维人员。
             </p>
@@ -921,7 +958,7 @@
           </div>
           <div class="frame-wrap">
             <div class="frame">
-              <img src="img/hero.webp" alt="LIULI Shell 主界面，左侧服务器与监控、中间终端与文件、右侧服务器信息与进程" />
+              <img src="img/hero-zh.webp" width="1132" height="896" fetchpriority="high" alt="LIULI Shell 主界面，左侧服务器与监控、中间终端与文件、右侧服务器信息与进程" />
             </div>
           </div>
         </div>
@@ -1120,7 +1157,7 @@ npx electron-builder --mac dmg zip --arm64    <span class="c-cm"># 只打 Apple 
               </div>
 
               <div class="mock-plan">
-                预计：创建 <b>2</b> 个新一级分组　<b>3</b> 个新二级分组　<b>1</b> 个新三级分组　共 <b>14</b> 个服务器配置
+                预计：创建 <b>2</b> 个新一级分组　<b>3</b> 个新二级分组　<b>1</b> 个新三级分组 共 <b>14</b> 个服务器配置
               </div>
 
               <div class="mock-row">
@@ -1228,7 +1265,7 @@ npx electron-builder --mac dmg zip --arm64    <span class="c-cm"># 只打 Apple 
             <span class="f-num">06</span>
             <div class="f-ico">☁</div>
             <h3>云同步</h3>
-            <p>通过 WebDAV 加密同步服务器配置、分组与收藏，多设备双向合并；也可以手动同步或备份。</p>
+            <p>支持官方云服务与自定义 WebDAV：加密同步服务器配置、分组与收藏，多设备双向合并；也可以手动同步或备份。</p>
           </article>
           <article class="f-card">
             <span class="f-num">07</span>
@@ -1404,6 +1441,20 @@ npx electron-builder --mac dmg zip --arm64    <span class="c-cm"># 只打 Apple 
             <figcaption><b>快捷命令</b><span>按板块整理，可直接执行</span></figcaption>
           </figure>
         </div>
+      </div>
+    </section>
+
+    <!-- ============ 多语言 ============ -->
+    <section id="i18n">
+      <div class="wrap">
+        <div class="sec-head">
+          <div>
+            <div class="sec-tag">多语言</div>
+            <h2>八种语言的界面与官网</h2>
+            <p>客户端界面与本站均已提供简体中文、繁体中文、英语、俄语、法语、德语、日语与韩语版本。切换语言时页面地址与 hreflang 标注同步变化，每种语言都对应同一套功能与截图。</p>
+          </div>
+        </div>
+        <div class="lang-cards"><div class="lang-card on"><b>简体中文</b><i>Chinese (Simplified) · zh-CN</i></div><div class="lang-card"><b>繁體中文</b><i>Chinese (Traditional) · zh-Hant</i></div><div class="lang-card"><b>English</b><i>English · en</i></div><div class="lang-card"><b>日本語</b><i>Japanese · ja</i></div><div class="lang-card"><b>한국어</b><i>Korean · ko</i></div><div class="lang-card"><b>Русский</b><i>Russian · ru</i></div><div class="lang-card"><b>Français</b><i>French · fr</i></div><div class="lang-card"><b>Deutsch</b><i>German · de</i></div></div>
       </div>
     </section>
 
@@ -1734,7 +1785,7 @@ spctl --assess --type execute -vv "/Applications/LIULI Shell.app"   # 查看拦�
     nav.classList.toggle('open', open);
     btn.classList.toggle('open', open);
     btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-    btn.setAttribute('aria-label', open ? '关闭菜单' : '打开菜单');
+    btn.setAttribute('aria-label', open ? "关闭菜单" : "打开菜单");
   }
   btn.addEventListener('click', function (e) {
     e.stopPropagation();
@@ -1755,11 +1806,11 @@ spctl --assess --type execute -vv "/Applications/LIULI Shell.app"   # 查看拦�
 /* Linux 各发行版构建命令（Tab 切换）。包名差异集中在系统依赖，其余步骤一致。 */
 (function () {
   var CLONE = [
-    '# 删除旧目录，同时清理 GitHub 默认目录 Liulishell',
+    "# 删除旧目录，同时清理 GitHub 默认目录 Liulishell",
     'rm -rf liuli-shell Liulishell',
-    '# Gitee（国内推荐，默认目录 liuli-shell）',
+    "# Gitee（国内推荐，默认目录 liuli-shell）",
     'git clone https://gitee.com/liuliwanjiaweb/liuli-shell.git liuli-shell',
-    '# GitHub（海外推荐，默认目录 Liulishell，显式指定为 liuli-shell）',
+    "# GitHub（海外推荐，默认目录 Liulishell，显式指定为 liuli-shell）",
     '# git clone https://github.com/LIULIWANJIA/Liulishell.git liuli-shell',
     'cd liuli-shell',
     'npm ci || npm install',
@@ -1767,19 +1818,19 @@ spctl --assess --type execute -vv "/Applications/LIULI Shell.app"   # 查看拦�
   ];
   var BUILD = [
     'npm run dist:linux            # AppImage + deb + tar.gz',
-    '# 只打单个目标：',
+    "# 只打单个目标：",
     'npm run dist:linux:appimage',
     'npm run dist:linux:deb',
     'npm run dist:linux:tar',
     '',
-    '# 或一键脚本（自动识别发行版、自动处理 t64 包名、可选交互）',
+    "# 或一键脚本（自动识别发行版、自动处理 t64 包名、可选交互）",
     'bash scripts/build-linux.sh',
     '',
-    '# 依赖没装上、构建报错时',
+    "# 依赖没装上、构建报错时",
     'bash scripts/build-linux.sh repair && bash scripts/build-linux.sh deps'
   ];
   var NVM = [
-    '# 系统源 Node 版本常常低于 18，推荐用 nvm 装 20',
+    "# 系统源 Node 版本常常低于 18，推荐用 nvm 装 20",
     'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash',
     'source ~/.nvm/nvm.sh',
     'nvm install 20 && nvm use 20',
@@ -1797,7 +1848,7 @@ spctl --assess --type execute -vv "/Applications/LIULI Shell.app"   # 查看拦�
         '  libatk-bridge2.0-0 libcups2 libnotify4 libatspi2.0-0 libsecret-1-0 libfuse2'
       ],
       node: NVM,
-      notes: ['22.04 默认自带 libfuse2，AppImage 可直接运行；20.04 缺 FUSE 时执行 <code>sudo apt install -y libfuse2</code>。']
+      notes: ["22.04 默认自带 libfuse2，AppImage 可直接运行；20.04 缺 FUSE 时执行 <code>sudo apt install -y libfuse2</code>。"]
     },
     {
       id: 'u2404',
@@ -1811,7 +1862,7 @@ spctl --assess --type execute -vv "/Applications/LIULI Shell.app"   # 查看拦�
         '  libsecret-1-0t64 libfuse2t64'
       ],
       node: NVM,
-      notes: ['24.04 起系统库统一改名为 <code>*t64</code>，写成 <code>libasound2</code> 会提示「无法定位软件包」，这是最常见的报错来源。']
+      notes: ["24.04 起系统库统一改名为 <code>*t64</code>，写成 <code>libasound2</code> 会提示「无法定位软件包」，这是最常见的报错来源。"]
     },
     {
       id: 'u2604',
@@ -1820,7 +1871,7 @@ spctl --assess --type execute -vv "/Applications/LIULI Shell.app"   # 查看拦�
         'sudo apt update',
         'sudo apt install -y git curl build-essential python3 fakeroot dpkg-dev nodejs npm',
         '',
-        '# 24.04 起系统库改为 t64 命名：先按旧名装，失败自动回退 t64',
+        "# 24.04 起系统库改为 t64 命名：先按旧名装，失败自动回退 t64",
         'for p in libasound2 libgtk-3-0 libatk-bridge2.0-0 libatk1.0-0 libcups2 \\',
         '         libnotify4 libatspi2.0-0 libsecret-1-0; do',
         '  sudo apt install -y "$p" 2>/dev/null || sudo apt install -y "${p}t64"',
@@ -1831,8 +1882,8 @@ spctl --assess --type execute -vv "/Applications/LIULI Shell.app"   # 查看拦�
       ],
       node: NVM,
       notes: [
-        '这段循环写法在 22.04 ~ 26.04 都能直接用，不会再因为包名带不带 <code>t64</code> 而失败。',
-        '<code>scripts/build-linux.sh deps</code> 里就是同样的逻辑，可以只跑依赖安装。'
+        "这段循环写法在 22.04 ~ 26.04 都能直接用，不会再因为包名带不带 <code>t64</code> 而失败。",
+        "<code>scripts/build-linux.sh deps</code> 里就是同样的逻辑，可以只跑依赖安装。"
       ]
     },
     {
@@ -1842,7 +1893,7 @@ spctl --assess --type execute -vv "/Applications/LIULI Shell.app"   # 查看拦�
         'sudo apt update',
         'sudo apt install -y git curl build-essential python3 fakeroot dpkg-dev nodejs npm',
         '',
-        '# Debian 12 用旧包名，Debian 13(trixie) 起改为 t64 —— 循环自动适配',
+        "# Debian 12 用旧包名，Debian 13(trixie) 起改为 t64 —— 循环自动适配",
         'for p in libasound2 libgtk-3-0 libatk-bridge2.0-0 libatk1.0-0 libcups2 \\',
         '         libnotify4 libatspi2.0-0 libsecret-1-0; do',
         '  sudo apt install -y "$p" 2>/dev/null || sudo apt install -y "${p}t64"',
@@ -1852,7 +1903,7 @@ spctl --assess --type execute -vv "/Applications/LIULI Shell.app"   # 查看拦�
         '  libxcb-dri3-0 libxshmfence1 libdrm2 libcairo2 libpango-1.0-0 libfuse2'
       ],
       node: NVM,
-      notes: ['Debian 12 自带 libfuse2；Debian 13 用 <code>libfuse2t64</code>，找不到就改用 tar.gz 版本。']
+      notes: ["Debian 12 自带 libfuse2；Debian 13 用 <code>libfuse2t64</code>，找不到就改用 tar.gz 版本。"]
     },
     {
       id: 'fedora',
@@ -1862,8 +1913,8 @@ spctl --assess --type execute -vv "/Applications/LIULI Shell.app"   # 查看拦�
         '  nss gtk3 alsa-lib libXScrnSaver libXtst libxkbcommon at-spi2-atk \\',
         '  cups-libs libsecret libnotify mesa-libgbm libdrm fuse-libs'
       ],
-      node: ['sudo dnf install -y nodejs npm', 'node -v && npm -v', '# 低于 v18 时用 nvm 或 NodeSource 升级'],
-      notes: ['需要 rpm 包时加一个目标即可：<code>npx electron-builder --linux rpm --x64</code>。']
+      node: ['sudo dnf install -y nodejs npm', 'node -v && npm -v', "# 低于 v18 时用 nvm 或 NodeSource 升级"],
+      notes: ["需要 rpm 包时加一个目标即可：<code>npx electron-builder --linux rpm --x64</code>。"]
     },
     {
       id: 'arch',
@@ -1874,7 +1925,7 @@ spctl --assess --type execute -vv "/Applications/LIULI Shell.app"   # 查看拦�
         '  cups libsecret libnotify mesa fuse2'
       ],
       node: ['sudo pacman -Sy --needed nodejs npm', 'node -v && npm -v'],
-      notes: ['Arch 滚动更新，一般不需要额外处理包名；<code>fuse2</code> 装上后 AppImage 可直接运行。']
+      notes: ["Arch 滚动更新，一般不需要额外处理包名；<code>fuse2</code> 装上后 AppImage 可直接运行。"]
     }
   ];
 
@@ -1896,10 +1947,10 @@ spctl --assess --type execute -vv "/Applications/LIULI Shell.app"   # 查看拦�
 
   panels.innerHTML = OS.map(function (o, i) {
     return '<div class="os-panel' + (i === 0 ? ' active' : '') + '" role="tabpanel" data-os="' + o.id + '">' +
-      '<p><b>1. 安装系统依赖</b></p>' + pre(o.deps) +
-      '<p><b>2. 安装 / 确认 Node 20 与 npm</b></p>' + pre(o.node) +
-      '<p><b>3. 获取源码并安装依赖</b></p>' + pre(CLONE) +
-      '<p><b>4. 打包</b></p>' + pre(BUILD) +
+      "<p><b>1. 安装系统依赖</b></p>" + pre(o.deps) +
+      "<p><b>2. 安装 / 确认 Node 20 与 npm</b></p>" + pre(o.node) +
+      "<p><b>3. 获取源码并安装依赖</b></p>" + pre(CLONE) +
+      "<p><b>4. 打包</b></p>" + pre(BUILD) +
       (o.notes || []).map(function (n) { return '<div class="os-callout">' + n + '</div>'; }).join('') +
       '</div>';
   }).join('');
@@ -1951,10 +2002,10 @@ spctl --assess --type execute -vv "/Applications/LIULI Shell.app"   # 查看拦�
   }
   function copyText(text, btn) {
     var done = function () {
-      btn.textContent = '已复制';
+      btn.textContent = "已复制";
       btn.classList.add('done');
       setTimeout(function () {
-        btn.textContent = '复制';
+        btn.textContent = "复制";
         btn.classList.remove('done');
       }, 1600);
     };
@@ -1976,8 +2027,8 @@ spctl --assess --type execute -vv "/Applications/LIULI Shell.app"   # 查看拦�
     var btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'copy';
-    btn.textContent = '复制';
-    btn.setAttribute('aria-label', '复制命令');
+    btn.textContent = "复制";
+    btn.setAttribute('aria-label', "复制命令");
     btn.addEventListener('click', function () {
       var text = (pre.innerText || pre.textContent || '').replace(/\s+$/, '');
       copyText(text, btn);

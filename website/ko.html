@@ -1,12 +1,49 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="ko">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>琉璃 Shell - 跨平台 SHELL 工具 - by LIULIWANJIA</title>
-<meta name="description" content="LIULI Shell 是一款跨平台 SSH 客户端，整合服务器管理、多标签终端、SFTP 文件传输、实时监控、WebDAV 配置同步与 FinalShell 配置迁移。支持 Windows 10 / 11、Linux 与 macOS。" />
-<meta name="keywords" content="LIULIShell,琉璃Shell,LiuliShell,Finalshell,Finalshell替代品,XShell,好用的SHELL工具,好用的SHELL终端" />
+<meta name="google-adsense-account" content="ca-pub-2931673079859157">
+<title>琉璃 Shell - 크로스 플랫폼 SHELL 도구 - by LIULIWANJIA</title>
+<meta name="description" content="LIULI Shell은 서버 관리, 다중 탭 터미널, SFTP 파일 전송, 실시간 모니터링, WebDAV 설정 동기화와 FinalShell 설정 마이그레이션을 하나로 통합한 크로스 플랫폼 SSH 클라이언트입니다. Windows 10 / 11, Linux 및 macOS를 지원합니다." />
+<meta name="keywords" content="LIULIShell,琉璃Shell,LiuliShell,Finalshell,Finalshell 대체,SHELL 도구,SHELL 터미널,SSH 클라이언트,SSH 터미널" />
+<link rel="canonical" href="https://shell.minecft.cn/ko.html" />
+<meta name="robots" content="index,follow" />
+<meta name="author" content="LIULIWANJIA" />
+<meta name="application-name" content="LIULI Shell" />
+<meta name="theme-color" content="#f5f6f6" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="LIULI Shell" />
+<meta property="og:title" content="琉璃 Shell - 크로스 플랫폼 SHELL 도구 - by LIULIWANJIA" />
+<meta property="og:description" content="LIULI Shell은 서버 관리, 다중 탭 터미널, SFTP 파일 전송, 실시간 모니터링, WebDAV 설정 동기화와 FinalShell 설정 마이그레이션을 하나로 통합한 크로스 플랫폼 SSH 클라이언트입니다. Windows 10 / 11, Linux 및 macOS를 지원합니다." />
+<meta property="og:url" content="https://shell.minecft.cn/ko.html" />
+<meta property="og:image" content="https://shell.minecft.cn/img/hero-ko.webp" />
+<meta property="og:image:alt" content="LIULI Shell 메인 화면: 서버, 터미널 및 파일 관리" />
+<meta property="og:locale" content="ko_KR" />
+<meta property="og:locale:alternate" content="zh_CN" />
+<meta property="og:locale:alternate" content="zh_TW" />
+<meta property="og:locale:alternate" content="en_US" />
+<meta property="og:locale:alternate" content="ja_JP" />
+<meta property="og:locale:alternate" content="ru_RU" />
+<meta property="og:locale:alternate" content="fr_FR" />
+<meta property="og:locale:alternate" content="de_DE" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="琉璃 Shell - 크로스 플랫폼 SHELL 도구 - by LIULIWANJIA" />
+<meta name="twitter:description" content="LIULI Shell은 서버 관리, 다중 탭 터미널, SFTP 파일 전송, 실시간 모니터링, WebDAV 설정 동기화와 FinalShell 설정 마이그레이션을 하나로 통합한 크로스 플랫폼 SSH 클라이언트입니다. Windows 10 / 11, Linux 및 macOS를 지원합니다." />
+<meta name="twitter:image" content="https://shell.minecft.cn/img/hero-ko.webp" />
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"LIULI Shell","alternateName":"琉璃 Shell","applicationCategory":"DeveloperApplication","operatingSystem":"Windows 10/11, Linux, macOS","description":"LIULI Shell은 서버 관리, 다중 탭 터미널, SFTP 파일 전송, 실시간 모니터링, WebDAV 설정 동기화와 FinalShell 설정 마이그레이션을 하나로 통합한 크로스 플랫폼 SSH 클라이언트입니다. Windows 10 / 11, Linux 및 macOS를 지원합니다.","url":"https://shell.minecft.cn/ko.html","downloadUrl":"https://github.com/LIULIWANJIA/Liulishell/releases","image":"https://shell.minecft.cn/img/hero-ko.webp","screenshot":"https://shell.minecft.cn/img/hero-ko.webp","inLanguage":"ko","author":{"@type":"Person","name":"LIULIWANJIA"},"sameAs":["https://github.com/LIULIWANJIA/Liulishell"]}</script>
 <link rel="icon" href="icon.png" />
+<link rel="alternate" hreflang="zh-CN" href="https://shell.minecft.cn/" />
+<link rel="alternate" hreflang="zh-Hant" href="https://shell.minecft.cn/zh-Hant.html" />
+<link rel="alternate" hreflang="en" href="https://shell.minecft.cn/en.html" />
+<link rel="alternate" hreflang="ja" href="https://shell.minecft.cn/ja.html" />
+<link rel="alternate" hreflang="ko" href="https://shell.minecft.cn/ko.html" />
+<link rel="alternate" hreflang="ru" href="https://shell.minecft.cn/ru.html" />
+<link rel="alternate" hreflang="fr" href="https://shell.minecft.cn/fr.html" />
+<link rel="alternate" hreflang="de" href="https://shell.minecft.cn/de.html" />
+<link rel="alternate" hreflang="x-default" href="https://shell.minecft.cn/" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2931673079859157"
+     crossorigin="anonymous"></script>
 <style>
   :root {
     --bg: #f5f6f6;
@@ -123,11 +160,12 @@
   .btn.soft { border-color: transparent; background: var(--accent-soft); color: var(--accent); }
   .btn.soft:hover { background: #dfe9ef; border-color: transparent; }
   .btn.sm { height: 34px; padding: 0 13px; font-size: 12px; border-radius: 8px; }
+  .btn.lang { font: 600 11px/1 var(--mono); letter-spacing: .8px; }
   .ext { font-size: 11px; opacity: .6; }
 
   /* ---------- Hero ---------- */
   .hero { padding: 146px 0 46px; position: relative; }
-  .hero-grid { display: grid; grid-template-columns: 1.02fr .98fr; gap: 54px; align-items: center; }
+  .hero-grid { display: grid; grid-template-columns: 1.02fr .98fr; gap: 34px; align-items: center; }
   .hero-grid > * { min-width: 0; }
   .eyebrow {
     display: inline-flex; align-items: center; gap: 9px; padding: 6px 12px;
@@ -148,7 +186,7 @@
   }
   .lead { margin: 0; max-width: 530px; color: #6f7881; font-size: 13.5px; line-height: 1.85; }
   .lead b { color: inherit; font-weight: 400; }
-  .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 54px; }
   .hero-meta {
     display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 24px;
     color: var(--muted); font: 10.5px var(--mono); letter-spacing: .2px;
@@ -284,6 +322,46 @@
   }
   .shot b { font-size: 12.5px; }
   .shot span { color: var(--muted); font: 10px var(--mono); text-align: right; }
+
+  /* ---------- 多语言 ---------- */
+  .lang-menu { position: relative; }
+  .lang-menu > summary {
+    list-style: none; cursor: pointer; user-select: none;
+    display: inline-flex; align-items: center; gap: 6px;
+    height: 34px; padding: 0 12px; border: 1px solid var(--line-2); border-radius: 8px;
+    background: var(--surface); color: var(--text); font-size: 12px; white-space: nowrap;
+    transition: border-color .16s ease, color .16s ease;
+  }
+  .lang-menu > summary::-webkit-details-marker { display: none; }
+  .lang-menu > summary:hover { border-color: var(--accent); color: var(--accent); }
+  .lang-menu[open] > summary { border-color: var(--accent); color: var(--accent); }
+  .lang-menu > summary i { font-style: normal; font-size: 9px; opacity: .55; }
+  .lang-list {
+    position: absolute; right: 0; top: calc(100% + 8px); z-index: 60;
+    display: grid; gap: 2px; min-width: 176px; padding: 6px;
+    border: 1px solid var(--line); border-radius: 10px; background: var(--surface);
+    box-shadow: 0 18px 42px rgba(20, 24, 28, .14);
+  }
+  .lang-list a {
+    padding: 9px 10px; border-radius: 7px; font-size: 13px; color: var(--text-2);
+    white-space: nowrap; transition: background .14s ease, color .14s ease;
+  }
+  .lang-list a:hover { background: var(--bg-2); color: var(--text); }
+  .lang-list a[aria-current="page"] { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+  .lang-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .lang-cards > * { min-width: 0; }
+  .lang-card {
+    padding: 16px 16px 14px; border: 1px solid var(--line); border-radius: 10px;
+    background: var(--surface); box-shadow: 0 1px 2px rgba(20, 24, 28, .03);
+  }
+  .lang-card.on { border-color: var(--accent); background: var(--accent-soft); }
+  .lang-card b { display: block; font-size: 14px; letter-spacing: .2px; }
+  .lang-card i {
+    display: block; margin-top: 6px; color: var(--muted);
+    font: 10.5px var(--mono); font-style: normal; letter-spacing: .3px;
+  }
+  @media (max-width: 980px) { .lang-cards { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 520px) { .lang-cards { grid-template-columns: 1fr; } }
 
   /* ---------- 下载 ---------- */
   .dl-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
@@ -603,7 +681,6 @@
     .brand b { font-size: 14px; }
     .head-cta .btn span:not(.ext) { display: none; }
     .head-cta .btn { padding: 0 11px; }
-    .head-cta .btn.gh { display: none; }
     .nav-toggle { width: 34px; height: 34px; }
     section { padding: 58px 0; }
     .hero { padding-top: 100px; }
@@ -643,48 +720,13 @@
   .head-cta { margin-left: auto; }
   section { padding: 44px 0; }
   h1 { font-size: clamp(32px, 4.2vw, 54px); letter-spacing: -1.5px; }
+  /* 日/韩/德文的标题更长，单独收一点字号，避免单词被拆到多行 */
+  html[lang="ja"] h1, html[lang="ko"] h1 { font-size: clamp(26px, 3vw, 40px); letter-spacing: -1px; }
+  html[lang="de"] h1 { font-size: clamp(28px, 3.3vw, 44px); letter-spacing: -1.2px; }
 
   .hero { padding: 132px 0 34px; }
   .hero-grid { grid-template-columns: .92fr 1.08fr; gap: 48px; }
-  .hero-top { display: grid; grid-template-columns: 1.08fr .92fr; gap: 46px; align-items: center; }
   .hero-copy { min-width: 0; }
-  .quick-card {
-    position: relative; padding: 28px 26px; border: 1px solid var(--line); border-radius: 10px;
-    background: linear-gradient(165deg, #ffffff 0%, #f6f9fa 100%);
-    box-shadow: 0 20px 60px rgba(20, 24, 28, .09);
-  }
-  .quick-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
-  .quick-head .badge { margin-bottom: 0; }
-  .quick-ver { color: var(--muted); font: 10px var(--mono); white-space: nowrap; }
-  .quick-card h2 { margin: 0 0 8px; font-size: 24px; letter-spacing: -.6px; }
-  .quick-card p { margin: 0 0 18px; color: var(--text-2); font-size: 12px; line-height: 1.8; }
-  .quick-card .btn { width: 100%; height: 46px; margin-bottom: 8px; font-size: 13px; }
-  .quick-link {
-    display: flex; align-items: center; justify-content: space-between; gap: 10px;
-    padding: 11px 0; border-top: 1px solid var(--line);
-    color: var(--text-2); font-size: 12px; transition: color .15s ease;
-  }
-  .quick-link:hover { color: var(--accent); }
-  .quick-link span { font-size: 11px; opacity: .6; }
-  .quick-note { margin-top: 12px; color: var(--muted); font: 10px/1.7 var(--mono); }
-
-  .hero-show { margin-top: 34px; }
-  .show-frame {
-    position: relative; overflow: hidden; border: 1px solid var(--line-2); border-radius: 10px;
-    background: var(--surface); box-shadow: 0 30px 80px rgba(20, 24, 28, .13);
-  }
-  .show-img { aspect-ratio: 16 / 10; overflow: hidden; background: #eef0f2; }
-  .show-img img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top center; }
-  .show-chip {
-    position: absolute; z-index: 2; display: inline-flex; align-items: center; gap: 6px;
-    padding: 7px 11px; border: 1px solid rgba(255, 255, 255, .65); border-radius: 9px;
-    background: rgba(255, 255, 255, .92); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
-    color: var(--text-2); font: 10px var(--mono); letter-spacing: .4px;
-    box-shadow: 0 8px 24px rgba(20, 24, 28, .12);
-  }
-  .show-chip b { color: var(--accent); }
-  .c1 { left: 16px; bottom: 16px; }
-  .c2 { right: 16px; bottom: 16px; }
   .hero .stats { margin-top: 20px; }
 
   .sec-head {
@@ -826,16 +868,10 @@
   .sec-item div b { display: block; margin-bottom: 2px; font-size: 11.5px; }
   .sec-item div span { display: block; color: var(--text-2); font-size: 10.5px; line-height: 1.7; }
 
-  @media (max-width: 1080px) {
-    .hero-top { gap: 32px; }
-  }
   @media (max-width: 980px) {
     .nav { margin-left: 0; }
     .hero { padding-top: 118px; }
     .hero-grid { grid-template-columns: 1fr; gap: 28px; }
-    .hero-top { grid-template-columns: 1fr; gap: 28px; }
-    .quick-card { max-width: 560px; }
-    .hero-show { margin-top: 32px; }
     .bento { grid-template-columns: repeat(2, 1fr); }
     .dl-grid { grid-template-columns: 1fr; }
     .dl-card.rec { grid-column: auto; grid-template-columns: 1fr; }
@@ -847,14 +883,10 @@
     .feature-detail.rev .fd-copy { order: -1; }
   }
   @media (max-width: 640px) {
-    .head-cta .btn.gh { display: inline-flex; }
     section { padding: 36px 0; }
     .hero { padding-top: 96px; }
     h1 { font-size: 36px; }
-    .hero-top { gap: 22px; }
-    .quick-card { padding: 22px; }
-    .show-img { aspect-ratio: 4 / 3; }
-    .show-chip { display: none; }
+    .hero-actions { margin-top: 34px; }
     .bento { grid-template-columns: 1fr; }
     .sec-head { padding-top: 20px; }
     h2 { font-size: 30px; }
@@ -870,27 +902,32 @@
     h1 { font-size: 30px; }
   }
 </style>
+<style>
+  /* English layout tweaks (kept in the shared template) */
+  html:not([lang="zh-CN"]):not([lang="zh-Hant"]) .fd-list li { grid-template-columns: 140px 1fr; }
+  @media (max-width: 640px) { html:not([lang="zh-CN"]):not([lang="zh-Hant"]) .fd-list li { grid-template-columns: 1fr; } }
+</style>
 </head>
 <body id="top">
 
   <header class="site-head" id="site-head">
     <div class="wrap head-inner">
-      <a class="brand" href="#top" id="brand-top" aria-label="LIULI Shell 首页">
+      <a class="brand" href="#top" id="brand-top" aria-label="LIULI Shell 홈">
         <img src="icon.png" alt="LIULI Shell" />
         <span><b>LIULI Shell</b><small>SSH WORKSPACE</small></span>
       </a>
       <nav class="nav" id="site-nav">
-        <a href="#top">首页</a>
-        <a href="#download">下载</a>
-        <a href="#dev">快速构建</a>
-        <a href="#migrate">FinalShell 导入</a>
-        <a href="#community">群组</a>
+        <a href="#top">홈</a>
+        <a href="#download">다운로드</a>
+        <a href="#dev">빠른 빌드</a>
+        <a href="#migrate">FinalShell 가져오기</a>
+        <a href="#community">커뮤니티</a>
       </nav>
       <div class="head-cta">
-        <a class="btn sm gh" href="https://github.com/LIULIWANJIA/Liulishell" target="_blank" rel="noopener noreferrer">GitHub <span class="ext">↗</span></a>
-        <a class="btn sm primary" href="https://pan.quark.cn/s/3b9930496416?pwd=YKXY" target="_blank" rel="noopener noreferrer">下载 <span class="ext">↗</span></a>
+        <details class="lang-menu"><summary aria-label="한국어">한국어 <i>▾</i></summary><div class="lang-list"><a href="index.html" hreflang="zh-CN">简体中文</a><a href="zh-Hant.html" hreflang="zh-Hant">繁體中文</a><a href="en.html" hreflang="en">English</a><a href="ja.html" hreflang="ja">日本語</a><a href="ko.html" hreflang="ko" aria-current="page">한국어</a><a href="ru.html" hreflang="ru">Русский</a><a href="fr.html" hreflang="fr">Français</a><a href="de.html" hreflang="de">Deutsch</a></div></details>
+        <a class="btn sm primary" href="https://pan.quark.cn/s/3b9930496416?pwd=YKXY" target="_blank" rel="noopener noreferrer">다운로드 <span class="ext">↗</span></a>
       </div>
-      <button class="nav-toggle" id="nav-toggle" type="button" aria-label="打开菜单" aria-expanded="false">
+      <button class="nav-toggle" id="nav-toggle" type="button" aria-label="메뉴 열기" aria-expanded="false">
         <i></i><i></i><i></i>
       </button>
     </div>
@@ -901,35 +938,35 @@
       <div class="wrap">
         <div class="hero-grid">
           <div class="hero-copy">
-            <span class="eyebrow"><i></i>桌面端 SSH 客户端 · Windows / Linux / macOS</span>
-            <h1>连接、终端、文件<br /><span class="grad">放进同一个窗口</span></h1>
-            <p class="lead">
-              LIULI Shell 是一款跨平台 SSH 客户端。<br>
-              它把连接管理、交互式终端、SFTP 文件传输、运行状态监控与配置同步整合到一个桌面应用中，适合需要同时维护多台服务器的开发者与运维人员。
+            <span class="eyebrow"><i></i>데스크톱 SSH 클라이언트 · Windows / Linux / macOS</span>
+            <h1>연결, 터미널, 파일<br /><span class="grad">하나의 창에</span></h1>
+            <p class="lead"><br>
+              LIULI Shell은 크로스 플랫폼 SSH 클라이언트입니다.<br>
+              연결 관리, 대화형 터미널, SFTP 파일 전송, 실행 상태 모니터링과 설정 동기화를 하나의 데스크톱 앱에 통합했습니다. 여러 서버를 함께 관리하는 개발자와 운영자에게 적합합니다.
             </p>
             <div class="hero-actions">
-              <a class="btn primary big" href="#download">下载 Windows 版</a>
+              <a class="btn primary big" href="#download">Windows 버전 다운로드</a>
               <a class="btn big" href="https://github.com/LIULIWANJIA/Liulishell/releases" target="_blank" rel="noopener noreferrer">GitHub Releases <span class="ext">↗</span></a>
-              <a class="btn big" href="#dev">快速构建</a>
+              <a class="btn big" href="#dev">빠른 빌드</a>
             </div>
             <div class="hero-meta">
-              <span><i></i>安装版 / 便携版</span>
-              <span>跨平台云同步</span>
-              <span>可导入 FinalShell 备份</span>
-              <span>8 套界面主题</span>
+              <span><i></i>설치판 / 포터블판</span>
+              <span>크로스 플랫폼 클라우드 동기화</span>
+              <span>FinalShell 백업 가져오기 지원</span>
+              <span>UI 테마 8종</span>
             </div>
           </div>
           <div class="frame-wrap">
             <div class="frame">
-              <img src="img/hero.webp" alt="LIULI Shell 主界面，左侧服务器与监控、中间终端与文件、右侧服务器信息与进程" />
+              <img src="img/hero-ko.webp" width="1132" height="896" fetchpriority="high" alt="LIULI Shell 메인 화면. 왼쪽은 서버와 모니터링, 가운데는 터미널과 파일, 오른쪽은 서버 정보와 프로세스" />
             </div>
           </div>
         </div>
         <div class="stats">
-          <div class="stat"><b>会话</b><span>多标签 SSH 与断线重连</span></div>
-          <div class="stat"><b>文件</b><span>快速加载的 SFTP 增删改查</span></div>
-          <div class="stat"><b>监控</b><span>资源、网络与进程</span></div>
-          <div class="stat"><b>同步</b><span>官方云服务/自定义WebDAV</span></div>
+          <div class="stat"><b>세션</b><span>다중 탭 SSH와 연결 끊김 후 재연결</span></div>
+          <div class="stat"><b>파일</b><span>빠르게 불러오는 SFTP 조회와 편집</span></div>
+          <div class="stat"><b>모니터링</b><span>리소스, 네트워크와 프로세스</span></div>
+          <div class="stat"><b>동기화</b><span>공식 클라우드 서비스 / 사용자 지정 WebDAV</span></div>
         </div>
       </div>
     </section>
@@ -940,44 +977,44 @@
       <div class="wrap">
         <div class="sec-head">
           <div>
-            <div class="sec-tag">01 — 下载</div>
-            <h2>选择适合你的安装方式</h2>
-            <p>Windows 10 / 11 提供安装版与便携版；Linux 与 macOS 使用源码构建。安装版与便携版功能一致。</p>
+            <div class="sec-tag">01 — 다운로드</div>
+            <h2>설치 방식 선택</h2>
+            <p>Windows 10 / 11은 설치판과 포터블판을 제공하며, Linux와 macOS는 소스에서 빌드합니다. 설치판과 포터블판의 기능은 동일합니다.</p>
           </div>
         </div>
         <div class="dl-grid">
           <div class="dl-card rec">
-            <h3>安装版与便携版</h3>
-            <p>安装版带安装向导并创建快捷方式；便携版解压即用，适合放在 U 盘或临时环境。</p>
+            <h3>설치판과 포터블판</h3>
+            <p>설치판은 설치 마법사를 제공하고 바로 가기를 만들며, 포터블판은 압축을 풀면 바로 사용할 수 있어 USB 드라이브나 임시 환경에 적합합니다.</p>
             <div class="filemeta">Windows 10 / 11 x64 · Setup.exe / Portable.exe</div>
-            <div class="filemeta">提取码 YKXY（链接已带，无需手动填写）</div>
-            <a class="btn primary" href="https://pan.quark.cn/s/3b9930496416?pwd=YKXY" target="_blank" rel="noopener noreferrer">打开夸克网盘 <span class="ext">↗</span></a>
+            <div class="filemeta">추출 코드 YKXY (링크에 포함되어 있어 직접 입력할 필요 없음)</div>
+            <a class="btn primary" href="https://pan.quark.cn/s/3b9930496416?pwd=YKXY" target="_blank" rel="noopener noreferrer">夸克网盘 열기 <span class="ext">↗</span></a>
           </div>
           <div class="dl-card">
             <span class="badge ghost">GitHub</span>
             <h3>GitHub Releases</h3>
-            <p>适合海外网络访问，发行版附件与仓库提交同步更新。</p>
-            <div class="filemeta">源码仓库：<a href="https://github.com/LIULIWANJIA/Liulishell" target="_blank" rel="noopener noreferrer">github.com/LIULIWANJIA/Liulishell</a></div>
-            <a class="btn" href="https://github.com/LIULIWANJIA/Liulishell/releases" target="_blank" rel="noopener noreferrer">前往 GitHub Releases <span class="ext">↗</span></a>
+            <p>해외 네트워크 접속에 적합하며, 릴리스 첨부 파일과 저장소 커밋이 함께 업데이트됩니다.</p>
+            <div class="filemeta">소스 저장소:<a href="https://github.com/LIULIWANJIA/Liulishell" target="_blank" rel="noopener noreferrer">github.com/LIULIWANJIA/Liulishell</a></div>
+            <a class="btn" href="https://github.com/LIULIWANJIA/Liulishell/releases" target="_blank" rel="noopener noreferrer">GitHub Releases로 이동 <span class="ext">↗</span></a>
           </div>
           <div class="dl-card">
             <span class="badge ghost">Gitee</span>
             <h3>Gitee Releases</h3>
-            <p>适合国内网络访问，提供便携版附件，仓库与发行版保持同步。</p>
-            <div class="filemeta">源码仓库：<a href="https://gitee.com/liuliwanjiaweb/liuli-shell" target="_blank" rel="noopener noreferrer">gitee.com/liuliwanjiaweb/liuli-shell</a></div>
-            <a class="btn" href="https://gitee.com/liuliwanjiaweb/liuli-shell/releases" target="_blank" rel="noopener noreferrer">前往 Gitee Releases <span class="ext">↗</span></a>
+            <p>중국 내 네트워크 접속에 적합하며, 포터블판 첨부 파일을 제공하고 저장소와 릴리스가 동기화됩니다.</p>
+            <div class="filemeta">소스 저장소:<a href="https://gitee.com/liuliwanjiaweb/liuli-shell" target="_blank" rel="noopener noreferrer">gitee.com/liuliwanjiaweb/liuli-shell</a></div>
+            <a class="btn" href="https://gitee.com/liuliwanjiaweb/liuli-shell/releases" target="_blank" rel="noopener noreferrer">Gitee Releases로 이동 <span class="ext">↗</span></a>
           </div>
         </div>
         <div class="dl-build">
           <div>
-            <span class="badge ghost">源码构建</span>
+            <span class="badge ghost">소스 빌드</span>
             <h3>Linux / macOS</h3>
-            <p>在目标系统上安装依赖并打包，支持 deb、AppImage、tar.gz 以及 macOS 的 dmg 与 zip。</p>
+            <p>대상 시스템에서 의존성을 설치하고 패키징합니다. deb, AppImage, tar.gz 및 macOS의 dmg와 zip을 지원합니다.</p>
           </div>
-          <a class="btn soft" href="#dev">查看构建命令</a>
+          <a class="btn soft" href="#dev">빌드 명령 보기</a>
         </div>
         <div class="note">
-          配置默认保存在 <code>%APPDATA%\LIULI Shell</code>，升级或重装不会删除。更换电脑时，可以使用 云同步备份，或在设置中导出配置文件后迁移。
+          설정은 기본적으로 <code>%APPDATA%\LIULI Shell</code>에 저장됩니다. 업그레이드나 재설치 시에도 삭제되지 않습니다. 컴퓨터를 바꿀 때는 클라우드 동기화로 백업하거나 설정에서 설정 파일을 내보내 이전할 수 있습니다.
         </div>
       </div>
     </section>
@@ -987,9 +1024,9 @@
       <div class="wrap">
         <div class="sec-head">
           <div>
-            <div class="sec-tag">02 — 快速构建</div>
-            <h2>从源码生成安装包</h2>
-            <p>Linux 与 macOS 需要在本机构建。下列命令请逐条执行，不要整段粘贴。脚本会识别发行版、安装依赖并询问打包类型。</p>
+            <div class="sec-tag">02 — 빠른 빌드</div>
+            <h2>소스에서 설치 패키지 생성</h2>
+            <p>Linux와 macOS는 로컬에서 빌드해야 합니다. 아래 명령을 한 줄씩 실행하고 전체를 한 번에 붙여넣지 마세요. 스크립트가 배포판을 인식하고 의존성을 설치한 뒤 패키징 유형을 묻습니다.</p>
           </div>
         </div>
 
@@ -1002,9 +1039,9 @@
           <div class="console-body">
             <div class="qs-head">
               <div class="kicker">Quick Build</div>
-              <h3>Linux / macOS 构建命令</h3>
-              <p>先选择源码来源（Gitee 或 GitHub，二选一），再进入目录执行构建脚本。
-			  <br>Gitee 默认克隆目录为 <code>liuli-shell</code>，GitHub 默认目录为 <code>Liulishell</code>；下面统一克隆为 <code>liuli-shell</code>，后续命令保持一致。</p>
+              <h3>Linux / macOS 빌드 명령</h3>
+              <p>먼저 소스(Gitee 또는 GitHub 중 하나)를 선택한 다음 디렉터리로 이동해 빌드 스크립트를 실행합니다.
+			  <br>Gitee의 기본 클론 디렉터리는 <code>liuli-shell</code>이며, GitHub의 기본 디렉터리는 <code>Liulishell</code>입니다. 아래에서는 모두 <code>liuli-shell</code>(으)로 클론하므로 이후 명령도 동일합니다.</p>
             </div>
             <div class="qs-tabs" role="tablist">
               <button class="qs-tab active" type="button" role="tab" data-qs="linux">Linux GUI</button>
@@ -1012,26 +1049,26 @@
             </div>
 
             <div class="qs-panel active" data-qs="linux" role="tabpanel">
-              <p class="qs-note qs-lead"><b>需要 Git。</b>第 0 步安装 Git；第 1 步只保留一个源码源；第 2 步执行构建脚本。克隆完成后再运行构建命令。</p>
-              <pre><span class="c-cm"># 0) 需要 Git；已安装会自动跳过（其他发行版换成 dnf / pacman）</span>
+              <p class="qs-note qs-lead"><b>Git이 필요합니다.</b>0단계에서 Git을 설치하고, 1단계에서는 소스 하나만 남기며, 2단계에서 빌드 스크립트를 실행합니다. 클론이 끝난 뒤에 빌드 명령을 실행하세요.</p>
+              <pre><span class="c-cm"># 0) Git 필요; 설치되어 있으면 자동으로 건너뜀 (다른 배포판은 dnf / pacman 사용)</span>
 command -v git &gt;/dev/null || sudo apt-get update &amp;&amp; sudo apt-get install -y git
 
-<span class="c-cm"># 1) 先删旧目录，再克隆源码（Gitee / GitHub 二选一）</span>
-<span class="c-cm"># Gitee（国内推荐，默认目录就是 liuli-shell）</span>
+<span class="c-cm"># 1) 이전 디렉터리를 삭제한 뒤 소스 클론 (Gitee / GitHub 중 하나)</span>
+<span class="c-cm"># Gitee (중국 내 권장, 기본 디렉터리는 liuli-shell)</span>
 rm -rf liuli-shell Liulishell &amp;&amp; git clone https://gitee.com/liuliwanjiaweb/liuli-shell.git liuli-shell
-<span class="c-cm"># GitHub（海外推荐；默认目录是 Liulishell，这里显式指定为 liuli-shell）</span>
+<span class="c-cm"># GitHub (해외 권장; 기본 디렉터리는 Liulishell이며 여기서는 liuli-shell로 지정)</span>
 rm -rf liuli-shell Liulishell &amp;&amp; git clone https://github.com/LIULIWANJIA/Liulishell.git liuli-shell
 
-<span class="c-cm"># 2) 进入项目并构建：识别发行版 → 补系统依赖 → 选 deb / AppImage → 打包 → 询问安装</span>
+<span class="c-cm"># 2) 프로젝트로 이동해 빌드: 배포판 인식 → 시스템 의존성 설치 → deb / AppImage 선택 → 패키징 → 설치 여부 확인</span>
 cd liuli-shell &amp;&amp; bash scripts/build-linux.sh</pre>
-              <p class="qs-note">产物在 <code>dist/</code>。脚本会提示选择 <code>1 = deb</code> / <code>2 = AppImage</code> / <code>3 = 两者都要</code>；只打 <code>.tar.gz</code> 使用 <code>bash scripts/build-linux.sh tar</code>。脚本会自动处理 Ubuntu 24.04+ 的 <code>*t64</code> 包名回退。CI 等非交互环境不会自动安装，需要手动安装产物。环境异常可先运行 <code>bash scripts/build-linux.sh check</code> 体检；Electron 下载慢时脚本会自动切换镜像。</p>
+              <p class="qs-note">결과물은 <code>dist/</code>에 생성됩니다. 스크립트에서 선택을 안내합니다: <code>1 = deb</code> / <code>2 = AppImage</code> / <code>3 = 둘 다</code>; <code>.tar.gz</code> 만 빌드하려면 다음 명령을 사용하세요: <code>bash scripts/build-linux.sh tar</code>. 스크립트가 Ubuntu 24.04+의 <code>*t64</code> 패키지 이름 대체를 자동으로 처리합니다. CI 등 비대화형 환경에서는 자동 설치가 되지 않으므로 결과물을 직접 설치해야 합니다. 환경이 비정상이면 먼저 <code>bash scripts/build-linux.sh check</code>  명령으로 진단하세요. Electron 다운로드가 느리면 스크립트가 자동으로 미러를 전환합니다.</p>
 
               <div class="qs-trouble">
                 <div class="qs-trouble-head">
-                  <b>依赖缺失或构建失败时</b>
-                  <span>按顺序逐条执行，正常构建无需运行</span>
+                  <b>의존성이 없거나 빌드가 실패하면</b>
+                  <span>순서대로 하나씩 실행하세요. 정상 빌드에는 필요하지 않습니다</span>
                 </div>
-                <pre><span class="c-cm"># 3) 依赖没装上或构建报错时，再依次尝试</span>
+                <pre><span class="c-cm"># 3) 의존성이 설치되지 않았거나 빌드 오류가 발생하면 순서대로 시도</span>
 bash scripts/build-linux.sh repair
 bash scripts/build-linux.sh deps
 bash scripts/build-linux.sh</pre>
@@ -1039,36 +1076,36 @@ bash scripts/build-linux.sh</pre>
             </div>
 
             <div class="qs-panel" data-qs="mac" role="tabpanel">
-              <p class="qs-note qs-lead"><b>基础环境已安装会自动跳过。</b>Homebrew 安装过程需要输入当前用户密码。克隆后安装依赖并打包，Intel 与 Apple Silicon 可按需选择。</p>
-              <pre><span class="c-cm"># 基础环境（已装过会自动跳过；xcode-select 会弹窗，等安装完成再继续）</span>
+              <p class="qs-note qs-lead"><b>기본 환경이 이미 설치되어 있으면 자동으로 건너뜁니다.</b>Homebrew 설치 과정에서 현재 사용자 비밀번호를 입력해야 합니다. 클론 후 의존성을 설치하고 패키징하며, Intel과 Apple Silicon을 필요에 따라 선택할 수 있습니다.</p>
+              <pre><span class="c-cm"># 기본 환경 (이미 설치했으면 자동으로 건너뜀; xcode-select는 팝업이 뜨므로 설치가 끝난 뒤 계속)</span>
 xcode-select --install 2&gt;/dev/null || true
 command -v brew &gt;/dev/null || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-<span class="c-cm"># 新装 Homebrew 后加入当前终端 PATH（Intel 为 /usr/local/bin/brew）</span>
+<span class="c-cm"># 새로 설치한 Homebrew를 현재 터미널 PATH에 추가 (Intel은 /usr/local/bin/brew)</span>
 if [ -x /opt/homebrew/bin/brew ]; then eval "$(/opt/homebrew/bin/brew shellenv)"; elif [ -x /usr/local/bin/brew ]; then eval "$(/usr/local/bin/brew shellenv)"; fi
-<span class="c-cm"># 需要 Node ≥ 18；缺失或版本过旧时安装 20，然后验证</span>
+<span class="c-cm"># Node ≥ 18 필요; 없거나 버전이 오래된 경우 20을 설치한 뒤 확인</span>
 node -v 2&gt;/dev/null | grep -qE '^v(1[89]|[2-9][0-9])' || brew install node@20
 brew link --overwrite --force node@20 &gt;/dev/null 2&gt;&amp;1 || true
 node -v &amp;&amp; npm -v
 
-<span class="c-cm"># 先删旧目录，再克隆源码（Gitee / GitHub 二选一）</span>
+<span class="c-cm"># 이전 디렉터리를 삭제한 뒤 소스 클론 (Gitee / GitHub 중 하나)</span>
 rm -rf liuli-shell Liulishell
-<span class="c-cm"># Gitee（国内推荐，默认目录就是 liuli-shell）</span>
+<span class="c-cm"># Gitee (중국 내 권장, 기본 디렉터리는 liuli-shell)</span>
 git clone https://gitee.com/liuliwanjiaweb/liuli-shell.git liuli-shell
-<span class="c-cm"># GitHub（海外推荐；默认目录是 Liulishell，这里显式指定为 liuli-shell）</span>
+<span class="c-cm"># GitHub (해외 권장; 기본 디렉터리는 Liulishell이며 여기서는 liuli-shell로 지정)</span>
 git clone https://github.com/LIULIWANJIA/Liulishell.git liuli-shell<br>
 cd liuli-shell
-npm ci || npm install      <span class="c-cm"># 失败自动回退 npm install</span>
+npm ci || npm install      <span class="c-cm"># 실패 시 npm install로 자동 대체</span>
 npm run vendor
-<span class="c-cm"># 国内网络下载 Electron 慢时，先取消下面两行注释（可选）</span>
+<span class="c-cm"># 중국 내 네트워크에서 Electron 다운로드가 느리면 아래 두 줄의 주석을 해제하세요 (선택)</span>
 <span class="c-cm"># export ELECTRON_MIRROR=https://registry.npmmirror.com/-/binary/electron/</span>
 <span class="c-cm"># export ELECTRON_BUILDER_BINARIES_MIRROR=https://registry.npmmirror.com/-/binary/electron-builder-binaries/</span>
-npm run dist:mac                              <span class="c-cm"># x64 + arm64 一起出</span>
-npx electron-builder --mac dmg zip --arm64    <span class="c-cm"># 只打 Apple Silicon</span></pre>
-              <p class="qs-note">产物在 <code>dist/</code>（<code>.dmg</code> / <code>.zip</code>）。<code>npm run vendor</code> 会复制 xterm 资源到 <code>src/renderer/vendor</code>，打包前必须执行；Intel 与 Apple Silicon 产物不能混用。未签名应用被 Gatekeeper 拦截时，右键「打开」放行。</p>
+npm run dist:mac                              <span class="c-cm"># x64 + arm64 함께 빌드</span>
+npx electron-builder --mac dmg zip --arm64    <span class="c-cm"># Apple Silicon만 빌드</span></pre>
+              <p class="qs-note">결과물은 <code>dist/</code>(<code>.dmg</code> / <code>.zip</code>).<code>npm run vendor</code> 명령은 xterm 리소스를 다음 위치로 복사합니다: <code>src/renderer/vendor</code>. 패키징 전에 반드시 실행해야 합니다. Intel과 Apple Silicon 결과물은 혼용할 수 없습니다. 서명되지 않은 앱이 Gatekeeper에 의해 차단되면 마우스 오른쪽 버튼으로 「열기」를 선택해 허용하세요.</p>
             </div>
 
             <div class="source-note">
-              <p>国内网络建议使用 Gitee,Electron 下载慢时可以设置镜像变量。</p>
+              <p>중국 내 네트워크에서는 Gitee 사용을 권장하며, Electron 다운로드가 느릴 때는 미러 변수를 설정할 수 있습니다.</p>
             </div>
           </div>
         </div>
@@ -1080,58 +1117,58 @@ npx electron-builder --mac dmg zip --arm64    <span class="c-cm"># 只打 Apple 
       <div class="wrap">
         <div class="migrate-panel">
           <div class="migrate-copy">
-            <div class="kicker">03 — 数据迁移</div>
-            <h2>FinalShell 备份导入支持</h2>
+            <div class="kicker">03 — 데이터 마이그레이션</div>
+            <h2>FinalShell 백업 가져오기 지원</h2>
             <p class="lead2">
-              支持导入 FinalShell 导出的 JSON 文件或整个配置文件夹。导入时会读取连接信息、重建分组层级，并在写入前给出统计。
+              FinalShell에서 내보낸 JSON 파일 또는 전체 설정 폴더를 가져올 수 있습니다. 가져오기 시 연결 정보를 읽고 그룹 계층을 재구성하며, 저장 전에 통계를 보여줍니다.
             </p>
             <ul class="migrate-list">
               <li>
-                <div><b>两种来源</b><span>可以一次选择多个 JSON，也可以直接选择整个配置文件夹。</span></div>
+                <div><b>두 가지 소스</b><span>JSON 파일을 여러 개 선택하거나 전체 설정 폴더를 바로 선택할 수 있습니다.</span></div>
               </li>
               <li>
-                <div><b>层级还原</b><span>按原目录结构建立最多三级分组，更深的目录自动归入对应的一级分组。</span></div>
+                <div><b>계층 복원</b><span>원본 디렉터리 구조에 따라 최대 3단계 그룹을 만들고, 더 깊은 디렉터리는 해당 1단계 그룹에 자동으로 포함합니다.</span></div>
               </li>
               <li>
-                <div><b>密码处理</b><span>解密后按本软件的加密方式重新保存；无法解开的条目会留空并明确提示。</span></div>
+                <div><b>비밀번호 처리</b><span>복호화한 뒤 이 소프트웨어의 암호화 방식으로 다시 저장하며, 복호화할 수 없는 항목은 비워 두고 명확히 안내합니다.</span></div>
               </li>
               <li>
-                <div><b>安全写入</b><span>导入前先预览将创建的分组与连接数量，重复项自动跳过；失败不会影响已有配置。</span></div>
+                <div><b>안전한 쓰기</b><span>가져오기 전에 생성될 그룹과 연결 수를 미리 보여주고 중복 항목은 자동으로 건너뜁니다. 실패하더라도 기존 설정에 영향을 주지 않습니다.</span></div>
               </li>
             </ul>
           </div>
 
-          <div class="mock-win" aria-label="导入 FinalShell 配置窗口示意">
+          <div class="mock-win" aria-label="FinalShell 설정 가져오기 창 예시">
             <div class="mock-bar">
               <span class="lights"><i></i><i></i><i></i></span>
-              导入 FinalShell 配置 · LIULI Shell
+              FinalShell 설정 가져오기 · LIULI Shell
             </div>
             <div class="mock-body">
-              <h3>导入 FinalShell 配置</h3>
-              <p class="mock-sub">拖入文件即可，支持一次选择多个 JSON 或整个配置文件夹。</p>
+              <h3>FinalShell 설정 가져오기</h3>
+              <p class="mock-sub">파일을 끌어다 놓으면 되며, JSON 여러 개 또는 전체 설정 폴더를 한 번에 선택할 수 있습니다.</p>
 
               <div class="mock-drop">
-                <b>拖入 JSON 文件或文件夹</b>
-                <span>也可以点击下面按钮选择</span>
+                <b>JSON 파일 또는 폴더를 끌어다 놓기</b>
+                <span>아래 버튼으로 선택할 수도 있습니다</span>
                 <div class="mock-btns">
-                  <span class="mock-chip primary">选择 JSON 文件</span>
-                  <span class="mock-chip">选择文件夹</span>
+                  <span class="mock-chip primary">JSON 파일 선택</span>
+                  <span class="mock-chip">폴더 선택</span>
                 </div>
               </div>
 
               <div class="mock-plan">
-                预计：创建 <b>2</b> 个新一级分组　<b>3</b> 个新二级分组　<b>1</b> 个新三级分组　共 <b>14</b> 个服务器配置
+                예상: 생성 <b>2</b> 개의 새 1단계 그룹　<b>3</b> 개의 새 2단계 그룹　<b>1</b> 개의 새 3단계 그룹, 총 <b>14</b> 개의 서버 설정
               </div>
 
               <div class="mock-row">
-                <label>目标分组</label>
-                <span class="mock-sel">自动：FinalShell 导入（直接 JSON）</span>
+                <label>대상 그룹</label>
+                <span class="mock-sel">자동: FinalShell 가져오기 (직접 JSON)</span>
               </div>
-              <p class="mock-note">文件夹按层级自动创建分组（最多三级），三级以下文件夹内的 JSON 归入对应的一级分组，不受目标分组影响。</p>
+              <p class="mock-note">폴더는 계층에 따라 그룹을 자동으로 생성하며(최대 3단계), 3단계보다 깊은 폴더의 JSON은 대상 그룹과 관계없이 해당 1단계 그룹에 포함됩니다.</p>
 
               <div class="mock-foot">
-                <span class="mock-chip primary">开始导入</span>
-                <span class="mock-result">导入完成：新增 14，跳过 2 个重复 · 新建分组：一级 2 / 二级 3 / 三级 1</span>
+                <span class="mock-chip primary">가져오기 시작</span>
+                <span class="mock-result">가져오기 완료: 14개 추가, 중복 2개 건너뜀 · 새 그룹: 1단계 2 / 2단계 3 / 3단계 1</span>
               </div>
             </div>
           </div>
@@ -1139,16 +1176,16 @@ npx electron-builder --mac dmg zip --arm64    <span class="c-cm"># 只打 Apple 
 
         <div class="migrate-steps">
           <div class="migrate-step">
-            <i>1</i><b>选择来源</b>
-            <span>选择一个或多个 FinalShell JSON，也可以直接选择整个配置文件夹。</span>
+            <i>1</i><b>소스 선택</b>
+            <span>FinalShell JSON을 하나 이상 선택하거나 전체 설정 폴더를 바로 선택할 수 있습니다.</span>
           </div>
           <div class="migrate-step">
-            <i>2</i><b>查看计划</b>
-            <span>自动统计将新建的分组层级与连接数量，确认后再写入。</span>
+            <i>2</i><b>계획 확인</b>
+            <span>생성될 그룹 계층과 연결 수를 자동으로 집계해 확인한 뒤 저장합니다.</span>
           </div>
           <div class="migrate-step">
-            <i>3</i><b>完成导入</b>
-            <span>去重后写入并刷新列表，新分组默认折叠，不打断当前工作。</span>
+            <i>3</i><b>가져오기 완료</b>
+            <span>중복을 제거한 뒤 저장하고 목록을 새로 고칩니다. 새 그룹은 기본적으로 접힌 상태라 현재 작업을 방해하지 않습니다.</span>
           </div>
         </div>
       </div>
@@ -1159,25 +1196,25 @@ npx electron-builder --mac dmg zip --arm64    <span class="c-cm"># 只打 Apple 
       <div class="wrap">
         <div class="sec-head">
           <div>
-            <div class="sec-tag">04 — 交流与反馈</div>
-            <h2>获取帮助与版本通知</h2>
-            <p>使用问题、功能建议和版本动态会在群里同步。选择常用的平台加入即可。</p>
+            <div class="sec-tag">04 — 커뮤니티</div>
+            <h2>도움말과 버전 알림</h2>
+            <p>사용 문의, 기능 제안과 버전 소식은 그룹에서 공유됩니다. 주로 사용하는 플랫폼에 참여하세요.</p>
           </div>
         </div>
         <div class="comm-grid">
           <div class="comm-card">
-            <span class="badge">QQ 群 · 国内</span>
-            <h3>QQ 交流群</h3>
-            <p>国内用户可以通过 QQ 群反馈问题、交流配置与使用经验。</p>
+            <span class="badge">QQ 그룹 · 중국</span>
+            <h3>QQ 교류 그룹</h3>
+            <p>중국 내 사용자는 QQ 그룹에서 문제를 알리고 설정과 사용 경험을 공유할 수 있습니다.</p>
             <div class="group-no">1127112572</div>
-            <a class="btn" href="https://qm.qq.com/q/30jvArYWDm" target="_blank" rel="noopener noreferrer">加入 QQ 群 <span class="ext">↗</span></a>
+            <a class="btn" href="https://qm.qq.com/q/30jvArYWDm" target="_blank" rel="noopener noreferrer">QQ 그룹 참여 <span class="ext">↗</span></a>
           </div>
           <div class="comm-card">
-            <span class="badge ghost">Telegram · 海外</span>
-            <h3>TG 群组</h3>
-            <p>海外用户可以通过 Telegram 群组获取同样的通知与讨论。</p>
+            <span class="badge ghost">Telegram · 해외</span>
+            <h3>TG 그룹</h3>
+            <p>해외 사용자는 Telegram 그룹에서 동일한 알림과 토론을 받을 수 있습니다.</p>
             <div class="group-no">t.me/liulishell</div>
-            <a class="btn soft" href="https://t.me/liulishell" target="_blank" rel="noopener noreferrer">打开 TG 群组 <span class="ext">↗</span></a>
+            <a class="btn soft" href="https://t.me/liulishell" target="_blank" rel="noopener noreferrer">TG 그룹 열기 <span class="ext">↗</span></a>
           </div>
         </div>
       </div>
@@ -1188,65 +1225,65 @@ npx electron-builder --mac dmg zip --arm64    <span class="c-cm"># 只打 Apple 
       <div class="wrap">
         <div class="sec-head">
           <div>
-            <div class="sec-tag">05 — 核心板块</div>
-            <h2>九个模块，覆盖日常运维</h2>
-            <p>从连接服务器到传文件、看状态、迁移配置，主要操作都在客户端内完成。下面按板块说明每个部分能做什么。</p>
+            <div class="sec-tag">05 — 핵심 모듈</div>
+            <h2>일상 운영을 아우르는 9개 모듈</h2>
+            <p>서버 연결부터 파일 전송, 상태 확인, 설정 마이그레이션까지 주요 작업을 클라이언트 안에서 처리합니다. 각 모듈이 무엇을 하는지 아래에서 설명합니다.</p>
           </div>
         </div>
         <div class="bento">
           <article class="f-card">
             <span class="f-num">01</span>
             <div class="f-ico">▤</div>
-            <h3>服务器管理</h3>
-            <p>用分组整理服务器，支持多选、拖拽移动与复制配置；删除的连接进入 30 天回收站，可随时恢复。</p>
+            <h3>서버 관리</h3>
+            <p>그룹으로 서버를 정리하고 다중 선택, 드래그 이동, 설정 복사를 지원합니다. 삭제한 연결은 30일 휴지통에 보관되며 언제든 복원할 수 있습니다.</p>
           </article>
           <article class="f-card">
             <span class="f-num">02</span>
             <div class="f-ico">❯_</div>
-            <h3>终端会话</h3>
-            <p>每个标签对应独立的 SSH 会话，支持命令历史、快捷输入、断线重连与标签拖动排序；代理连接带状态标识。</p>
+            <h3>터미널 세션</h3>
+            <p>각 탭은 독립적인 SSH 세션이며 명령 기록, 빠른 입력, 연결 끊김 후 재연결, 탭 드래그 정렬을 지원합니다. 프록시 연결에는 상태 표시가 붙습니다.</p>
           </article>
           <article class="f-card">
             <span class="f-num">03</span>
             <div class="f-ico">▥</div>
-            <h3>文件管理</h3>
-            <p>SFTP 目录树与文件列表联动，终端切换目录时自动跟随；支持上传下载、权限修改和内置文本编辑器。</p>
+            <h3>파일 관리</h3>
+            <p>SFTP 디렉터리 트리와 파일 목록이 연동되어 터미널에서 디렉터리를 바꾸면 자동으로 따라갑니다. 업로드와 다운로드, 권한 변경, 내장 텍스트 편집기를 지원합니다.</p>
           </article>
           <article class="f-card">
             <span class="f-num">04</span>
             <div class="f-ico">◎</div>
-            <h3>实时监控</h3>
-            <p>持续采集 CPU、内存、Swap、磁盘、网卡与进程数据，图表量程自动适配，异常负载可以直接定位。</p>
+            <h3>실시간 모니터링</h3>
+            <p>CPU, 메모리, Swap, 디스크, 네트워크 카드와 프로세스 데이터를 지속적으로 수집하고, 차트 범위가 자동으로 조정되어 비정상 부하를 바로 파악할 수 있습니다.</p>
           </article>
           <article class="f-card">
             <span class="f-num">05</span>
             <div class="f-ico">⇅</div>
-            <h3>传输中心</h3>
-            <p>下载任务集中在独立窗口管理，可暂停、取消或清空；实时显示进度、速率与任务状态。</p>
+            <h3>전송 센터</h3>
+            <p>다운로드 작업을 별도 창에서 관리하며 일시 정지, 취소, 비우기를 지원합니다. 진행률, 속도와 작업 상태를 실시간으로 표시합니다.</p>
           </article>
           <article class="f-card">
             <span class="f-num">06</span>
             <div class="f-ico">☁</div>
-            <h3>云同步</h3>
-            <p>通过 WebDAV 加密同步服务器配置、分组与收藏，多设备双向合并；也可以手动同步或备份。</p>
+            <h3>클라우드 동기화</h3>
+            <p>공식 클라우드 서비스와 사용자 지정 WebDAV를 지원합니다. 서버 설정, 그룹과 즐겨찾기를 암호화해 동기화하고 여러 기기에서 양방향으로 병합하며, 수동 동기화와 백업도 가능합니다.</p>
           </article>
           <article class="f-card">
             <span class="f-num">07</span>
             <div class="f-ico">⇄</div>
-            <h3>配置迁移</h3>
-            <p>读取 FinalShell 的 JSON 备份或整个配置目录，按原层级重建分组；导入前先预览，重复项自动跳过。</p>
+            <h3>설정 마이그레이션</h3>
+            <p>FinalShell의 JSON 백업 또는 전체 설정 디렉터리를 읽어 원래 계층대로 그룹을 재구성합니다. 가져오기 전에 미리 보여주고 중복 항목은 자동으로 건너뜁니다.</p>
           </article>
           <article class="f-card">
             <span class="f-num">08</span>
             <div class="f-ico">◐</div>
-            <h3>外观与交互</h3>
-            <p>内置 8 套浅色与深色主题，字体、字号、界面缩放、鼠标行为与快捷键均可调整并自动保存。</p>
+            <h3>외관과 상호작용</h3>
+            <p>라이트 및 다크 테마 8종을 내장했으며 글꼴, 글자 크기, UI 배율, 마우스 동작과 단축키를 조정하고 자동으로 저장합니다.</p>
           </article>
           <article class="f-card">
             <span class="f-num">09</span>
             <div class="f-ico">⌁</div>
-            <h3>网络代理</h3>
-            <p>为单个连接或全局设置 HTTP / SOCKS5 代理，支持默认代理与直连回退，适配内网和受限网络。</p>
+            <h3>네트워크 프록시</h3>
+            <p>개별 연결 또는 전역으로 HTTP / SOCKS5 프록시를 설정하며, 기본 프록시와 직접 연결 대체를 지원해 내부망과 제한된 네트워크에 적합합니다.</p>
           </article>
         </div>
       </div>
@@ -1257,32 +1294,32 @@ npx electron-builder --mac dmg zip --arm64    <span class="c-cm"># 只打 Apple 
       <div class="wrap">
         <div class="sec-head">
           <div>
-            <div class="sec-tag">06 — 快捷命令</div>
-            <h2>常用命令，点一下就能用</h2>
-            <p>把高频命令按板块整理，减少在终端里反复输入长命令；需要修改时再交给命令编辑器。</p>
+            <div class="sec-tag">06 — 스니펫</div>
+            <h2>자주 쓰는 명령을 클릭 한 번으로</h2>
+            <p>자주 쓰는 명령을 보드별로 정리해 터미널에서 긴 명령을 반복 입력하지 않도록 합니다. 수정이 필요하면 명령 편집기에서 처리합니다.</p>
           </div>
         </div>
         <div class="feature-detail">
           <div class="fd-copy">
             <div class="fd-kicker">Snippets & Command Editor</div>
-            <h3>按板块整理，重复命令不再手敲</h3>
-            <p>常用、Docker、网络等板块分开管理，按钮只显示名称，界面保持干净；板块与命令都支持拖动排序。</p>
+            <h3>보드별로 정리해 명령을 다시 입력하지 않기</h3>
+            <p>자주 쓰는 명령, Docker, 네트워크 등 보드를 따로 관리하고 버튼에는 이름만 표시해 화면을 깔끔하게 유지합니다. 보드와 명령 모두 드래그로 정렬할 수 있습니다.</p>
             <ul class="fd-list">
-              <li><b>执行方式</b><span>可设置单击直接运行，或先填入命令框再确认。</span></li>
-              <li><b>命令编辑器</b><span>多行脚本在右侧编辑，Ctrl + Enter 发送到当前会话。</span></li>
-              <li><b>历史与会话</b><span>在历史命令与当前会话之间切换，快速找回上一次输入。</span></li>
+              <li><b>실행 방식</b><span>클릭 한 번으로 바로 실행하거나, 명령 입력란에 먼저 채운 뒤 확인하도록 설정할 수 있습니다.</span></li>
+              <li><b>명령 편집기</b><span>여러 줄 스크립트를 오른쪽에서 편집하고 Ctrl + Enter로 현재 세션에 보냅니다.</span></li>
+              <li><b>기록과 세션</b><span>명령 기록과 현재 세션을 전환하며 이전 입력을 빠르게 찾을 수 있습니다.</span></li>
             </ul>
           </div>
-          <div class="mock-panel snippet-mock" aria-label="快捷命令界面示意">
-            <div class="mp-head"><span>快捷命令</span><span class="mp-tag">SNIPPETS</span></div>
+          <div class="mock-panel snippet-mock" aria-label="스니펫 화면 예시">
+            <div class="mp-head"><span>스니펫</span><span class="mp-tag">SNIPPETS</span></div>
             <div class="snip-tabs">
-              <span class="active">常用</span><span>Docker</span><span>网络</span><span class="snip-add">＋</span>
+              <span class="active">자주 씀</span><span>Docker</span><span>네트워크</span><span class="snip-add">＋</span>
             </div>
             <div class="snip-grid">
-              <span>查看磁盘</span><span>查看内存</span><span>查看进程</span><span>清屏</span>
+              <span>디스크 확인</span><span>메모리 확인</span><span>프로세스 확인</span><span>화면 지우기</span>
             </div>
             <div class="mini-editor">
-              <div class="me-head">命令编辑器 <span>Ctrl + Enter</span></div>
+              <div class="me-head">명령 편집기 <span>Ctrl + Enter</span></div>
               <div class="me-body"><em>1</em>docker compose pull<br /><em>2</em>docker compose up -d<br /><em>3</em>docker compose ps</div>
             </div>
           </div>
@@ -1295,25 +1332,25 @@ npx electron-builder --mac dmg zip --arm64    <span class="c-cm"># 只打 Apple 
       <div class="wrap">
         <div class="sec-head">
           <div>
-            <div class="sec-tag">07 — 实时监控</div>
-            <h2>资源、网络与进程，一屏掌握</h2>
-            <p>连接后自动采集运行状态，异常负载先在客户端里定位，再决定是否进入终端处理。</p>
+            <div class="sec-tag">07 — 실시간 모니터링</div>
+            <h2>리소스, 네트워크와 프로세스를 한 화면에</h2>
+            <p>연결 후 실행 상태를 자동으로 수집하며, 비정상 부하를 클라이언트에서 먼저 파악한 뒤 터미널에서 처리할지 결정할 수 있습니다.</p>
           </div>
         </div>
         <div class="feature-detail rev">
-          <div class="mock-panel monitor-mock" aria-label="服务器监控界面示意">
-            <div class="mp-head"><span>服务器监控</span><span class="mp-tag">LIVE · 2s</span></div>
+          <div class="mock-panel monitor-mock" aria-label="서버 모니터링 화면 예시">
+            <div class="mp-head"><span>서버 모니터링</span><span class="mp-tag">LIVE · 2s</span></div>
             <div class="mon-grid">
               <div class="mon-cell"><span>CPU</span><b>64%</b><i><u style="width:64%"></u></i></div>
-              <div class="mon-cell"><span>内存</span><b>62%</b><i><u style="width:62%"></u></i></div>
+              <div class="mon-cell"><span>메모리</span><b>62%</b><i><u style="width:62%"></u></i></div>
               <div class="mon-cell"><span>Swap</span><b>14%</b><i><u style="width:14%"></u></i></div>
             </div>
             <div class="mon-net">
-              <div><span>下行</span><b>1.36 Mbps</b></div>
-              <div><span>上行</span><b>0.21 Mbps</b></div>
+              <div><span>다운로드</span><b>1.36 Mbps</b></div>
+              <div><span>업로드</span><b>0.21 Mbps</b></div>
             </div>
             <div class="mon-proc">
-              <div class="mp-sub">进程预览 <span>按 CPU 排序</span></div>
+              <div class="mp-sub">프로세스 미리 보기 <span>CPU 순 정렬</span></div>
               <div class="proc-row"><span>nginx</span><span>12.5%</span><span>340 MB</span></div>
               <div class="proc-row"><span>worker-1</span><span>12.0%</span><span>17.6 MB</span></div>
               <div class="proc-row"><span>worker-2</span><span>11.7%</span><span>20.1 MB</span></div>
@@ -1322,12 +1359,12 @@ npx electron-builder --mac dmg zip --arm64    <span class="c-cm"># 只打 Apple 
           </div>
           <div class="fd-copy">
             <div class="fd-kicker">Monitor & Processes</div>
-            <h3>不用登录服务器，也能先看状态</h3>
-            <p>左侧显示资源概览，右侧同步网络速率与进程占用；刷新间隔与速率单位都可以在设置里调整。</p>
+            <h3>서버에 로그인하지 않고도 상태를 먼저 확인</h3>
+            <p>왼쪽에는 리소스 개요, 오른쪽에는 네트워크 속도와 프로세스 점유를 표시합니다. 새로 고침 간격과 속도 단위는 설정에서 조정할 수 있습니다.</p>
             <ul class="fd-list">
-              <li><b>资源概览</b><span>CPU、内存、Swap 与磁盘分区使用率，图表量程自动适配。</span></li>
-              <li><b>网络速率</b><span>实时下行 / 上行与累计流量同屏查看，单位可切换。</span></li>
-              <li><b>进程预览</b><span>按 CPU 或内存排序，快速找到高占用进程。</span></li>
+              <li><b>리소스 개요</b><span>CPU, 메모리, Swap과 디스크 파티션 사용률을 표시하며 차트 범위가 자동으로 조정됩니다.</span></li>
+              <li><b>네트워크 속도</b><span>실시간 다운로드 / 업로드와 누적 트래픽을 한 화면에서 확인하고 단위를 전환할 수 있습니다.</span></li>
+              <li><b>프로세스 미리 보기</b><span>CPU 또는 메모리 순으로 정렬해 점유율이 높은 프로세스를 빠르게 찾습니다.</span></li>
             </ul>
           </div>
         </div>
@@ -1339,28 +1376,28 @@ npx electron-builder --mac dmg zip --arm64    <span class="c-cm"># 只打 Apple 
       <div class="wrap">
         <div class="sec-head">
           <div>
-            <div class="sec-tag">08 — 数据与安全</div>
-            <h2>配置留在本地，改动有备份</h2>
-            <p>连接凭据、配置备份与删除恢复都在客户端内完成，减少对额外服务与手动操作的依赖。</p>
+            <div class="sec-tag">08 — 데이터와 보안</div>
+            <h2>설정은 로컬에 보관하고 변경은 백업</h2>
+            <p>연결 자격 증명, 설정 백업과 삭제 복구를 모두 클라이언트 안에서 처리해 추가 서비스와 수동 작업 의존을 줄입니다.</p>
           </div>
         </div>
         <div class="feature-detail">
           <div class="fd-copy">
             <div class="fd-kicker">Local Data & Security</div>
-            <h3>密码加密保存，误删可以恢复</h3>
-            <p>连接凭据只保存加密串，界面不回显明文；配置写入前自动备份，误删的服务器与分组会进入回收站。</p>
+            <h3>비밀번호는 암호화해 저장하고 실수로 삭제해도 복구 가능</h3>
+            <p>연결 자격 증명은 암호화된 문자열만 저장하며 화면에 평문을 표시하지 않습니다. 설정은 저장 전에 자동으로 백업되고, 삭제한 서버와 그룹은 휴지통으로 들어갑니다.</p>
             <ul class="fd-list">
-              <li><b>凭据保护</b><span>密码与密钥使用本机密钥加密，导出配置时可再加密码。</span></li>
-              <li><b>自动备份</b><span>写入前生成备份，配置文件异常时可恢复到最近一次。</span></li>
-              <li><b>回收站</b><span>删除的服务器与分组保留 30 天，可随时恢复。</span></li>
+              <li><b>자격 증명 보호</b><span>비밀번호와 키는 로컬 키로 암호화하며, 설정을 내보낼 때 추가 비밀번호를 설정할 수 있습니다.</span></li>
+              <li><b>자동 백업</b><span>저장 전에 백업을 만들고 설정 파일 이상 시 최근 시점으로 복원할 수 있습니다.</span></li>
+              <li><b>휴지통</b><span>삭제한 서버와 그룹을 30일간 보관하며 언제든 복원할 수 있습니다.</span></li>
             </ul>
           </div>
-          <div class="mock-panel security-mock" aria-label="数据与安全界面示意">
-            <div class="mp-head"><span>数据与安全</span><span class="mp-tag">LOCAL</span></div>
-            <div class="sec-item"><span class="tick">✓</span><div><b>凭据加密保存</b><span>密码与密钥只保存加密串，界面不回显明文。</span></div></div>
-            <div class="sec-item"><span class="tick">✓</span><div><b>写入前自动备份</b><span>配置文件损坏时可恢复到最近的备份。</span></div></div>
-            <div class="sec-item"><span class="tick">✓</span><div><b>30 天回收站</b><span>误删的服务器与分组可随时恢复。</span></div></div>
-            <div class="sec-item"><span class="tick">✓</span><div><b>加密导出 / 导入</b><span>换机迁移时可带密码导出配置文件。</span></div></div>
+          <div class="mock-panel security-mock" aria-label="데이터와 보안 화면 예시">
+            <div class="mp-head"><span>데이터와 보안</span><span class="mp-tag">LOCAL</span></div>
+            <div class="sec-item"><span class="tick">✓</span><div><b>자격 증명 암호화 저장</b><span>비밀번호와 키는 암호화된 문자열만 저장하며 화면에 평문을 표시하지 않습니다.</span></div></div>
+            <div class="sec-item"><span class="tick">✓</span><div><b>저장 전 자동 백업</b><span>설정 파일이 손상되면 최근 백업으로 복원할 수 있습니다.</span></div></div>
+            <div class="sec-item"><span class="tick">✓</span><div><b>30일 휴지통</b><span>실수로 삭제한 서버와 그룹을 언제든 복원할 수 있습니다.</span></div></div>
+            <div class="sec-item"><span class="tick">✓</span><div><b>암호화 내보내기 / 가져오기</b><span>기기를 옮길 때 비밀번호를 설정해 설정 파일을 내보낼 수 있습니다.</span></div></div>
           </div>
         </div>
       </div>
@@ -1371,39 +1408,53 @@ npx electron-builder --mac dmg zip --arm64    <span class="c-cm"># 只打 Apple 
       <div class="wrap">
         <div class="sec-head">
           <div>
-            <div class="sec-tag">09 — 界面分区</div>
-            <h2>主界面分为左、中、右三栏</h2>
-            <p>三栏宽度可以拖动调整，也可以按需隐藏。顶部是会话标签与窗口操作，底部状态栏显示当前连接数。</p>
+            <div class="sec-tag">09 — 화면 구성</div>
+            <h2>메인 화면은 좌, 중, 우 세 영역으로 구성</h2>
+            <p>세 영역의 너비는 드래그로 조정하거나 필요에 따라 숨길 수 있습니다. 상단에는 세션 탭과 창 조작이, 하단 상태 표시줄에는 현재 연결 수가 표시됩니다.</p>
           </div>
         </div>
         <div class="layout-notes">
           <div class="layout-note">
-            <b>左</b>
-            <span><b>服务器与监控。</b>分组列表、搜索、连接状态，以及 CPU、内存、Swap 与磁盘概览。</span>
+            <b>왼쪽</b>
+            <span><b>서버와 모니터링.</b>그룹 목록, 검색, 연결 상태와 CPU, 메모리, Swap 및 디스크 개요.</span>
           </div>
           <div class="layout-note">
-            <b>中</b>
-            <span><b>工作区域。</b>SSH 终端、命令行输入、文件管理器与快捷命令面板。</span>
+            <b>가운데</b>
+            <span><b>작업 영역.</b>SSH 터미널, 명령 입력, 파일 관리자와 스니펫 패널.</span>
           </div>
           <div class="layout-note">
-            <b>右</b>
-            <span><b>连接详情。</b>服务器信息、网络速率、进程列表与命令编辑器。</span>
+            <b>오른쪽</b>
+            <span><b>연결 세부 정보.</b>서버 정보, 네트워크 속도, 프로세스 목록과 명령 편집기.</span>
           </div>
         </div>
         <div class="shots">
           <figure class="shot">
-            <img src="img/ui-terminal.webp" alt="收起右栏后的终端工作区" />
-            <figcaption><b>终端工作区</b><span>收起右栏，终端获得更大空间</span></figcaption>
+            <img src="img/ui-terminal.webp" alt="오른쪽 영역을 접은 터미널 작업 공간" />
+            <figcaption><b>터미널 작업 공간</b><span>오른쪽 영역을 접어 터미널 공간을 더 확보</span></figcaption>
           </figure>
           <figure class="shot">
-            <img src="img/ui-settings.webp" alt="软件设置中心" />
-            <figcaption><b>设置中心</b><span>主题、字体、缩放与数据选项</span></figcaption>
+            <img src="img/ui-settings.webp" alt="소프트웨어 설정 센터" />
+            <figcaption><b>설정 센터</b><span>테마, 글꼴, 배율과 데이터 옵션</span></figcaption>
           </figure>
           <figure class="shot">
-            <img src="img/ui-snippets.webp" alt="快捷命令面板" />
-            <figcaption><b>快捷命令</b><span>按板块整理，可直接执行</span></figcaption>
+            <img src="img/ui-snippets.webp" alt="스니펫 패널" />
+            <figcaption><b>스니펫</b><span>보드별로 정리해 바로 실행</span></figcaption>
           </figure>
         </div>
+      </div>
+    </section>
+
+    <!-- ============ 多语言 ============ -->
+    <section id="i18n">
+      <div class="wrap">
+        <div class="sec-head">
+          <div>
+            <div class="sec-tag">다국어</div>
+            <h2>여덟 가지 언어의 인터페이스와 웹사이트</h2>
+            <p>클라이언트 인터페이스와 이 사이트는 간체 중국어, 번체 중국어, 영어, 러시아어, 프랑스어, 독일어, 일본어와 한국어를 제공합니다. 언어를 전환하면 페이지 주소와 hreflang 표기가 함께 바뀌며, 각 언어는 동일한 기능과 스크린샷을 제공합니다.</p>
+          </div>
+        </div>
+        <div class="lang-cards"><div class="lang-card"><b>简体中文</b><i>Chinese (Simplified) · zh-CN</i></div><div class="lang-card"><b>繁體中文</b><i>Chinese (Traditional) · zh-Hant</i></div><div class="lang-card"><b>English</b><i>English · en</i></div><div class="lang-card"><b>日本語</b><i>Japanese · ja</i></div><div class="lang-card on"><b>한국어</b><i>Korean · ko</i></div><div class="lang-card"><b>Русский</b><i>Russian · ru</i></div><div class="lang-card"><b>Français</b><i>French · fr</i></div><div class="lang-card"><b>Deutsch</b><i>German · de</i></div></div>
       </div>
     </section>
 
@@ -1412,67 +1463,67 @@ npx electron-builder --mac dmg zip --arm64    <span class="c-cm"># 只打 Apple 
       <div class="wrap">
         <div class="sec-head">
           <div>
-            <div class="sec-tag">10 — 设置与主题</div>
-            <h2>按自己的工作方式调整</h2>
-            <p>设置项按用途分组，修改后立即生效并自动保存。以下是最常用的六组选项。</p>
+            <div class="sec-tag">10 — 설정과 테마</div>
+            <h2>나의 작업 방식에 맞게 조정</h2>
+            <p>설정 항목은 용도별로 그룹화되어 있으며, 변경하면 즉시 적용되고 자동으로 저장됩니다. 가장 많이 쓰는 여섯 그룹은 다음과 같습니다.</p>
           </div>
         </div>
         <div class="set-grid">
           <div class="set-shot">
             <div class="frame-bar">
               <span class="lights"><i></i><i></i><i></i></span>
-              LIULI Shell · 设置中心
+              LIULI Shell · 설정 센터
             </div>
-            <img src="img/ui-settings.webp" alt="LIULI Shell 设置中心" />
-            <div class="cap">左侧菜单按用途分组，右侧是当前分类的选项；底部可恢复默认设置。</div>
+            <img src="img/ui-settings.webp" alt="LIULI Shell 설정 센터" />
+            <div class="cap">왼쪽 메뉴는 용도별로 그룹화되어 있고 오른쪽에는 현재 분류의 옵션이 표시됩니다. 하단에서 기본 설정을 복원할 수 있습니다.</div>
           </div>
           <div class="set-cards">
             <article class="set-card">
-              <h3>外观与主题</h3>
+              <h3>외관과 테마</h3>
               <ul>
-                <li>8 套配色，终端背景与 ANSI 色板同步切换</li>
-                <li>三栏宽度、底部高度可拖动并记忆</li>
-                <li>不需要的板块可以单独隐藏</li>
+                <li>색상 구성 8종, 터미널 배경과 ANSI 색상 팔레트가 함께 전환</li>
+                <li>세 영역 너비와 하단 높이를 드래그로 조정하고 기억</li>
+                <li>필요 없는 영역은 개별로 숨길 수 있음</li>
               </ul>
             </article>
             <article class="set-card">
-              <h3>字体与缩放</h3>
+              <h3>글꼴과 배율</h3>
               <ul>
-                <li>中英文字体、字号与行距分别设置</li>
-                <li>界面缩放 <strong>100 / 125 / 150 / 200%</strong></li>
-                <li>切换缩放需确认，<strong>Ctrl+Shift+0</strong> 可复位</li>
+                <li>한글 및 영문 글꼴, 글자 크기와 줄 간격을 각각 설정</li>
+                <li>UI 배율 <strong>100 / 125 / 150 / 200%</strong></li>
+                <li>배율을 전환하려면 확인이 필요하며,<strong>Ctrl+Shift+0</strong> 초기화할 수 있습니다</li>
               </ul>
             </article>
             <article class="set-card">
-              <h3>鼠标与快捷键</h3>
+              <h3>마우스와 단축키</h3>
               <ul>
-                <li>中键与右键的终端行为可调整</li>
-                <li>全局快捷键支持修改，冲突时即时提示</li>
-                <li>快捷命令可拖动排序</li>
+                <li>터미널에서 중간 버튼과 오른쪽 버튼 동작을 조정</li>
+                <li>전역 단축키를 수정할 수 있으며 충돌 시 즉시 알림</li>
+                <li>스니펫을 드래그로 정렬</li>
               </ul>
             </article>
             <article class="set-card">
-              <h3>快捷命令</h3>
+              <h3>스니펫</h3>
               <ul>
-                <li>按板块组织常用命令</li>
-                <li>控制区固定在首行，板块放不下时自动增行</li>
-                <li>支持单击直接运行或双击运行</li>
+                <li>자주 쓰는 명령을 보드별로 구성</li>
+                <li>제어 영역은 첫 줄에 고정되고 보드가 넘치면 자동으로 줄 추가</li>
+                <li>클릭 한 번 또는 더블 클릭으로 실행 지원</li>
               </ul>
             </article>
             <article class="set-card">
-              <h3>同步与代理</h3>
+              <h3>동기화와 프록시</h3>
               <ul>
-                <li>WebDAV 地址、账号与凭据分别保存</li>
-                <li>配置、分组与收藏双向合并</li>
-                <li>代理支持 HTTP / SOCKS5，可指定默认代理</li>
+                <li>WebDAV 주소, 계정과 자격 증명을 각각 저장</li>
+                <li>설정, 그룹과 즐겨찾기를 양방향 병합</li>
+                <li>HTTP / SOCKS5 프록시 지원, 기본 프록시 지정 가능</li>
               </ul>
             </article>
             <article class="set-card">
-              <h3>数据与安全</h3>
+              <h3>데이터와 보안</h3>
               <ul>
-                <li>配置写入前自动备份，异常时可恢复</li>
-                <li>密码与密钥只保存加密串，界面不回显明文</li>
-                <li>清空数据需要二次确认与倒计时</li>
+                <li>설정 저장 전 자동 백업, 이상 시 복원</li>
+                <li>비밀번호와 키는 암호화된 문자열만 저장하며 화면에 평문을 표시하지 않음</li>
+                <li>데이터 초기화 시 2차 확인과 카운트다운 필요</li>
               </ul>
             </article>
           </div>
@@ -1480,18 +1531,18 @@ npx electron-builder --mac dmg zip --arm64    <span class="c-cm"># 只打 Apple 
 
         <div class="theme-head">
           <div class="kicker">Themes</div>
-          <h3>8 套主题配色</h3>
-          <p>浅色 6 套、深色 2 套；切换后界面、终端背景与 ANSI 配色同步变化。</p>
+          <h3>테마 색상 8종</h3>
+          <p>라이트 6종, 다크 2종. 전환하면 UI, 터미널 배경과 ANSI 색상이 함께 바뀝니다.</p>
         </div>
         <div class="theme-grid">
-          <div class="theme-card"><b>暖白 · 墨绿</b><span>默认 · 低对比护眼</span><i class="swatch" style="background:linear-gradient(90deg,#f7f6f2 0 55%,#16665a 55% 75%,#2f8b7c 75% 100%)"></i></div>
-          <div class="theme-card"><b>雾蓝 · 靛青</b><span>清爽冷色</span><i class="swatch" style="background:linear-gradient(90deg,#f3f7fc 0 55%,#2f7cf6 55% 75%,#6aa7ff 75% 100%)"></i></div>
-          <div class="theme-card"><b>米杏 · 陶土</b><span>温暖纸感</span><i class="swatch" style="background:linear-gradient(90deg,#faf5ee 0 55%,#b4552f 55% 75%,#d57a4d 75% 100%)"></i></div>
-          <div class="theme-card"><b>石墨 · 冷灰</b><span>中性高对比</span><i class="swatch" style="background:linear-gradient(90deg,#eef0f2 0 55%,#3b6ea5 55% 75%,#6e9bd0 75% 100%)"></i></div>
-          <div class="theme-card"><b>夜间 · 深墨</b><span>暗色界面</span><i class="swatch" style="background:linear-gradient(90deg,#171c22 0 55%,#5fc2b0 55% 75%,#8ad9cb 75% 100%)"></i></div>
-          <div class="theme-card"><b>藕粉 · 莓紫</b><span>柔和暖紫</span><i class="swatch" style="background:linear-gradient(90deg,#fbf5f8 0 55%,#a04a86 55% 75%,#c477ad 75% 100%)"></i></div>
-          <div class="theme-card"><b>青瓷 · 松绿</b><span>淡雅青绿</span><i class="swatch" style="background:linear-gradient(90deg,#f1f7f3 0 55%,#3f7d5f 55% 75%,#6ba587 75% 100%)"></i></div>
-          <div class="theme-card"><b>深海 · 靛蓝</b><span>暗色蓝调</span><i class="swatch" style="background:linear-gradient(90deg,#101820 0 55%,#5aa9e6 55% 75%,#8bc7f2 75% 100%)"></i></div>
+          <div class="theme-card"><b>웜 화이트 · 다크 그린</b><span>기본 · 저대비 눈 보호</span><i class="swatch" style="background:linear-gradient(90deg,#f7f6f2 0 55%,#16665a 55% 75%,#2f8b7c 75% 100%)"></i></div>
+          <div class="theme-card"><b>미스트 블루 · 인디고</b><span>깔끔한 쿨 컬러</span><i class="swatch" style="background:linear-gradient(90deg,#f3f7fc 0 55%,#2f7cf6 55% 75%,#6aa7ff 75% 100%)"></i></div>
+          <div class="theme-card"><b>베이지 · 테라코타</b><span>따뜻한 종이 질감</span><i class="swatch" style="background:linear-gradient(90deg,#faf5ee 0 55%,#b4552f 55% 75%,#d57a4d 75% 100%)"></i></div>
+          <div class="theme-card"><b>그래파이트 · 쿨 그레이</b><span>중성 고대비</span><i class="swatch" style="background:linear-gradient(90deg,#eef0f2 0 55%,#3b6ea5 55% 75%,#6e9bd0 75% 100%)"></i></div>
+          <div class="theme-card"><b>나이트 · 딥 잉크</b><span>다크 UI</span><i class="swatch" style="background:linear-gradient(90deg,#171c22 0 55%,#5fc2b0 55% 75%,#8ad9cb 75% 100%)"></i></div>
+          <div class="theme-card"><b>로터스 핑크 · 베리 퍼플</b><span>부드러운 웜 퍼플</span><i class="swatch" style="background:linear-gradient(90deg,#fbf5f8 0 55%,#a04a86 55% 75%,#c477ad 75% 100%)"></i></div>
+          <div class="theme-card"><b>셀라돈 · 파인 그린</b><span>은은한 틸 그린</span><i class="swatch" style="background:linear-gradient(90deg,#f1f7f3 0 55%,#3f7d5f 55% 75%,#6ba587 75% 100%)"></i></div>
+          <div class="theme-card"><b>딥 씨 · 인디고 블루</b><span>다크 블루 톤</span><i class="swatch" style="background:linear-gradient(90deg,#101820 0 55%,#5aa9e6 55% 75%,#8bc7f2 75% 100%)"></i></div>
         </div>
       </div>
     </section>
@@ -1501,70 +1552,70 @@ npx electron-builder --mac dmg zip --arm64    <span class="c-cm"># 只打 Apple 
       <div class="wrap">
         <div class="sec-head">
           <div>
-            <div class="sec-tag">11 — 进阶参考</div>
-            <h2>手动构建与排错</h2>
-            <p>需要手动控制构建流程、为不同发行版准备依赖，或排查打包错误时，展开下面的完整参考。</p>
+            <div class="sec-tag">11 — 고급 참고</div>
+            <h2>수동 빌드와 문제 해결</h2>
+            <p>빌드 과정을 직접 제어하거나 배포판별 의존성을 준비하거나 패키징 오류를 진단할 때 아래 전체 참고를 펼쳐 보세요.</p>
           </div>
         </div>
         <details class="manual">
           <summary>
-            <b>Linux / macOS 完整构建指南</b>
-            <span class="manual-hint">包含各发行版依赖命令、AppImage / deb / dmg 打包、桌面图标、FUSE 处理与常见报错对照。</span>
+            <b>Linux / macOS 전체 빌드 가이드</b>
+            <span class="manual-hint">배포판별 의존성 명령, AppImage / deb / dmg 패키징, 데스크톱 아이콘, FUSE 처리와 흔한 오류 대조를 포함합니다.</span>
             <i class="chev">▾</i>
           </summary>
           <div class="manual-body">
             <div class="linux-build">
-              <h3>Linux x64（AppImage / .deb / tar.gz）</h3>
-              <p class="os-lead">不同发行版的系统库包名不同，Ubuntu 24.04 起改为 <code>*t64</code>。三种产物用途：AppImage 免安装、deb 走包管理、tar.gz 解压即用且不依赖 FUSE。</p>
+              <h3>Linux x64 (AppImage / .deb / tar.gz)</h3>
+              <p class="os-lead">배포판마다 시스템 라이브러리 패키지 이름이 다르며, Ubuntu 24.04부터는 다음으로 변경되었습니다 <code>*t64</code>. 세 가지 결과물의 용도: AppImage는 설치 불필요, deb는 패키지 관리 사용, tar.gz는 압축 해제 후 FUSE 없이 실행할 수 있습니다.</p>
               <div class="os-tabs" id="os-tabs" role="tablist"></div>
               <div id="os-panels"></div>
-              <div class="os-callout">兼容性要点：AppImage 只能运行在 <b>glibc 不低于构建机</b>的系统上。要在 20.04 ~ 26.04 通用，请在最老的 Ubuntu 20.04 上构建；仓库里的 <code>scripts/build-linux.sh</code> 会自动识别发行版并处理 t64 包名回退。</div>
-              <div class="os-callout">不想手动装依赖：<code>bash scripts/build-linux.sh</code> 一条命令完成「识别发行版 → 补系统依赖 → 选包类型 → 打包 → 询问安装」，已兼容 apt / dnf / pacman。只想装依赖用 <code>... deps</code>，只体检用 <code>... check</code>，环境坏了用 <code>... repair</code>。安装阶段：deb 走 <code>apt install</code> 并建桌面图标，AppImage 复制到 <code>~/Applications/LIULI-Shell</code> 并生成应用菜单与桌面图标。</div>
+              <div class="os-callout">호환성 요점: AppImage는 <b>glibc가 빌드 머신보다 낮지 않은</b>시스템에서만 실행됩니다. 20.04 ~ 26.04에서 공통으로 쓰려면 가장 오래된 Ubuntu 20.04에서 빌드하세요. 저장소의 <code>scripts/build-linux.sh</code> 이(가) 배포판을 자동으로 인식하고 t64 패키지 이름 대체를 처리합니다.</div>
+              <div class="os-callout">의존성을 직접 설치하지 않으려면:<code>bash scripts/build-linux.sh</code> 명령 한 번으로 「배포판 인식 → 시스템 의존성 설치 → 패키지 유형 선택 → 패키징 → 설치 확인」을 완료하며 apt / dnf / pacman을 지원합니다. 의존성만 설치하려면 <code>... deps</code>, 진단만 하려면 <code>... check</code>, 환경이 깨졌다면 <code>... repair</code>를 사용하세요. 설치 단계: deb는 <code>apt install</code>  명령으로 설치하고 데스크톱 아이콘을 만들며, AppImage는 <code>~/Applications/LIULI-Shell</code>  경로에 복사되고 앱 메뉴와 데스크톱 아이콘이 생성됩니다.</div>
 
-              <h4>运行与安装</h4>
+              <h4>실행과 설치</h4>
               <pre>chmod +x dist/LIULI-Shell-*-x86_64.AppImage
 ./dist/LIULI-Shell-*-x86_64.AppImage
 
-# Debian / Ubuntu 安装 deb
+# Debian / Ubuntu에서 deb 설치
 sudo apt install ./dist/LIULI-Shell-*_amd64.deb
 
-# 解压即用（不需要 FUSE，也不写入系统目录）
+# 압축 해제 후 바로 사용 (FUSE 불필요, 시스템 디렉터리에 쓰지 않음)
 mkdir -p ~/Applications
 tar -xzf dist/LIULI-Shell-*-x86_64.tar.gz -C ~/Applications
 ~/Applications/LIULI-Shell-*/liuli-shell</pre>
 
-              <h4>AppImage 运行报错 dlopen(): error loading libfuse.so.2</h4>
-              <p class="os-lead">AppImage 使用 type-2 运行时，需要系统的 FUSE 2。Ubuntu 22.04 之前默认自带，24.04 / 26.04 需要手动安装；没装 FUSE 也可以临时解包运行。</p>
+              <h4>AppImage 실행 오류 dlopen(): error loading libfuse.so.2</h4>
+              <p class="os-lead">AppImage는 type-2 런타임을 사용하므로 시스템에 FUSE 2가 필요합니다. Ubuntu 22.04 이전 버전은 기본 포함이며 24.04 / 26.04는 직접 설치해야 합니다. FUSE 없이 임시로 압축을 풀어 실행할 수도 있습니다.</p>
               <pre># Ubuntu 24.04 / 26.04
 sudo apt install -y libfuse2t64
-# Ubuntu 20.04 / 22.04、Debian 12
+# Ubuntu 20.04 / 22.04, Debian 12
 sudo apt install -y libfuse2
 
-# 不装 FUSE 直接运行（启动稍慢，功能一致）
+# FUSE 없이 바로 실행 (시작이 조금 느리지만 기능은 동일)
 ./LIULI-Shell-*-x86_64.AppImage --appimage-extract-and-run
 
-# 或者干脆用 tar.gz 版本，完全不依赖 FUSE</pre>
+# 또는 FUSE에 전혀 의존하지 않는 tar.gz 버전 사용</pre>
 
               <details class="os-details">
-                <summary>添加应用列表图标 / 桌面图标（AppImage）</summary>
-                <pre># 1) 放到固定位置
+                <summary>앱 목록 아이콘 / 데스크톱 아이콘 추가 (AppImage)</summary>
+                <pre># 1) 고정 위치에 배치
 mkdir -p ~/Applications
 cp dist/LIULI-Shell-*-x86_64.AppImage ~/Applications/LIULI-Shell.AppImage
 chmod +x ~/Applications/LIULI-Shell.AppImage
 
-# 2) 取出图标（--appimage-extract 会在当前目录解出 squashfs-root）
+# 2) 아이콘 추출 (--appimage-extract는 현재 디렉터리에 squashfs-root를 생성)
 cd /tmp &amp;&amp; ~/Applications/LIULI-Shell.AppImage --appimage-extract '*.png' &gt;/dev/null 2&gt;&amp;1
 mkdir -p ~/.local/share/icons/hicolor/512x512/apps
 cp /tmp/squashfs-root/*.png ~/.local/share/icons/hicolor/512x512/apps/liuli-shell.png 2&gt;/dev/null \
   || cp /tmp/squashfs-root/liuli-shell.png ~/.local/share/icons/hicolor/512x512/apps/ 2&gt;/dev/null
 
-# 3) 写应用列表项（$HOME 会展开成当前用户目录）
+# 3) 앱 목록 항목 작성 ($HOME은 현재 사용자 디렉터리로 확장)
 mkdir -p ~/.local/share/applications
 cat &gt; ~/.local/share/applications/liuli-shell.desktop &lt;&lt;EOF
 [Desktop Entry]
 Type=Application
 Name=LIULI Shell
-Comment=跨平台 SSH 终端与服务器管理工具
+Comment=크로스 플랫폼 SSH 터미널 및 서버 관리 도구
 Exec=$HOME/Applications/LIULI-Shell.AppImage %U
 Icon=liuli-shell
 Terminal=false
@@ -1574,97 +1625,97 @@ EOF
 chmod +x ~/.local/share/applications/liuli-shell.desktop
 update-desktop-database ~/.local/share/applications 2&gt;/dev/null || true
 
-# 4) 需要桌面图标，再复制一份并标记可信任
+# 4) 데스크톱 아이콘이 필요하면 한 번 더 복사하고 신뢰 표시
 cp ~/.local/share/applications/liuli-shell.desktop ~/Desktop/
 gio set ~/Desktop/liuli-shell.desktop metadata::trusted true 2&gt;/dev/null || true
-# 中文环境的桌面目录可能是 ~/桌面，按实际情况替换</pre>
-                <p class="os-lead">装 .deb 的用户不需要这些步骤：deb 安装时会自动写入 <code>/usr/share/applications</code>，应用列表里直接可见。</p>
+# 데스크톱 디렉터리 이름은 환경에 따라 다를 수 있으니 실제와 맞게 변경</pre>
+                <p class="os-lead">.deb로 설치한 사용자는 이 단계가 필요 없습니다. deb 설치 시 자동으로 작성되어 <code>/usr/share/applications</code>앱 목록에서 바로 보입니다.</p>
               </details>
             </div>
 
             <div class="dev-grid">
               <div class="dev">
-                <h3>macOS（dmg + zip，x64 / arm64）</h3>
-                <p><b>环境要求：</b>macOS 12+（Intel 或 Apple Silicon），Xcode Command Line Tools、Homebrew、Git、Node.js 20/22 LTS。dmg <b>不能</b>在 Windows / Linux 上构建。</p>
-                <p><b>1. 基础工具</b>（<code>xcode-select</code> 会弹窗，等待安装完成再继续）</p>
+                <h3>macOS (dmg + zip, x64 / arm64)</h3>
+                <p><b>환경 요구 사항:</b>macOS 12+ (Intel 또는 Apple Silicon), Xcode Command Line Tools, Homebrew, Git, Node.js 20/22 LTS. dmg는 <b>Windows / Linux에서</b>빌드할 수 없습니다.</p>
+                <p><b>1. 기본 도구</b>(<code>xcode-select</code> 는 팝업이 뜨므로 설치가 끝날 때까지 기다린 뒤 계속)</p>
                 <pre>xcode-select --install
 /bin/bash -c "$(curl -fsSL \
   https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-# Apple Silicon 把 brew 写入 PATH（Intel 为 /usr/local/bin/brew；重复执行不会重复追加）
+# Apple Silicon은 brew를 PATH에 추가 (Intel은 /usr/local/bin/brew, 반복 실행해도 중복 추가 없음)
 grep -qsF 'brew shellenv' ~/.zshrc || echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' &gt;&gt; ~/.zshrc
 source ~/.zshrc</pre>
-                <p><b>2. Node 20 与 Git</b></p>
+                <p><b>2. Node 20과 Git</b></p>
                 <pre>brew install node@20 git
 brew link --overwrite --force node@20
-node -v &amp;&amp; npm -v          # 期望输出 v20.x</pre>
-                <p><b>3. 源码与依赖</b>（先删旧目录，避免残留文件导致异常；Gitee / GitHub 二选一。Gitee 默认目录是 <code>liuli-shell</code>，GitHub 默认目录是 <code>Liulishell</code>，这里统一显式克隆为 <code>liuli-shell</code>）</p>
+node -v &amp;&amp; npm -v          # 예상 출력 v20.x</pre>
+                <p><b>3. 소스와 의존성</b>(이전 디렉터리를 먼저 삭제해 잔여 파일로 인한 이상을 방지하세요. Gitee / GitHub 중 하나. Gitee 기본 디렉터리는 <code>liuli-shell</code>, GitHub 기본 디렉터리는 <code>Liulishell</code>, 여기서는 모두 명시적으로 다음 이름으로 클론: <code>liuli-shell</code>)</p>
                 <pre>rm -rf liuli-shell Liulishell
-# Gitee（国内推荐）
+# Gitee (중국 내 권장)
 git clone https://gitee.com/liuliwanjiaweb/liuli-shell.git liuli-shell
-# GitHub（海外推荐，取消下一行注释并注释上面的 Gitee 行）
+# GitHub (해외 권장, 아래 줄의 주석을 해제하고 위 Gitee 줄을 주석 처리)
 # git clone https://github.com/LIULIWANJIA/Liulishell.git liuli-shell
 cd liuli-shell
-npm ci || npm install      # 锁文件与平台不一致时回退 npm install
-npm run vendor             # 复制 xterm 资源到 src/renderer/vendor，打包前必须执行</pre>
-                <p><b>4. 打包</b>（只打当前架构最快；两种都要就给 <code>dist:mac</code>）</p>
-                <pre>npm run dist:mac                              # x64 + arm64 一起出
-npx electron-builder --mac dmg zip --arm64    # 只打 Apple Silicon
-npx electron-builder --mac dmg zip --x64      # 只打 Intel</pre>
-                <p><b>5. 产物与缓存：</b>产物在 <code>~/liuli-shell/dist/</code>（<code>*.dmg</code>、<code>*.zip</code>）；Electron 与打包工具的下载缓存在 <code>~/Library/Caches/electron/</code>、<code>~/Library/Caches/electron-builder/</code>，删掉可强制重新下载。</p>
-                <p><b>6. 未签名安装：</b>拖入「应用程序」后若被 Gatekeeper 拦截，右键「打开」放行，或执行：</p>
+npm ci || npm install      # 잠금 파일이 플랫폼과 맞지 않으면 npm install로 대체
+npm run vendor             # 패키징 전 xterm 리소스를 src/renderer/vendor로 복사</pre>
+                <p><b>4. 패키징</b>(현재 아키텍처만 빌드하면 가장 빠릅니다. 둘 다 필요하면 <code>dist:mac</code>)</p>
+                <pre>npm run dist:mac                              # x64 + arm64 함께 빌드
+npx electron-builder --mac dmg zip --arm64    # Apple Silicon만
+npx electron-builder --mac dmg zip --x64      # Intel만</pre>
+                <p><b>5. 결과물과 캐시:</b>결과물은 <code>~/liuli-shell/dist/</code>(<code>*.dmg</code>,<code>*.zip</code>); Electron과 패키징 도구의 다운로드 캐시는 <code>~/Library/Caches/electron/</code>,<code>~/Library/Caches/electron-builder/</code> 경로에 있으며 삭제하면 강제로 다시 다운로드합니다.</p>
+                <p><b>6. 서명 없는 설치:</b>「응용 프로그램」에 끌어다 놓은 뒤 Gatekeeper에 차단되면 마우스 오른쪽 버튼으로 「열기」를 선택하거나 다음을 실행하세요:</p>
                 <pre>xattr -dr com.apple.quarantine "/Applications/LIULI Shell.app"
-spctl --assess --type execute -vv "/Applications/LIULI Shell.app"   # 查看拦截原因</pre>
-                <p>对外分发需要 Apple Developer ID 证书并 notarize：配置 <code>CSC_LINK</code>（.p12 路径或 base64）、<code>CSC_KEY_PASSWORD</code>；公证还需要 <code>APPLE_ID</code>、<code>APPLE_APP_SPECIFIC_PASSWORD</code>、<code>APPLE_TEAM_ID</code>，electron-builder 会自动完成签名与公证。</p>
-                <div class="os-callout">Intel 与 Apple Silicon 的产物互不通用；想让一个包装下两种机器，用 <code>npx electron-builder --mac dmg --universal</code>（体积约为单架构的两倍，构建也明显更慢）。</div>
+spctl --assess --type execute -vv "/Applications/LIULI Shell.app"   # 차단 원인 확인</pre>
+                <p>외부 배포에는 Apple Developer ID 인증서와 notarize가 필요합니다. 다음을 설정하세요: <code>CSC_LINK</code>(.p12 경로 또는 base64),<code>CSC_KEY_PASSWORD</code>. 공증에는 <code>APPLE_ID</code>,<code>APPLE_APP_SPECIFIC_PASSWORD</code>,<code>APPLE_TEAM_ID</code>이(가) 필요하며, electron-builder가 서명과 공증을 자동으로 완료합니다.</p>
+                <div class="os-callout">Intel과 Apple Silicon 결과물은 서로 호환되지 않습니다. 하나의 패키지로 두 기기를 지원하려면 <code>npx electron-builder --mac dmg --universal</code>을 사용하세요 (용량이 단일 아키텍처의 약 두 배이고 빌드도 눈에 띄게 느립니다).</div>
               </div>
             </div>
 
             <div class="dev-note">
-              <h3>常见报错对照表</h3>
+              <h3>흔한 오류 대조표</h3>
               <table class="err-table">
                 <thead>
-                  <tr><th>报错 / 现象</th><th>原因与处理</th></tr>
+                  <tr><th>오류 / 증상</th><th>원인 및 처리</th></tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td>无法定位软件包 libasound2</td>
-                    <td>Ubuntu 24.04 / Debian 13 起系统库统一改名 <code>*t64</code>（如 <code>libasound2t64</code>、<code>libgtk-3-0t64</code>）。先按旧名装、失败自动回退：<code>bash scripts/build-linux.sh deps</code> 已内置该逻辑。</td>
+                    <td>패키지 libasound2를 찾을 수 없음</td>
+                    <td>Ubuntu 24.04 / Debian 13부터 시스템 라이브러리 이름이 통일됨 <code>*t64</code>(예: <code>libasound2t64</code>,<code>libgtk-3-0t64</code>). 먼저 이전 이름으로 설치하고 실패 시 자동으로 대체:<code>bash scripts/build-linux.sh deps</code> 에 이 로직이 내장되어 있습니다.</td>
                   </tr>
                   <tr>
                     <td>dlopen(): error loading libfuse.so.2</td>
-                    <td>AppImage 运行时需要 FUSE 2：24.04+ 装 <code>libfuse2t64</code>，22.04 及更早装 <code>libfuse2</code>；不装 FUSE 可用 <code>--appimage-extract-and-run</code>，或直接换 <code>.tar.gz</code>。</td>
+                    <td>AppImage 실행 시 FUSE 2가 필요합니다: 24.04+는 <code>libfuse2t64</code>, 22.04 및 그 이전은 <code>libfuse2</code> 설치가 필요합니다. FUSE를 설치하지 않으려면 <code>--appimage-extract-and-run</code>를 사용하거나 <code>.tar.gz</code>로 전환하세요.</td>
                   </tr>
                   <tr>
-                    <td>Electron 下载超时 / 卡在 downloading</td>
-                    <td>设置镜像后重试：<code>export ELECTRON_MIRROR=https://registry.npmmirror.com/-/binary/electron/</code>、<code>export ELECTRON_BUILDER_BINARIES_MIRROR=https://registry.npmmirror.com/-/binary/electron-builder-binaries/</code>。</td>
+                    <td>Electron 다운로드 시간 초과 / downloading에서 멈춤</td>
+                    <td>미러를 설정한 뒤 다시 시도:<code>export ELECTRON_MIRROR=https://registry.npmmirror.com/-/binary/electron/</code>,<code>export ELECTRON_BUILDER_BINARIES_MIRROR=https://registry.npmmirror.com/-/binary/electron-builder-binaries/</code>.</td>
                   </tr>
                   <tr>
-                    <td>npm ci 失败 / 锁文件与平台不一致</td>
-                    <td>删除 <code>node_modules</code> 后改用 <code>npm install</code>；Node 版本过旧（&lt; 18）会直接装不上，改用 Node 20。</td>
+                    <td>npm ci 실패 / 잠금 파일과 플랫폼 불일치</td>
+                    <td>다음 항목을 삭제한 뒤 <code>node_modules</code>  대신 다음을 사용하세요: <code>npm install</code>. Node 버전이 오래되면(&lt; 18) 설치되지 않으므로 Node 20을 사용하세요.</td>
                   </tr>
                   <tr>
                     <td>rpmbuild not found</td>
-                    <td>只有打 rpm 时才需要：Fedora 装 <code>rpm-build</code>，Debian/Ubuntu 装 <code>rpm</code> 与 <code>rpm2cpio</code> 相关包，或先跳过 rpm 目标。</td>
+                    <td>rpm을 빌드할 때만 필요합니다: Fedora는 <code>rpm-build</code>을 설치하고, Debian/Ubuntu는 <code>rpm</code> 과 <code>rpm2cpio</code>  관련 패키지를 설치하거나 rpm 대상을 건너뛰세요.</td>
                   </tr>
                   <tr>
-                    <td>Permission denied（运行 AppImage）</td>
-                    <td>缺执行权限：<code>chmod +x dist/LIULI-Shell-*-x86_64.AppImage</code>。</td>
+                    <td>Permission denied (AppImage 실행)</td>
+                    <td>실행 권한이 없습니다:<code>chmod +x dist/LIULI-Shell-*-x86_64.AppImage</code>.</td>
                   </tr>
                   <tr>
-                    <td>errSecInternalComponent / 签名失败（macOS）</td>
-                    <td>keychain 被锁定：<code>security unlock-keychain -p &lt;密码&gt; ~/Library/Keychains/login.keychain-db</code> 后重跑；CI 上还需 <code>security set-key-partition-list</code>。</td>
+                    <td>errSecInternalComponent / 서명 실패 (macOS)</td>
+                    <td>keychain이 잠겨 있습니다:<code>security unlock-keychain -p &lt;password&gt; ~/Library/Keychains/login.keychain-db</code>  명령을 실행한 뒤 다시 시도하세요. CI에서는 <code>security set-key-partition-list</code>도 필요합니다.</td>
                   </tr>
                 </tbody>
               </table>
 
-              <h3 style="margin-top:20px">通用说明</h3>
+              <h3 style="margin-top:20px">일반 안내</h3>
               <ul>
-                <li><b>构建目录：</b>所有产物默认输出到项目根目录 <code>dist/</code>。Linux 为 <code>LIULI-Shell-*-x86_64</code> / <code>*-arm64</code> 的 <code>.AppImage</code> / <code>.deb</code> / <code>.tar.gz</code>（脚本自动识别架构），macOS 为 <code>.dmg</code> / <code>.zip</code>。</li>
-                <li><b>打包前必做：</b><code>npm run vendor</code> 会把 xterm.js 等前端资源复制到 <code>src/renderer/vendor/</code>，缺少这一步打出来的包终端会是空白。</li>
-                <li><b>选构建机：</b>AppImage 只能跑在 glibc 不低于构建机的系统上。要在 20.04 ~ 26.04 通用，就在最老的 Ubuntu 20.04 上构建；只给自己用则本机构建最快。</li>
-                <li><b>交叉构建：</b>Linux 包在 Linux 构建、macOS 包必须在 macOS 构建，两者产物互不通用；Windows 包同理。推荐用对应系统的 CI（如 <code>ubuntu-22.04</code>、<code>macos-14</code> runner）出包。</li>
-                <li><b>发布：</b>把 <code>dist/</code> 下对应平台的安装包与便携包作为 Release 附件上传（Windows 的 <code>*.blockmap</code> 仅用于差量更新，无需上传）；源码仓库不要提交 <code>node_modules/</code> 与 <code>dist/</code>。</li>
+                <li><b>빌드 디렉터리:</b>모든 결과물은 기본적으로 프로젝트 루트의 <code>dist/</code>에 출력됩니다. Linux는 <code>LIULI-Shell-*-x86_64</code> / <code>*-arm64</code> 의 <code>.AppImage</code> / <code>.deb</code> / <code>.tar.gz</code>(스크립트가 아키텍처를 자동 인식), macOS는 <code>.dmg</code> / <code>.zip</code>.</li>
+                <li><b>패키징 전 필수:</b><code>npm run vendor</code> 명령은 xterm.js 등 프런트엔드 리소스를 다음 위치로 복사합니다: <code>src/renderer/vendor/</code>. 이 단계가 없으면 패키징한 터미널이 빈 화면이 됩니다.</li>
+                <li><b>빌드 머신 선택:</b>AppImage는 glibc가 빌드 머신보다 낮지 않은 시스템에서만 실행됩니다. 20.04 ~ 26.04에서 공통으로 쓰려면 가장 오래된 Ubuntu 20.04에서 빌드하고, 개인용이라면 로컬 빌드가 가장 빠릅니다.</li>
+                <li><b>교차 빌드:</b>Linux 패키지는 Linux에서, macOS 패키지는 반드시 macOS에서 빌드하며 두 결과물은 서로 호환되지 않습니다. Windows 패키지도 마찬가지입니다. 해당 시스템의 CI(예: <code>ubuntu-22.04</code>,<code>macos-14</code>  runner)로 패키징하는 것을 권장합니다.</li>
+                <li><b>릴리스:</b>다음 위치의 <code>dist/</code> 에서 해당 플랫폼의 설치 패키지와 포터블 패키지를 Release 첨부 파일로 업로드하세요 (Windows의 <code>*.blockmap</code> 은 차등 업데이트 전용이므로 업로드할 필요 없음). 소스 저장소에는 <code>node_modules/</code> 과 <code>dist/</code>을 커밋하지 마세요.</li>
               </ul>
             </div>
           </div>
@@ -1681,26 +1732,26 @@ spctl --assess --type execute -vv "/Applications/LIULI Shell.app"   # 查看拦�
             <img src="icon.png" alt="LIULI Shell" />
             <span><b>LIULI Shell</b><small>by LIULIWANJIA</small></span>
           </div>
-          <p class="foot-desc">跨平台 SSH 客户端，集连接管理、终端、SFTP 文件传输、实时监控与配置同步于一体。</p>
+          <p class="foot-desc">연결 관리, 터미널, SFTP 파일 전송, 실시간 모니터링과 설정 동기화를 하나로 통합한 크로스 플랫폼 SSH 클라이언트.</p>
         </div>
         <div class="foot-col">
-          <b>项目</b>
-          <a href="https://shell.minecft.cn" target="_blank" rel="noopener noreferrer">官网 shell.minecft.cn</a>
-          <a href="https://github.com/LIULIWANJIA/Liulishell" target="_blank" rel="noopener noreferrer">GitHub 仓库</a>
-          <a href="https://gitee.com/liuliwanjiaweb/liuli-shell" target="_blank" rel="noopener noreferrer">Gitee 仓库</a>
+          <b>프로젝트</b>
+          <a href="https://shell.minecft.cn" target="_blank" rel="noopener noreferrer">공식 사이트 shell.minecft.cn</a>
+          <a href="https://github.com/LIULIWANJIA/Liulishell" target="_blank" rel="noopener noreferrer">GitHub 저장소</a>
+          <a href="https://gitee.com/liuliwanjiaweb/liuli-shell" target="_blank" rel="noopener noreferrer">Gitee 저장소</a>
         </div>
         <div class="foot-col">
-          <b>下载与交流</b>
-          <a href="https://pan.quark.cn/s/3b9930496416?pwd=YKXY" target="_blank" rel="noopener noreferrer">夸克网盘（YKXY）</a>
+          <b>다운로드와 커뮤니티</b>
+          <a href="https://pan.quark.cn/s/3b9930496416?pwd=YKXY" target="_blank" rel="noopener noreferrer">夸克网盘 (YKXY)</a>
           <a href="https://github.com/LIULIWANJIA/Liulishell/releases" target="_blank" rel="noopener noreferrer">GitHub Releases</a>
           <a href="https://gitee.com/liuliwanjiaweb/liuli-shell/releases" target="_blank" rel="noopener noreferrer">Gitee Releases</a>
-          <a href="https://qm.qq.com/q/30jvArYWDm" target="_blank" rel="noopener noreferrer">QQ 群 1127112572</a>
-          <a href="https://t.me/liulishell" target="_blank" rel="noopener noreferrer">Telegram 群组</a>
+          <a href="https://qm.qq.com/q/30jvArYWDm" target="_blank" rel="noopener noreferrer">QQ 그룹 1127112572</a>
+          <a href="https://t.me/liulishell" target="_blank" rel="noopener noreferrer">Telegram 그룹</a>
         </div>
       </div>
       <div class="foot-bottom">
         <span>© LIULIWANJIA · LIULI Shell</span>
-        <span>非商业署名许可 · Windows / Linux / macOS</span>
+        <span>비상업적 저작자 표시 라이선스 · Windows / Linux / macOS</span>
       </div>
     </div>
   </footer>
@@ -1734,7 +1785,7 @@ spctl --assess --type execute -vv "/Applications/LIULI Shell.app"   # 查看拦�
     nav.classList.toggle('open', open);
     btn.classList.toggle('open', open);
     btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-    btn.setAttribute('aria-label', open ? '关闭菜单' : '打开菜单');
+    btn.setAttribute('aria-label', open ? "메뉴 닫기" : "메뉴 열기");
   }
   btn.addEventListener('click', function (e) {
     e.stopPropagation();
@@ -1755,11 +1806,11 @@ spctl --assess --type execute -vv "/Applications/LIULI Shell.app"   # 查看拦�
 /* Linux 各发行版构建命令（Tab 切换）。包名差异集中在系统依赖，其余步骤一致。 */
 (function () {
   var CLONE = [
-    '# 删除旧目录，同时清理 GitHub 默认目录 Liulishell',
+    "# 이전 디렉터리 삭제, GitHub 기본 디렉터리 Liulishell도 함께 정리",
     'rm -rf liuli-shell Liulishell',
-    '# Gitee（国内推荐，默认目录 liuli-shell）',
+    "# Gitee (중국 내 권장, 기본 디렉터리는 liuli-shell)",
     'git clone https://gitee.com/liuliwanjiaweb/liuli-shell.git liuli-shell',
-    '# GitHub（海外推荐，默认目录 Liulishell，显式指定为 liuli-shell）',
+    "# GitHub (해외 권장, 기본 디렉터리는 Liulishell이며 liuli-shell로 명시 지정)",
     '# git clone https://github.com/LIULIWANJIA/Liulishell.git liuli-shell',
     'cd liuli-shell',
     'npm ci || npm install',
@@ -1767,19 +1818,19 @@ spctl --assess --type execute -vv "/Applications/LIULI Shell.app"   # 查看拦�
   ];
   var BUILD = [
     'npm run dist:linux            # AppImage + deb + tar.gz',
-    '# 只打单个目标：',
+    "# 단일 대상만 빌드:",
     'npm run dist:linux:appimage',
     'npm run dist:linux:deb',
     'npm run dist:linux:tar',
     '',
-    '# 或一键脚本（自动识别发行版、自动处理 t64 包名、可选交互）',
+    "# 또는 원클릭 스크립트 (배포판 자동 인식, t64 패키지 자동 처리, 선택적 대화형)",
     'bash scripts/build-linux.sh',
     '',
-    '# 依赖没装上、构建报错时',
+    "# 의존성 설치 실패 또는 빌드 오류 시",
     'bash scripts/build-linux.sh repair && bash scripts/build-linux.sh deps'
   ];
   var NVM = [
-    '# 系统源 Node 版本常常低于 18，推荐用 nvm 装 20',
+    "# 시스템 소스의 Node는 18보다 낮은 경우가 많아 nvm으로 20 설치 권장",
     'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash',
     'source ~/.nvm/nvm.sh',
     'nvm install 20 && nvm use 20',
@@ -1797,7 +1848,7 @@ spctl --assess --type execute -vv "/Applications/LIULI Shell.app"   # 查看拦�
         '  libatk-bridge2.0-0 libcups2 libnotify4 libatspi2.0-0 libsecret-1-0 libfuse2'
       ],
       node: NVM,
-      notes: ['22.04 默认自带 libfuse2，AppImage 可直接运行；20.04 缺 FUSE 时执行 <code>sudo apt install -y libfuse2</code>。']
+      notes: ["22.04는 기본으로 libfuse2를 포함해 AppImage를 바로 실행할 수 있습니다. 20.04에서 FUSE가 없으면 <code>sudo apt install -y libfuse2</code>를 실행하세요."]
     },
     {
       id: 'u2404',
@@ -1811,7 +1862,7 @@ spctl --assess --type execute -vv "/Applications/LIULI Shell.app"   # 查看拦�
         '  libsecret-1-0t64 libfuse2t64'
       ],
       node: NVM,
-      notes: ['24.04 起系统库统一改名为 <code>*t64</code>，写成 <code>libasound2</code> 会提示「无法定位软件包」，这是最常见的报错来源。']
+      notes: ["24.04부터 시스템 라이브러리가 <code>*t64</code>로 이름이 바뀌어 <code>libasound2</code>로 쓰면 「패키지를 찾을 수 없음」이 표시되며, 이것이 가장 흔한 오류 원인입니다."]
     },
     {
       id: 'u2604',
@@ -1820,7 +1871,7 @@ spctl --assess --type execute -vv "/Applications/LIULI Shell.app"   # 查看拦�
         'sudo apt update',
         'sudo apt install -y git curl build-essential python3 fakeroot dpkg-dev nodejs npm',
         '',
-        '# 24.04 起系统库改为 t64 命名：先按旧名装，失败自动回退 t64',
+        "# 24.04부터 시스템 라이브러리가 t64 명명으로 변경: 이전 이름으로 먼저 설치하고 실패 시 t64로 자동 대체",
         'for p in libasound2 libgtk-3-0 libatk-bridge2.0-0 libatk1.0-0 libcups2 \\',
         '         libnotify4 libatspi2.0-0 libsecret-1-0; do',
         '  sudo apt install -y "$p" 2>/dev/null || sudo apt install -y "${p}t64"',
@@ -1831,8 +1882,8 @@ spctl --assess --type execute -vv "/Applications/LIULI Shell.app"   # 查看拦�
       ],
       node: NVM,
       notes: [
-        '这段循环写法在 22.04 ~ 26.04 都能直接用，不会再因为包名带不带 <code>t64</code> 而失败。',
-        '<code>scripts/build-linux.sh deps</code> 里就是同样的逻辑，可以只跑依赖安装。'
+        "이 반복문은 22.04 ~ 26.04에서 모두 바로 사용할 수 있으며, 패키지 이름에 <code>t64</code>가 붙는지 때문에 실패하지 않습니다.",
+        "<code>scripts/build-linux.sh deps</code>에 동일한 로직이 있어 의존성 설치만 실행할 수 있습니다."
       ]
     },
     {
@@ -1842,7 +1893,7 @@ spctl --assess --type execute -vv "/Applications/LIULI Shell.app"   # 查看拦�
         'sudo apt update',
         'sudo apt install -y git curl build-essential python3 fakeroot dpkg-dev nodejs npm',
         '',
-        '# Debian 12 用旧包名，Debian 13(trixie) 起改为 t64 —— 循环自动适配',
+        "# Debian 12는 이전 패키지 이름, Debian 13(trixie)부터 t64로 변경 — 반복문이 자동 적응",
         'for p in libasound2 libgtk-3-0 libatk-bridge2.0-0 libatk1.0-0 libcups2 \\',
         '         libnotify4 libatspi2.0-0 libsecret-1-0; do',
         '  sudo apt install -y "$p" 2>/dev/null || sudo apt install -y "${p}t64"',
@@ -1852,7 +1903,7 @@ spctl --assess --type execute -vv "/Applications/LIULI Shell.app"   # 查看拦�
         '  libxcb-dri3-0 libxshmfence1 libdrm2 libcairo2 libpango-1.0-0 libfuse2'
       ],
       node: NVM,
-      notes: ['Debian 12 自带 libfuse2；Debian 13 用 <code>libfuse2t64</code>，找不到就改用 tar.gz 版本。']
+      notes: ["Debian 12는 libfuse2를 기본 포함하며, Debian 13은 <code>libfuse2t64</code>를 사용하고 찾을 수 없으면 tar.gz 버전으로 전환하세요."]
     },
     {
       id: 'fedora',
@@ -1862,8 +1913,8 @@ spctl --assess --type execute -vv "/Applications/LIULI Shell.app"   # 查看拦�
         '  nss gtk3 alsa-lib libXScrnSaver libXtst libxkbcommon at-spi2-atk \\',
         '  cups-libs libsecret libnotify mesa-libgbm libdrm fuse-libs'
       ],
-      node: ['sudo dnf install -y nodejs npm', 'node -v && npm -v', '# 低于 v18 时用 nvm 或 NodeSource 升级'],
-      notes: ['需要 rpm 包时加一个目标即可：<code>npx electron-builder --linux rpm --x64</code>。']
+      node: ['sudo dnf install -y nodejs npm', 'node -v && npm -v', "# v18 미만이면 nvm 또는 NodeSource로 업그레이드"],
+      notes: ["rpm 패키지가 필요하면 대상만 추가하면 됩니다: <code>npx electron-builder --linux rpm --x64</code>."]
     },
     {
       id: 'arch',
@@ -1874,7 +1925,7 @@ spctl --assess --type execute -vv "/Applications/LIULI Shell.app"   # 查看拦�
         '  cups libsecret libnotify mesa fuse2'
       ],
       node: ['sudo pacman -Sy --needed nodejs npm', 'node -v && npm -v'],
-      notes: ['Arch 滚动更新，一般不需要额外处理包名；<code>fuse2</code> 装上后 AppImage 可直接运行。']
+      notes: ["Arch는 롤링 업데이트라 일반적으로 패키지 이름 처리가 필요 없으며, <code>fuse2</code>를 설치하면 AppImage를 바로 실행할 수 있습니다."]
     }
   ];
 
@@ -1896,10 +1947,10 @@ spctl --assess --type execute -vv "/Applications/LIULI Shell.app"   # 查看拦�
 
   panels.innerHTML = OS.map(function (o, i) {
     return '<div class="os-panel' + (i === 0 ? ' active' : '') + '" role="tabpanel" data-os="' + o.id + '">' +
-      '<p><b>1. 安装系统依赖</b></p>' + pre(o.deps) +
-      '<p><b>2. 安装 / 确认 Node 20 与 npm</b></p>' + pre(o.node) +
-      '<p><b>3. 获取源码并安装依赖</b></p>' + pre(CLONE) +
-      '<p><b>4. 打包</b></p>' + pre(BUILD) +
+      "<p><b>1. 시스템 의존성 설치</b></p>" + pre(o.deps) +
+      "<p><b>2. Node 20과 npm 설치 / 확인</b></p>" + pre(o.node) +
+      "<p><b>3. 소스 받기 및 의존성 설치</b></p>" + pre(CLONE) +
+      "<p><b>4. 패키징</b></p>" + pre(BUILD) +
       (o.notes || []).map(function (n) { return '<div class="os-callout">' + n + '</div>'; }).join('') +
       '</div>';
   }).join('');
@@ -1951,10 +2002,10 @@ spctl --assess --type execute -vv "/Applications/LIULI Shell.app"   # 查看拦�
   }
   function copyText(text, btn) {
     var done = function () {
-      btn.textContent = '已复制';
+      btn.textContent = "복사됨";
       btn.classList.add('done');
       setTimeout(function () {
-        btn.textContent = '复制';
+        btn.textContent = "복사";
         btn.classList.remove('done');
       }, 1600);
     };
@@ -1976,8 +2027,8 @@ spctl --assess --type execute -vv "/Applications/LIULI Shell.app"   # 查看拦�
     var btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'copy';
-    btn.textContent = '复制';
-    btn.setAttribute('aria-label', '复制命令');
+    btn.textContent = "복사";
+    btn.setAttribute('aria-label', "명령 복사");
     btn.addEventListener('click', function () {
       var text = (pre.innerText || pre.textContent || '').replace(/\s+$/, '');
       copyText(text, btn);
