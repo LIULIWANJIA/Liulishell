@@ -1582,7 +1582,7 @@ sudo apt install ./dist/LIULI-Shell-*_amd64.deb
 # 解壓即用（不需要 FUSE，也不寫入系統目錄）
 mkdir -p ~/Applications
 tar -xzf dist/LIULI-Shell-*-x86_64.tar.gz -C ~/Applications
-~/Applications/LIULI-Shell-*/liuli-shell</pre>
+~/Applications/LIULI-Shell-*/liulishell</pre>
 
               <h4>AppImage 執行報錯 dlopen(): error loading libfuse.so.2</h4>
               <p class="os-lead">AppImage 使用 type-2 執行階段，需要系統的 FUSE 2。Ubuntu 22.04 之前預設內建，24.04 / 26.04 需要手動安裝；沒裝 FUSE 也可以暫時解包執行。</p>
@@ -1606,28 +1606,28 @@ chmod +x ~/Applications/LIULI-Shell.AppImage
 # 2) 取出圖示（--appimage-extract 會在目前目錄解出 squashfs-root）
 cd /tmp &amp;&amp; ~/Applications/LIULI-Shell.AppImage --appimage-extract '*.png' &gt;/dev/null 2&gt;&amp;1
 mkdir -p ~/.local/share/icons/hicolor/512x512/apps
-cp /tmp/squashfs-root/*.png ~/.local/share/icons/hicolor/512x512/apps/liuli-shell.png 2&gt;/dev/null \
-  || cp /tmp/squashfs-root/liuli-shell.png ~/.local/share/icons/hicolor/512x512/apps/ 2&gt;/dev/null
+cp /tmp/squashfs-root/*.png ~/.local/share/icons/hicolor/512x512/apps/liulishell.png 2&gt;/dev/null \
+  || cp /tmp/squashfs-root/liulishell.png ~/.local/share/icons/hicolor/512x512/apps/ 2&gt;/dev/null
 
 # 3) 寫入應用程式清單項目（$HOME 會展開成目前使用者目錄）
 mkdir -p ~/.local/share/applications
-cat &gt; ~/.local/share/applications/liuli-shell.desktop &lt;&lt;EOF
+cat &gt; ~/.local/share/applications/LiuliShell.desktop &lt;&lt;EOF
 [Desktop Entry]
 Type=Application
 Name=LIULI Shell
 Comment=跨平台 SSH 終端與伺服器管理工具
 Exec=$HOME/Applications/LIULI-Shell.AppImage %U
-Icon=liuli-shell
+Icon=liulishell
 Terminal=false
 Categories=Development;System;Network;
-StartupWMClass=LIULI Shell
+StartupWMClass=LiuliShell
 EOF
-chmod +x ~/.local/share/applications/liuli-shell.desktop
+chmod +x ~/.local/share/applications/LiuliShell.desktop
 update-desktop-database ~/.local/share/applications 2&gt;/dev/null || true
 
 # 4) 需要桌面圖示，再複製一份並標記為可信任
-cp ~/.local/share/applications/liuli-shell.desktop ~/Desktop/
-gio set ~/Desktop/liuli-shell.desktop metadata::trusted true 2&gt;/dev/null || true
+cp ~/.local/share/applications/LiuliShell.desktop ~/Desktop/
+gio set ~/Desktop/LiuliShell.desktop metadata::trusted true 2&gt;/dev/null || true
 # 中文環境的桌面目錄可能是 ~/桌面，依實際情況替換</pre>
                 <p class="os-lead">安裝 .deb 的使用者不需要這些步驟：deb 安裝時會自動寫入 <code>/usr/share/applications</code>，應用程式清單裡直接可見。</p>
               </details>

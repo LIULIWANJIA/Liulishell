@@ -533,15 +533,13 @@ refresh_app_menu() {
 # deb 安装后：系统已生成 desktop 文件，复制一份到桌面
 desktop_shortcut_for_deb() {
   local src=""
-  for p in /usr/share/applications/*liuli*.desktop /usr/share/applications/*LIULI*.desktop; do
-    [ -e "$p" ] && { src="$p"; break; }
-  done
+  src="$(find /usr/share/applications -maxdepth 1 -iname '*liuli*.desktop' 2>/dev/null | head -1)"
   if [ -z "$src" ]; then
     warn "没找到系统里的 desktop 文件，跳过桌面图标"
     return 0
   fi
   local dd; dd="$(desktop_dir)"
-  local dest="$dd/liuli-shell.desktop"
+  local dest="$dd/LiuliShell.desktop"
   cp -f "$src" "$dest" 2>/dev/null || { warn "复制桌面图标失败（$dest）"; return 0; }
   mark_trusted "$dest"
   ok "已创建桌面图标：$dest"
@@ -560,7 +558,7 @@ install_appimage() {
   chmod +x "$target"
 
   # 图标：优先用仓库内 build/icon.png，其次从 AppImage 里解出来
-  local icon="$appdir/liuli-shell.png"
+  local icon="$appdir/liulishell.png"
   if [ -f build/icon.png ]; then
     cp -f build/icon.png "$icon"
   else
@@ -569,7 +567,7 @@ install_appimage() {
   [ -f "$icon" ] || { warn "没取到图标，桌面图标将使用系统默认图标"; }
 
   # 应用菜单项
-  local appdir_entry="$HOME/.local/share/applications/liuli-shell.desktop"
+  local appdir_entry="$HOME/.local/share/applications/LiuliShell.desktop"
   mkdir -p "$(dirname "$appdir_entry")"
   cat > "$appdir_entry" <<EOF
 [Desktop Entry]
@@ -585,7 +583,7 @@ Terminal=false
 Categories=Development;System;Network;
 Keywords=ssh;sftp;terminal;server;
 StartupNotify=true
-StartupWMClass=LIULI Shell
+StartupWMClass=LiuliShell
 EOF
   chmod +x "$appdir_entry"
   refresh_app_menu
@@ -593,26 +591,26 @@ EOF
 
   # 桌面图标
   local dd; dd="$(desktop_dir)"
-  cp -f "$appdir_entry" "$dd/liuli-shell.desktop" 2>/dev/null && mark_trusted "$dd/liuli-shell.desktop" \
-    && ok "已创建桌面图标：$dd/liuli-shell.desktop"
+  cp -f "$appdir_entry" "$dd/LiuliShell.desktop" 2>/dev/null && mark_trusted "$dd/LiuliShell.desktop" \
+    && ok "已创建桌面图标：$dd/LiuliShell.desktop"
 
-  # 终端里能直接敲 liuli-shell
+  # 终端里能直接敲 liulishell
   local bindir="$HOME/.local/bin"
   mkdir -p "$bindir"
-  if ln -sf "$target" "$bindir/liuli-shell" 2>/dev/null; then
-    ok "已创建命令链接：$bindir/liuli-shell"
+  if ln -sf "$target" "$bindir/liulishell" 2>/dev/null; then
+    ok "已创建命令链接：$bindir/liulishell"
   else
-    printf '#!/bin/sh\nexec "%s" "$@"\n' "$target" > "$bindir/liuli-shell" \
-      && chmod +x "$bindir/liuli-shell" \
-      && ok "已创建启动脚本：$bindir/liuli-shell"
+    printf '#!/bin/sh\nexec "%s" "$@"\n' "$target" > "$bindir/liulishell" \
+      && chmod +x "$bindir/liulishell" \
+      && ok "已创建启动脚本：$bindir/liulishell"
   fi
   case ":$PATH:" in
     *":$bindir:"*) ;;
-    *) warn "提示：$bindir 不在 PATH 里，想直接敲 liuli-shell 请把它加进 ~/.bashrc" ;;
+    *) warn "提示：$bindir 不在 PATH 里，想直接敲 liulishell 请把它加进 ~/.bashrc" ;;
   esac
 
   printf '\n  程序位置：%s\n  图标位置：%s\n' "$target" "$icon"
-  printf '  卸载：rm -rf "%s" "%s" "%s/liuli-shell.desktop"\n' "$appdir" "$appdir_entry" "$dd"
+  printf '  卸载：rm -rf "%s" "%s" "%s/LiuliShell.desktop"\n' "$appdir" "$appdir_entry" "$dd"
 }
 
 find_deb() { ls -t dist/*.deb 2>/dev/null | head -1; }
@@ -638,7 +636,7 @@ install_deb() {
   local pkg; pkg="$(dpkg-deb -f "$deb" Package 2>/dev/null || basename "$deb")"
   ok "已安装 .deb：$pkg"
   desktop_shortcut_for_deb
-  printf '\n  启动方式：应用菜单里搜索 “LIULI Shell”，或在终端执行 liuli-shell\n'
+  printf '\n  启动方式：应用菜单里搜索 “LIULI Shell”，或在终端执行 liulishell\n'
   printf '  卸载：sudo apt remove %s\n' "$pkg"
 }
 

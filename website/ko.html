@@ -1582,7 +1582,7 @@ sudo apt install ./dist/LIULI-Shell-*_amd64.deb
 # 압축 해제 후 바로 사용 (FUSE 불필요, 시스템 디렉터리에 쓰지 않음)
 mkdir -p ~/Applications
 tar -xzf dist/LIULI-Shell-*-x86_64.tar.gz -C ~/Applications
-~/Applications/LIULI-Shell-*/liuli-shell</pre>
+~/Applications/LIULI-Shell-*/liulishell</pre>
 
               <h4>AppImage 실행 오류 dlopen(): error loading libfuse.so.2</h4>
               <p class="os-lead">AppImage는 type-2 런타임을 사용하므로 시스템에 FUSE 2가 필요합니다. Ubuntu 22.04 이전 버전은 기본 포함이며 24.04 / 26.04는 직접 설치해야 합니다. FUSE 없이 임시로 압축을 풀어 실행할 수도 있습니다.</p>
@@ -1606,28 +1606,28 @@ chmod +x ~/Applications/LIULI-Shell.AppImage
 # 2) 아이콘 추출 (--appimage-extract는 현재 디렉터리에 squashfs-root를 생성)
 cd /tmp &amp;&amp; ~/Applications/LIULI-Shell.AppImage --appimage-extract '*.png' &gt;/dev/null 2&gt;&amp;1
 mkdir -p ~/.local/share/icons/hicolor/512x512/apps
-cp /tmp/squashfs-root/*.png ~/.local/share/icons/hicolor/512x512/apps/liuli-shell.png 2&gt;/dev/null \
-  || cp /tmp/squashfs-root/liuli-shell.png ~/.local/share/icons/hicolor/512x512/apps/ 2&gt;/dev/null
+cp /tmp/squashfs-root/*.png ~/.local/share/icons/hicolor/512x512/apps/liulishell.png 2&gt;/dev/null \
+  || cp /tmp/squashfs-root/liulishell.png ~/.local/share/icons/hicolor/512x512/apps/ 2&gt;/dev/null
 
 # 3) 앱 목록 항목 작성 ($HOME은 현재 사용자 디렉터리로 확장)
 mkdir -p ~/.local/share/applications
-cat &gt; ~/.local/share/applications/liuli-shell.desktop &lt;&lt;EOF
+cat &gt; ~/.local/share/applications/LiuliShell.desktop &lt;&lt;EOF
 [Desktop Entry]
 Type=Application
 Name=LIULI Shell
 Comment=크로스 플랫폼 SSH 터미널 및 서버 관리 도구
 Exec=$HOME/Applications/LIULI-Shell.AppImage %U
-Icon=liuli-shell
+Icon=liulishell
 Terminal=false
 Categories=Development;System;Network;
-StartupWMClass=LIULI Shell
+StartupWMClass=LiuliShell
 EOF
-chmod +x ~/.local/share/applications/liuli-shell.desktop
+chmod +x ~/.local/share/applications/LiuliShell.desktop
 update-desktop-database ~/.local/share/applications 2&gt;/dev/null || true
 
 # 4) 데스크톱 아이콘이 필요하면 한 번 더 복사하고 신뢰 표시
-cp ~/.local/share/applications/liuli-shell.desktop ~/Desktop/
-gio set ~/Desktop/liuli-shell.desktop metadata::trusted true 2&gt;/dev/null || true
+cp ~/.local/share/applications/LiuliShell.desktop ~/Desktop/
+gio set ~/Desktop/LiuliShell.desktop metadata::trusted true 2&gt;/dev/null || true
 # 데스크톱 디렉터리 이름은 환경에 따라 다를 수 있으니 실제와 맞게 변경</pre>
                 <p class="os-lead">.deb로 설치한 사용자는 이 단계가 필요 없습니다. deb 설치 시 자동으로 작성되어 <code>/usr/share/applications</code>앱 목록에서 바로 보입니다.</p>
               </details>

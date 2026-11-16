@@ -1582,7 +1582,7 @@ sudo apt install ./dist/LIULI-Shell-*_amd64.deb
 # 解凍してすぐ使える（FUSE 不要、システムディレクトリにも書き込まない）
 mkdir -p ~/Applications
 tar -xzf dist/LIULI-Shell-*-x86_64.tar.gz -C ~/Applications
-~/Applications/LIULI-Shell-*/liuli-shell</pre>
+~/Applications/LIULI-Shell-*/liulishell</pre>
 
               <h4>AppImage の実行時エラー dlopen(): error loading libfuse.so.2</h4>
               <p class="os-lead">AppImage は type-2 ランタイムを使用するため、システムの FUSE 2 が必要です。Ubuntu 22.04 以前は標準で含まれていますが、24.04 / 26.04 では手動でインストールする必要があります。FUSE をインストールしなくても一時的に展開して実行できます。</p>
@@ -1606,28 +1606,28 @@ chmod +x ~/Applications/LIULI-Shell.AppImage
 # 2) アイコンを取り出す（--appimage-extract はカレントディレクトリに squashfs-root を展開）
 cd /tmp &amp;&amp; ~/Applications/LIULI-Shell.AppImage --appimage-extract '*.png' &gt;/dev/null 2&gt;&amp;1
 mkdir -p ~/.local/share/icons/hicolor/512x512/apps
-cp /tmp/squashfs-root/*.png ~/.local/share/icons/hicolor/512x512/apps/liuli-shell.png 2&gt;/dev/null \
-  || cp /tmp/squashfs-root/liuli-shell.png ~/.local/share/icons/hicolor/512x512/apps/ 2&gt;/dev/null
+cp /tmp/squashfs-root/*.png ~/.local/share/icons/hicolor/512x512/apps/liulishell.png 2&gt;/dev/null \
+  || cp /tmp/squashfs-root/liulishell.png ~/.local/share/icons/hicolor/512x512/apps/ 2&gt;/dev/null
 
 # 3) アプリ一覧の項目を書き込む（$HOME は現在のユーザーディレクトリに展開）
 mkdir -p ~/.local/share/applications
-cat &gt; ~/.local/share/applications/liuli-shell.desktop &lt;&lt;EOF
+cat &gt; ~/.local/share/applications/LiuliShell.desktop &lt;&lt;EOF
 [Desktop Entry]
 Type=Application
 Name=LIULI Shell
 Comment=クロスプラットフォームの SSH ターミナルとサーバー管理ツール
 Exec=$HOME/Applications/LIULI-Shell.AppImage %U
-Icon=liuli-shell
+Icon=liulishell
 Terminal=false
 Categories=Development;System;Network;
-StartupWMClass=LIULI Shell
+StartupWMClass=LiuliShell
 EOF
-chmod +x ~/.local/share/applications/liuli-shell.desktop
+chmod +x ~/.local/share/applications/LiuliShell.desktop
 update-desktop-database ~/.local/share/applications 2&gt;/dev/null || true
 
 # 4) デスクトップアイコンが必要な場合は、もう一度コピーして信頼済みに設定
-cp ~/.local/share/applications/liuli-shell.desktop ~/Desktop/
-gio set ~/Desktop/liuli-shell.desktop metadata::trusted true 2&gt;/dev/null || true
+cp ~/.local/share/applications/LiuliShell.desktop ~/Desktop/
+gio set ~/Desktop/LiuliShell.desktop metadata::trusted true 2&gt;/dev/null || true
 # 日本語環境ではデスクトップディレクトリ名が異なる場合があるため、環境に合わせて置き換える</pre>
                 <p class="os-lead">.deb をインストールしたユーザーはこれらの手順は不要です。deb のインストール時に自動的に書き込まれ <code>/usr/share/applications</code>、アプリ一覧にそのまま表示されます。</p>
               </details>

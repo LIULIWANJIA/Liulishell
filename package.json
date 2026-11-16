@@ -1,7 +1,8 @@
 {
   "name": "liulishell",
   "productName": "LIULI Shell",
-  "version": "1.20.1",
+  "desktopName": "LiuliShell.desktop",
+  "version": "1.20.2",
   "description": "LIULI Shell - 跨平台 SSH 终端与服务器管理工具",
   "main": "src/main/main.js",
   "author": "LIULI",
@@ -111,7 +112,8 @@
       "synopsis": "跨平台 SSH 终端与服务器管理工具",
       "description": "LIULI Shell 是跨平台 SSH 终端与服务器管理工具，支持会话管理、SFTP 文件管理、服务器监控、WebDAV 云同步与多主题界面。",
       "icon": "build/icon.png",
-      "executableName": "liuli-shell",
+      "executableName": "liulishell",
+      "syncDesktopName": true,
       "artifactName": "LIULI-Shell-${version}-${arch}.${ext}",
       "desktop": {
         "entry": {

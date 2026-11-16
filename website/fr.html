@@ -1582,7 +1582,7 @@ sudo apt install ./dist/LIULI-Shell-*_amd64.deb
 # Extraire et exécuter (sans FUSE, sans écrire dans les dossiers système)
 mkdir -p ~/Applications
 tar -xzf dist/LIULI-Shell-*-x86_64.tar.gz -C ~/Applications
-~/Applications/LIULI-Shell-*/liuli-shell</pre>
+~/Applications/LIULI-Shell-*/liulishell</pre>
 
               <h4>Erreur AppImage : dlopen(): error loading libfuse.so.2</h4>
               <p class="os-lead">AppImage utilise le runtime type-2 et nécessite FUSE 2. Ubuntu 22.04 et antérieurs l'incluent ; 24.04 / 26.04 demandent une installation manuelle. Sans FUSE, une exécution après extraction reste possible.</p>
@@ -1606,28 +1606,28 @@ chmod +x ~/Applications/LIULI-Shell.AppImage
 # 2) Extraire les icônes (--appimage-extract crée squashfs-root dans le dossier courant)
 cd /tmp &amp;&amp; ~/Applications/LIULI-Shell.AppImage --appimage-extract '*.png' &gt;/dev/null 2&gt;&amp;1
 mkdir -p ~/.local/share/icons/hicolor/512x512/apps
-cp /tmp/squashfs-root/*.png ~/.local/share/icons/hicolor/512x512/apps/liuli-shell.png 2&gt;/dev/null \
-  || cp /tmp/squashfs-root/liuli-shell.png ~/.local/share/icons/hicolor/512x512/apps/ 2&gt;/dev/null
+cp /tmp/squashfs-root/*.png ~/.local/share/icons/hicolor/512x512/apps/liulishell.png 2&gt;/dev/null \
+  || cp /tmp/squashfs-root/liulishell.png ~/.local/share/icons/hicolor/512x512/apps/ 2&gt;/dev/null
 
 # 3) Écrire l'entrée de menu ($HOME sera remplacé par le dossier de l'utilisateur)
 mkdir -p ~/.local/share/applications
-cat &gt; ~/.local/share/applications/liuli-shell.desktop &lt;&lt;EOF
+cat &gt; ~/.local/share/applications/LiuliShell.desktop &lt;&lt;EOF
 [Desktop Entry]
 Type=Application
 Name=LIULI Shell
 Comment=Client SSH multiplateforme et gestionnaire de serveurs
 Exec=$HOME/Applications/LIULI-Shell.AppImage %U
-Icon=liuli-shell
+Icon=liulishell
 Terminal=false
 Categories=Development;System;Network;
-StartupWMClass=LIULI Shell
+StartupWMClass=LiuliShell
 EOF
-chmod +x ~/.local/share/applications/liuli-shell.desktop
+chmod +x ~/.local/share/applications/LiuliShell.desktop
 update-desktop-database ~/.local/share/applications 2&gt;/dev/null || true
 
 # 4) Pour une icône de bureau, en copier une et la marquer de confiance
-cp ~/.local/share/applications/liuli-shell.desktop ~/Desktop/
-gio set ~/Desktop/liuli-shell.desktop metadata::trusted true 2&gt;/dev/null || true
+cp ~/.local/share/applications/LiuliShell.desktop ~/Desktop/
+gio set ~/Desktop/LiuliShell.desktop metadata::trusted true 2&gt;/dev/null || true
 # Sur un système localisé, le dossier du bureau peut être ~/Bureau : adaptez si besoin</pre>
                 <p class="os-lead">Les utilisateurs du .deb n'ont pas besoin de ces étapes : l'installation écrit automatiquement <code>/usr/share/applications</code>, l'application apparaît directement dans le menu.</p>
               </details>

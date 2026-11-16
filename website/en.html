@@ -1582,7 +1582,7 @@ sudo apt install ./dist/LIULI-Shell-*_amd64.deb
 # Extract and run (no FUSE, no system directories)
 mkdir -p ~/Applications
 tar -xzf dist/LIULI-Shell-*-x86_64.tar.gz -C ~/Applications
-~/Applications/LIULI-Shell-*/liuli-shell</pre>
+~/Applications/LIULI-Shell-*/liulishell</pre>
 
               <h4>AppImage error: dlopen(): error loading libfuse.so.2</h4>
               <p class="os-lead">AppImage uses the type-2 runtime and needs FUSE 2. Ubuntu 22.04 and earlier include it; 24.04 / 26.04 require manual installation. You can also extract and run without FUSE.</p>
@@ -1606,28 +1606,28 @@ chmod +x ~/Applications/LIULI-Shell.AppImage
 # 2) Extract icons (--appimage-extract creates squashfs-root here)
 cd /tmp &amp;&amp; ~/Applications/LIULI-Shell.AppImage --appimage-extract '*.png' &gt;/dev/null 2&gt;&amp;1
 mkdir -p ~/.local/share/icons/hicolor/512x512/apps
-cp /tmp/squashfs-root/*.png ~/.local/share/icons/hicolor/512x512/apps/liuli-shell.png 2&gt;/dev/null \
-  || cp /tmp/squashfs-root/liuli-shell.png ~/.local/share/icons/hicolor/512x512/apps/ 2&gt;/dev/null
+cp /tmp/squashfs-root/*.png ~/.local/share/icons/hicolor/512x512/apps/liulishell.png 2&gt;/dev/null \
+  || cp /tmp/squashfs-root/liulishell.png ~/.local/share/icons/hicolor/512x512/apps/ 2&gt;/dev/null
 
 # 3) Write the desktop entry ($HOME expands to your home dir)
 mkdir -p ~/.local/share/applications
-cat &gt; ~/.local/share/applications/liuli-shell.desktop &lt;&lt;EOF
+cat &gt; ~/.local/share/applications/LiuliShell.desktop &lt;&lt;EOF
 [Desktop Entry]
 Type=Application
 Name=LIULI Shell
 Comment=Cross-platform SSH terminal and server manager
 Exec=$HOME/Applications/LIULI-Shell.AppImage %U
-Icon=liuli-shell
+Icon=liulishell
 Terminal=false
 Categories=Development;System;Network;
-StartupWMClass=LIULI Shell
+StartupWMClass=LiuliShell
 EOF
-chmod +x ~/.local/share/applications/liuli-shell.desktop
+chmod +x ~/.local/share/applications/LiuliShell.desktop
 update-desktop-database ~/.local/share/applications 2&gt;/dev/null || true
 
 # 4) For a desktop icon, copy it and mark it trusted
-cp ~/.local/share/applications/liuli-shell.desktop ~/Desktop/
-gio set ~/Desktop/liuli-shell.desktop metadata::trusted true 2&gt;/dev/null || true
+cp ~/.local/share/applications/LiuliShell.desktop ~/Desktop/
+gio set ~/Desktop/LiuliShell.desktop metadata::trusted true 2&gt;/dev/null || true
 # On localized systems the desktop folder may have a different name; adjust as needed</pre>
                 <p class="os-lead">.deb users can skip these steps; installation writes <code>/usr/share/applications</code>automatically and the app appears in the menu.</p>
               </details>
