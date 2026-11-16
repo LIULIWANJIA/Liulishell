@@ -70,9 +70,9 @@
   body {
     margin: 0;
     background:
-      radial-gradient(920px 520px at 84% -12%, #e9eef1 0%, transparent 62%),
-      radial-gradient(760px 500px at -6% 8%, #eef0ee 0%, transparent 60%),
-      var(--bg);
+      radial-gradient(1200px 660px at 50% -14%, #ffffff 0%, rgba(255, 255, 255, 0) 66%),
+      radial-gradient(900px 540px at 94% 0%, rgba(203, 216, 224, .42) 0%, rgba(203, 216, 224, 0) 62%),
+      linear-gradient(180deg, #f6f7f8 0%, #f2f4f5 46%, #edeff0 100%);
     color: var(--text);
     font-family: "Segoe UI", "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -81,12 +81,7 @@
   body::before {
     content: "";
     position: fixed; inset: 0; z-index: 0; pointer-events: none;
-    background-image:
-      linear-gradient(rgba(30, 42, 52, .035) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(30, 42, 52, .035) 1px, transparent 1px);
-    background-size: 64px 64px;
-    -webkit-mask-image: radial-gradient(ellipse at 50% 0%, #000 30%, transparent 76%);
-    mask-image: radial-gradient(ellipse at 50% 0%, #000 30%, transparent 76%);
+    background: radial-gradient(132% 104% at 50% 0%, rgba(20, 24, 28, 0) 54%, rgba(20, 24, 28, .04) 100%);
   }
   a { color: inherit; text-decoration: none; }
   img { max-width: 100%; }
@@ -102,14 +97,14 @@
   /* ---------- 顶栏 ---------- */
   .site-head {
     position: fixed; top: 0; left: 0; right: 0; z-index: 50;
-    background: rgba(245, 246, 246, .78);
+    background: rgba(249, 250, 251, .72);
     -webkit-backdrop-filter: blur(18px);
     backdrop-filter: blur(18px);
     border-bottom: 1px solid transparent;
     transition: background .25s ease, border-color .25s ease, box-shadow .25s ease;
   }
   .site-head.scrolled {
-    background: rgba(251, 251, 251, .94);
+    background: rgba(252, 253, 253, .92);
     border-bottom-color: var(--line);
     box-shadow: 0 1px 0 rgba(0, 0, 0, .02);
   }
@@ -242,7 +237,6 @@
 
   /* ---------- 通用区块 ---------- */
   section { padding: 78px 0; position: relative; }
-  section.band { background: linear-gradient(180deg, rgba(29, 33, 38, .022), rgba(29, 33, 38, 0)); }
   .sec-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 26px; margin-bottom: 30px; }
   .sec-tag {
     display: flex; align-items: center; gap: 10px;
@@ -628,7 +622,7 @@
   footer {
     margin-top: 20px; padding: 46px 0 56px;
     border-top: 1px solid var(--line);
-    background: linear-gradient(180deg, #f0f2f2, #eceeee);
+    background: none;
   }
   .foot-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 30px; }
   .foot-brand { display: flex; align-items: center; gap: 11px; margin-bottom: 14px; }
@@ -727,7 +721,7 @@
   .hero { padding: 132px 0 34px; }
   .hero-grid { grid-template-columns: .92fr 1.08fr; gap: 48px; }
   .hero-copy { min-width: 0; }
-  .hero .stats { margin-top: 20px; }
+  .hero .stats { margin-top: 48px; }
 
   .sec-head {
     display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px; align-items: end;
@@ -1020,7 +1014,7 @@
     </section>
 
     <!-- ============ 快速构建 ============ -->
-    <section id="dev" class="band">
+    <section id="dev">
       <div class="wrap">
         <div class="sec-head">
           <div>
@@ -1192,7 +1186,7 @@ npx electron-builder --mac dmg zip --arm64    <span class="c-cm"># только 
     </section>
 
     <!-- ============ 群组 ============ -->
-    <section id="community" class="band">
+    <section id="community">
       <div class="wrap">
         <div class="sec-head">
           <div>
@@ -1328,7 +1322,7 @@ npx electron-builder --mac dmg zip --arm64    <span class="c-cm"># только 
     </section>
 
     <!-- ============ 实时监控 ============ -->
-    <section id="monitor" class="band">
+    <section id="monitor">
       <div class="wrap">
         <div class="sec-head">
           <div>
@@ -1404,7 +1398,7 @@ npx electron-builder --mac dmg zip --arm64    <span class="c-cm"># только 
     </section>
 
     <!-- ============ 界面 ============ -->
-    <section id="interface" class="band">
+    <section id="interface">
       <div class="wrap">
         <div class="sec-head">
           <div>
