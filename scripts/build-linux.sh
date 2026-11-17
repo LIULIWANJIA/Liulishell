@@ -17,6 +17,9 @@
 #   --no-install      打完包不安装
 #   --no-deps         跳过系统依赖安装
 #
+# 无输出超时（下载被网络卡住时自动终止并换镜像重试）：
+#   LIULI_BUILD_STALL_TIMEOUT=180   多少秒没有任何输出且 CPU 空闲就判定为卡住（默认 180）
+#
 # 说明：
 #   - 自动识别发行版 / 版本 / 架构，按版本决定包名（Ubuntu 24.04+、Debian 13+ 的 *t64 命名）。
 #   - 每个依赖先检测是否已装，只装缺的；装失败会自动回退到 t64 包名 / 备用包名。
@@ -463,6 +466,84 @@ targets_for() {
   esac
 }
 
+# ---------------- 打包（带下载超时） ----------------
+# electron-builder 下载 Electron 二进制 / AppImage / fpm 等资源时没有超时：
+# 网络被卡住会一直等下去，日志停在 packaging 一动不动。
+# 这里监视它的输出，长时间没有新输出且 CPU 空闲就判定为“下载被阻塞”，终止并换国内镜像重试。
+STALL_TIMEOUT="${LIULI_BUILD_STALL_TIMEOUT:-180}"
+case "$STALL_TIMEOUT" in
+  ''|*[!0-9]*) STALL_TIMEOUT=180 ;;
+esac
+
+# 进程（含子进程）累计 CPU 时间，单位：时钟滴答
+proc_cpu_ticks() {
+  local s
+  s="$(cat "/proc/$1/stat" 2>/dev/null)" || { printf '0'; return; }
+  printf '%s' "$s" | sed 's/.*) //' | awk '{print $12 + $13}'
+}
+
+tree_cpu_ticks() {
+  local p="$1" total k
+  total="$(proc_cpu_ticks "$p")"
+  total="${total:-0}"
+  for k in $(pgrep -P "$p" 2>/dev/null); do
+    total=$((total + $(tree_cpu_ticks "$k")))
+  done
+  printf '%s' "$total"
+}
+
+kill_tree() {
+  local p="$1" k
+  for k in $(pgrep -P "$p" 2>/dev/null); do kill_tree "$k"; done
+  kill -TERM "$p" 2>/dev/null || true
+}
+
+# 运行一次 electron-builder
+# 返回：0 成功；124 无输出超时被终止；其它为构建失败
+run_builder() { # run_builder <log> <targets> [环境变量赋值...]
+  local log="$1" tgts="$2"
+  shift 2
+  : > "$log"
+  local -a cmd=(npx electron-builder --linux ${tgts} --"${ARCH}")
+  if [ "$#" -gt 0 ]; then
+    env "$@" "${cmd[@]}" > >(tee -a "$log") 2>&1 &
+  else
+    "${cmd[@]}" > >(tee -a "$log") 2>&1 &
+  fi
+  local pid=$! idle=0 last=-1 size cpu1 cpu2 busy
+  while kill -0 "$pid" 2>/dev/null; do
+    cpu1="$(tree_cpu_ticks "$pid")"
+    sleep 5
+    kill -0 "$pid" 2>/dev/null || break
+    cpu2="$(tree_cpu_ticks "$pid")"
+    busy=$((cpu2 - cpu1))
+    size="$(wc -c < "$log" 2>/dev/null | tr -d ' ')"
+    size="${size:-0}"
+    if [ "$size" = "$last" ]; then
+      idle=$((idle + 5))
+      # 每 60 秒提示一次，免得用户以为终端死了
+      if [ "$idle" -ge 60 ] && [ $((idle % 60)) -eq 0 ]; then
+        warn "已 ${idle}s 没有新的打包输出，仍在等待（${STALL_TIMEOUT}s 无输出且 CPU 空闲会自动终止并换镜像重试）"
+      fi
+    else
+      last="$size"
+      idle=0
+    fi
+    # CPU 忙说明在做压缩等耗时工作，不能按“卡住”处理
+    if [ "$idle" -ge "$STALL_TIMEOUT" ] && [ "$busy" -le 25 ]; then
+      warn "已 ${STALL_TIMEOUT}s 没有任何输出，CPU 也一直空闲：判定为下载被网络阻塞，终止当前打包"
+      kill_tree "$pid"
+      sleep 3
+      kill_tree "$pid"
+      kill -KILL "$pid" 2>/dev/null || true
+      wait "$pid" 2>/dev/null
+      return 124
+    fi
+  done
+  wait "$pid" 2>/dev/null
+  return $?
+}
+
 # ---------------- 构建 ----------------
 build() {
   local target="$1" targets
@@ -477,29 +558,39 @@ build() {
   log "准备前端资源（xterm → src/renderer/vendor）"
   npm run vendor || die "npm run vendor 失败"
 
-  log "开始打包：--linux ${targets} --${ARCH}"
-  local errlog; errlog="$(mktemp -t liuli-build-XXXX.log)"
-  if npx electron-builder --linux ${targets} --"${ARCH}" 2>&1 | tee "$errlog"; then
-    rm -f "$errlog"
-  else
-    warn "打包失败，尝试使用国内镜像重试一次"
-    local mirrors=(
-      "ELECTRON_MIRROR=https://registry.npmmirror.com/-/binary/electron/"
-      "ELECTRON_BUILDER_BINARIES_MIRROR=https://registry.npmmirror.com/-/binary/electron-builder-binaries/"
-    )
-    if env "${mirrors[@]}" npx electron-builder --linux ${targets} --"${ARCH}" 2>&1 | tee "$errlog"; then
-      rm -f "$errlog"
+  log "开始打包：--linux ${targets} --${ARCH}（${STALL_TIMEOUT}s 无输出视为下载卡住）"
+  local errlog rc=0; errlog="$(mktemp -t liuli-build-XXXX.log)"
+  run_builder "$errlog" "$targets" || rc=$?
+  if [ "$rc" -ne 0 ]; then
+    if [ "$rc" -eq 124 ]; then
+      warn "打包卡在下载阶段（${STALL_TIMEOUT}s 没有任何输出），已终止，改用国内镜像重试"
     else
+      warn "打包失败，尝试使用国内镜像重试一次"
+    fi
+    rc=0
+    run_builder "$errlog" "$targets" \
+      "ELECTRON_MIRROR=https://registry.npmmirror.com/-/binary/electron/" \
+      "ELECTRON_BUILDER_BINARIES_MIRROR=https://registry.npmmirror.com/-/binary/electron-builder-binaries/" || rc=$?
+    if [ "$rc" -ne 0 ]; then
+      if [ "$rc" -eq 124 ]; then
+        bad "换镜像后仍然 ${STALL_TIMEOUT}s 没有任何输出：请检查网络 / 代理，或稍后再试"
+      fi
       bad "打包仍然失败，以下是最后 30 行日志："
       tail -n 30 "$errlog"
       printf '\n常见处理：\n'
+      printf '  - 下载被阻塞 → 打包前先导出镜像：\n'
+      printf '      export ELECTRON_MIRROR=https://registry.npmmirror.com/-/binary/electron/\n'
+      printf '      export ELECTRON_BUILDER_BINARIES_MIRROR=https://registry.npmmirror.com/-/binary/electron-builder-binaries/\n'
+      printf '  - 想放宽无输出超时 → export LIULI_BUILD_STALL_TIMEOUT=600（默认 180 秒）\n'
       printf '  - 依赖缺失 → bash scripts/build-linux.sh repair && bash scripts/build-linux.sh deps\n'
-      printf '  - Electron 下载失败 → export ELECTRON_MIRROR=https://registry.npmmirror.com/-/binary/electron/\n'
+      printf '  - Electron 下载失败 → 检查 ~/.cache/electron 是否可写、磁盘是否已满\n'
       printf '  - Node 版本过低 → 升级到 20 LTS 后删除 node_modules 重试\n'
+      printf '  - 项目在 WSL 的 /mnt/c 下 → 建议复制到 Linux 家目录再构建\n'
       rm -f "$errlog"
       return 1
     fi
   fi
+  rm -f "$errlog"
 
   log "产物目录：${PROJECT_DIR}/dist"
   ls -lh dist/*.AppImage dist/*.deb dist/*.tar.gz 2>/dev/null || true
