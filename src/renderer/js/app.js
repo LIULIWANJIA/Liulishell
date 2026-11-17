@@ -1,5 +1,6 @@
 'use strict';
 /* 应用入口：初始化、布局、面板切换、全局事件 */
+document.documentElement.classList.add('os-' + (window.api.platform || 'unknown'));
 (function () {
   const $ = U.qs;
   let syncActive = false;

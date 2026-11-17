@@ -17,6 +17,9 @@ body {
 html { padding: 1px; }
 /* 与主窗口一致的四边 1px 外框 */
 body::after { content: ''; position: fixed; inset: 1px; pointer-events: none; z-index: 9999; border: 1px solid var(--line-strong); }
+/* Linux 下窗口管理器自带一圈细线，边框贴回边缘避免视觉上出现双层边框 */
+html.os-linux { padding: 0; }
+html.os-linux body::after { inset: 0; }
 ::selection, *::selection { background: var(--accent-soft); color: var(--text); }
 
 .ftitle {

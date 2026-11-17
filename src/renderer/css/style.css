@@ -53,6 +53,10 @@ body::after {
   pointer-events: none; z-index: 9999;
   border: 1px solid var(--line-strong);
 }
+/* Linux 的窗口管理器本身会在窗口边缘画一圈细线，CSS 边框再内收 1px 会被看成双层边框；
+ * Linux 下把边框贴回窗口边缘，与系统那一圈重合。 */
+html.os-linux { padding: 0; }
+html.os-linux body::after { inset: 0; }
 
 button, input, select, textarea { font-family: inherit; font-size: inherit; color: inherit; }
 ::-webkit-scrollbar { width: 9px; height: 9px; }

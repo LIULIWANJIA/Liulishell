@@ -919,7 +919,9 @@ ipcMain.on('app:version', (e) => {
     version: app.getVersion(),
     portable: !!process.env.PORTABLE_EXECUTABLE_DIR,
     dataFile: path.join(app.getPath('userData'), 'liulishell-data.json'),
-    language: (store.publicState().settings || {}).language || 'zh'
+    language: (store.publicState().settings || {}).language || 'zh',
+    // 独立窗口在首帧就套用与主窗口一致的主题，避免先闪一下默认配色
+    themeVars: uiThemeVars
   };
 });
 
@@ -1264,6 +1266,20 @@ ipcMain.handle('settings:save', (_e, patch) => {
   // 返回安全视图：保证 hasPassword / hasSyncPass 等标记不丢失，也不把凭据下发到渲染进程
   return store.publicState().settings;
 });
+
+/* 主题变量缓存：主窗口应用主题后上报，独立窗口（FinalShell 导入等）读取后保持配色一致 */
+let uiThemeVars = null;
+ipcMain.handle('theme:vars:set', (e, payload) => {
+  if (!payload || typeof payload !== 'object' || !payload.vars) return false;
+  uiThemeVars = payload;
+  BrowserWindow.getAllWindows().forEach((w) => {
+    if (!w.isDestroyed() && w.webContents !== e.sender) {
+      try { w.webContents.send('theme:vars', payload); } catch (_) {}
+    }
+  });
+  return true;
+});
+ipcMain.handle('theme:vars:get', () => uiThemeVars);
 ipcMain.handle('dialog:pickKey', async () => {
   const r = await dialog.showOpenDialog(win, {
     title: msg('选择私钥文件'),

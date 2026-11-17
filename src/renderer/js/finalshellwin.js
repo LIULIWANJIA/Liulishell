@@ -1,4 +1,5 @@
 'use strict';
+document.documentElement.classList.add('os-' + (window.api.platform || 'unknown'));
 (function () {
   const $ = (s) => document.querySelector(s);
   const esc = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -10,6 +11,16 @@
   let groups = [];
   let dragDepth = 0;
   const isWin = window.api.platform === 'win32';
+
+  /* ---------------- 主题：跟随主窗口配色 ---------------- */
+  function applyThemeVars(payload) {
+    if (!payload || !payload.vars) return;
+    const r = document.documentElement.style;
+    Object.keys(payload.vars).forEach((k) => r.setProperty('--' + k, payload.vars[k]));
+    if (document.body) document.body.classList.toggle('theme-dark', !!payload.dark);
+  }
+  // 首帧先套用 preload 同步拿到的主题，避免窗口先闪一下默认配色
+  try { applyThemeVars(window.api.appInfo && window.api.appInfo.themeVars); } catch (_) {}
 
   function toast(msg) {
     const el = document.createElement('div');
@@ -203,6 +214,11 @@
 
   function init() {
     window.api.getState().then((d) => fillGroups(d, '')).catch(() => {});
+    // 主题：主动拉一次 + 跟随主窗口后续的主题切换
+    if (window.api.getThemeVars) {
+      window.api.getThemeVars().then(applyThemeVars).catch(() => {});
+      window.api.on('theme:vars', applyThemeVars);
+    }
     $('#pick-files').addEventListener('click', async () => {
       const list = await window.api.finalshellPickFiles();
       addPaths(list);

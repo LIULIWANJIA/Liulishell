@@ -557,6 +557,10 @@ window.Settings = (function () {
     const root = document.documentElement;
     const theme = THEMES.find((t) => t.id === cfg.theme) || THEMES[0];
     Object.keys(theme.vars).forEach((k) => root.style.setProperty('--' + k, theme.vars[k]));
+    // 把解析后的主题变量同步给独立窗口（FinalShell 导入 / 下载管理器等）
+    if (window.api && window.api.setThemeVars) {
+      window.api.setThemeVars({ vars: theme.vars, dark: !!theme.dark, theme: theme.id }).catch(() => {});
+    }
     const t = theme.term || {};
     root.style.setProperty('--term-bg', t.bg || theme.vars['term-bg']);
     root.style.setProperty('--term-fg', t.fg || '#d3dbe6');

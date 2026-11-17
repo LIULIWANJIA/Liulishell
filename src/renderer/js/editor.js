@@ -1,6 +1,7 @@
 'use strict';
 /* 文件编辑器：独立窗口，多文件标签 + 顶部菜单 + 行号（支持自动换行）
  * 由主窗口通过 editor:open-file 事件打开文件。 */
+document.documentElement.classList.add('os-' + (window.api.platform || 'unknown'));
 (function () {
   const $ = (s) => document.querySelector(s);
   const tabsEl = $('#etabs');

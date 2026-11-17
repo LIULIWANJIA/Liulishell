@@ -21,6 +21,7 @@ const EVENTS = [
   'transfer:list',
   'account:changed',
   'settings:changed',
+  'theme:vars',
   'ui:zoom'
 ];
 
@@ -39,6 +40,8 @@ const api = {
   deleteGroup: (id) => ipcRenderer.invoke('group:delete', id),
   saveSnippets: (boards) => ipcRenderer.invoke('snippets:save', boards),
   saveSettings: (patch) => ipcRenderer.invoke('settings:save', patch),
+  getThemeVars: () => ipcRenderer.invoke('theme:vars:get'),
+  setThemeVars: (payload) => ipcRenderer.invoke('theme:vars:set', payload),
   resetWindowLayout: () => ipcRenderer.invoke('settings:resetWindowLayout'),
   pickKeyFile: () => ipcRenderer.invoke('dialog:pickKey'),
   keySave: (payload) => ipcRenderer.invoke('key:save', payload),

@@ -1,5 +1,6 @@
 'use strict';
 /* 下载管理器：独立窗口，展示所有下载/上传任务，支持取消与打开文件夹 */
+document.documentElement.classList.add('os-' + (window.api.platform || 'unknown'));
 (function () {
   const $ = (s) => document.querySelector(s);
   const listEl = $('#dlist');
