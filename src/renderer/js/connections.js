@@ -223,6 +223,8 @@ window.Connections = (function () {
       if (!matches.has(c.group)) matches.set(c.group, []);
       matches.get(c.group).push(c);
     }
+    // 分组内按配置名自动排序（数字自然序），与分组自身的排序规则一致
+    matches.forEach((arr) => arr.sort((a, b) => compareText(a.name || a.host, b.name || b.host)));
     const totals = new Map();
     const countFor = (g) => {
       let n = (matches.get(g.id) || []).length;
@@ -1025,6 +1027,7 @@ window.Connections = (function () {
     connectMany,
     groupTree,
     compareGroupName,
+    compareText,
     levelsOf
   };
 })();

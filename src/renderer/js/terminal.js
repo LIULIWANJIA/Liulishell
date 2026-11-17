@@ -358,7 +358,7 @@ window.Term = (function () {
 
   /* ---------------- 连接 ---------------- */
 
-  function createPendingSession(cfg, beforeId, viaProxy) {
+  function createPendingSession(cfg, insertAt, viaProxy) {
     const id = 'pending-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6);
     const sess = {
       id,
@@ -379,7 +379,7 @@ window.Term = (function () {
       fit: null,
       pane: null
     };
-    App.addSession(sess, beforeId);
+    App.addSession(sess, insertAt);
     createPendingPane(
       sess,
       `正在连接 ${cfg.user}@${cfg.host}:${cfg.port} …`,
@@ -426,7 +426,7 @@ window.Term = (function () {
     return hasPass ? '' : '该服务器还没有保存登录密码';
   }
 
-  async function connect(configId, opts, beforeId) {
+  async function connect(configId, opts, insertAt) {
     const cfg = App.findConnection(configId);
     if (!cfg) return U.toast('配置不存在', 'error');
 
@@ -440,10 +440,10 @@ window.Term = (function () {
     }
 
     // 先建一个「连接中」标签，连接进度显示在新标签内，不占用当前终端
-    // 从服务器列表 / 最近连接发起的新连接会占用空白标签页；重连保留原位置
+    // 从服务器列表 / 最近连接发起的新连接会占用空白标签页；重连时传入原标签位置 insertAt
     const viaProxy = usesProxyFor(cfg, opts);
     if (!(opts && opts.keepBlank)) consumeBlankTab();
-    const pending = createPendingSession(cfg, beforeId, viaProxy);
+    const pending = createPendingSession(cfg, insertAt, viaProxy);
     let real = null;
     try {
       const res = await window.api.connect(configId, opts);
@@ -1259,17 +1259,16 @@ window.Term = (function () {
     U.qs('#find-count').textContent = `${findIndex + 1}/${findMatches.length}`;
   }
 
-  function nextSessionId(id) {
-    const ids = Array.from(App.state.sessions.keys());
-    const i = ids.indexOf(id);
-    return i >= 0 ? ids[i + 1] || null : null;
-  }
-
   async function reconnectSession(s, opts) {
     if (s && s.status === 'connecting') return;
     if (!s) return null;
+    // 首次重连在 await 断开前就置 closing，后续并发触发在这里同步拦截
+    if (s.closing) return null;
+    // 会话已不在列表中（重复触发的重连 / 已被关闭）：直接忽略，避免多开一个重复标签
+    if (!App.session(s.id)) return null;
     const configId = s.config.id;
-    const beforeId = nextSessionId(s.id);
+    // 记住原标签位置，重连成功后回到同一位置，而不是追加到末尾
+    const index = Array.from(App.state.sessions.keys()).indexOf(s.id);
     const name = s.config.name || s.config.host;
     s.closing = true;
     try {
@@ -1277,7 +1276,7 @@ window.Term = (function () {
     } catch (_) {}
     cleanup(s.id, { keepBlank: true });
     U.toast('正在重连 ' + name + ' …', 'info', 1600);
-    return connect(configId, Object.assign({}, opts, { keepBlank: true }), beforeId);
+    return connect(configId, Object.assign({}, opts, { keepBlank: true }), index >= 0 ? index : undefined);
   }
 
   async function reconnectAllOffline() {

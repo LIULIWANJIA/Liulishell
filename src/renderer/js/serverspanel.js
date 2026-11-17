@@ -198,6 +198,10 @@ window.ServersPanel = (function () {
       arr.push(c);
       matches.set(c.group, arr);
     }
+    // 分组内按配置名自动排序，和左侧连接列表保持一致
+    matches.forEach((arr) =>
+      arr.sort((a, b) => Connections.compareText(a.name || a.host, b.name || b.host))
+    );
     const tree = Connections.groupTree(groups);
     const levels = Connections.levelsOf(tree, tree.roots, 0, new Map());
     const totals = new Map();

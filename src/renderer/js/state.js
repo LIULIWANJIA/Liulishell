@@ -47,7 +47,13 @@ window.App = (function () {
       return state.sessions.get(id) || null;
     },
     addSession(sess, beforeId) {
-      if (beforeId) {
+      if (typeof beforeId === 'number') {
+        // 按位置插入（重连时用于回到原来的标签位置，即使旧会话已从列表移除）
+        const entries = Array.from(state.sessions.entries());
+        const idx = Math.max(0, Math.min(beforeId, entries.length));
+        entries.splice(idx, 0, [sess.id, sess]);
+        state.sessions = new Map(entries);
+      } else if (beforeId) {
         const entries = Array.from(state.sessions.entries());
         const idx = entries.findIndex(([id]) => id === beforeId);
         if (idx >= 0) entries.splice(idx, 0, [sess.id, sess]);

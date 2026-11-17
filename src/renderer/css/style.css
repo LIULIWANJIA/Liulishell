@@ -44,9 +44,12 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* 无边框窗口的四边统一 1px 外框 */
+/* 无边框窗口的四边 1px 外框。
+ * 边框向内收 1px 绘制：Windows 在部分 DPI / 缩放比例下调整窗口尺寸后，
+ * 窗口最外 1 像素有时不会重绘，画在最外沿就会表现为右、下边框“消失”。 */
+html { padding: 1px; }
 body::after {
-  content: ''; position: fixed; inset: 0;
+  content: ''; position: fixed; inset: 1px;
   pointer-events: none; z-index: 9999;
   border: 1px solid var(--line-strong);
 }
