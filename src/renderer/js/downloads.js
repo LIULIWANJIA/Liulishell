@@ -1,12 +1,16 @@
 'use strict';
 /* 下载管理器：独立窗口，展示所有下载/上传任务，支持取消与打开文件夹 */
-document.documentElement.classList.add('os-' + (window.api.platform || 'unknown'));
 (function () {
   const $ = (s) => document.querySelector(s);
   const listEl = $('#dlist');
   const ctx = $('#ctx');
   let rows = [];
   let settings = {};
+  let themeVars = null;
+  try {
+    const boot = window.api.appInfo && window.api.appInfo.themeVars;
+    if (boot && boot.vars) themeVars = boot.vars;
+  } catch (_) {}
   const rateSamples = new Map();
   const rateCache = new Map();
 
@@ -58,10 +62,20 @@ document.documentElement.classList.add('os-' + (window.api.platform || 'unknown'
     return { running: '进行中', paused: '已暂停', done: '已完成', cancelled: '已取消', error: '失败' }[t.status] || t.status;
   }
 
+  function applyThemeVars(payload) {
+    if (!payload || !payload.vars) return;
+    themeVars = payload.vars;
+    const r = document.documentElement.style;
+    Object.keys(themeVars).forEach((k) => r.setProperty('--' + k, themeVars[k]));
+    document.body.classList.toggle('theme-dark', !!payload.dark);
+  }
+
   function applyTheme(next) {
     if (next) settings = next;
     const paint = (d) => {
       if (d) settings = d;
+      // 主题变量由 preload 首帧注入 + theme:vars 广播维护，覆盖全部主题预设
+      if (themeVars) return;
       const id = (settings && settings.theme) || 'warm';
       const t = THEMES[id] || THEMES.warm;
       const r = document.documentElement.style;
@@ -180,6 +194,10 @@ document.documentElement.classList.add('os-' + (window.api.platform || 'unknown'
   }
 
   function init() {
+    if (window.api.getThemeVars) {
+      window.api.getThemeVars().then(applyThemeVars).catch(() => {});
+      window.api.on('theme:vars', applyThemeVars);
+    }
     applyTheme();
     window.api.on('settings:changed', (s) => {
       applyTheme(s);

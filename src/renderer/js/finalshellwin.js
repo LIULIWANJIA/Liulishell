@@ -1,5 +1,4 @@
 'use strict';
-document.documentElement.classList.add('os-' + (window.api.platform || 'unknown'));
 (function () {
   const $ = (s) => document.querySelector(s);
   const esc = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');

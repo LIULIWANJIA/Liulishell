@@ -179,7 +179,7 @@ window.U = (function () {
       width: '420px',
       okText,
       okClass: danger ? 'btn danger' : 'btn primary',
-      body: `<div style="line-height:1.7;color:#3d4757;white-space:pre-wrap">${esc(message)}</div>`
+      body: `<div style="line-height:1.7;color:var(--text-2);white-space:pre-wrap">${esc(message)}</div>`
     }).then((v) => v !== null);
   }
 
@@ -259,7 +259,7 @@ window.U = (function () {
       width: '420px',
       okText,
       okClass: 'btn danger',
-      body: `<div style="line-height:1.7;color:#3d4757;white-space:pre-wrap">${esc(message)}</div>`
+      body: `<div style="line-height:1.7;color:var(--text-2);white-space:pre-wrap">${esc(message)}</div>`
     }).then((v) => v !== null);
   }
 

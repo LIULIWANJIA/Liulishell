@@ -6,13 +6,19 @@
   --font-mono: Consolas, "Cascadia Mono", "Microsoft YaHei", monospace;
 }
 * { box-sizing: border-box; }
-html, body { margin: 0; height: 100%; overflow: hidden; background: transparent; }
-body { padding: 1px; color: var(--text); font-family: "Segoe UI", "Microsoft YaHei", sans-serif; font-size: 12.5px; }
-/* 透明无边框窗口 + 圆角面板（无窗口阴影） */
+html, body { margin: 0; height: 100%; overflow: hidden; display: flex; flex-direction: column; }
+body { padding: 0; background: var(--bg); color: var(--text); font-family: "Segoe UI", "Microsoft YaHei", sans-serif; font-size: 12.5px; }
+/* 与主窗口一致：上、左边框贴窗口边缘；右、下外侧留 1px 背景色，边框向内收 1px */
+html { padding: 1px 2px 2px 1px; background: var(--bg); }
+body::after {
+  content: ''; position: fixed; top: 0; left: 0; right: 1px; bottom: 1px;
+  pointer-events: none; z-index: 9999;
+  border: 1px solid var(--line-strong);
+}
 .dwin {
   position: relative; height: 100%; min-height: 0;
   display: flex; flex-direction: column;
-  background: var(--bg); border: 1.5px solid var(--line-strong); border-radius: 12px; overflow: hidden;
+  background: var(--bg); overflow: hidden;
 }
 ::selection, *::selection { background: var(--accent-soft); color: var(--text); }
 .dgrow { flex: 1 1 auto; }

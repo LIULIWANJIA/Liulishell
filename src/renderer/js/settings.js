@@ -600,8 +600,8 @@ window.Settings = (function () {
     if (!p.files && p.snippets) activatePane('snippets');
     else if (p.files && !p.snippets) activatePane('files');
 
-    // 网络单位 / 详情表刷新
-    if (window.Sidebar && App.active) {
+    // 网络单位 / 详情表刷新；无会话时也重绘，保证主题切换后画布文字颜色同步
+    if (window.Sidebar) {
       Sidebar.drawChart(App.active);
       Sidebar.renderNetLegend(App.active);
     }

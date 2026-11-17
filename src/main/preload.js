@@ -178,3 +178,37 @@ const api = {
 };
 
 contextBridge.exposeInMainWorld('api', api);
+
+/* 独立窗口首帧主题：主窗口已上报过主题时，在页面样式表生效前把变量以内联样式写到 <html> 上。
+ * 内联样式优先级高于样式表里的 :root，不受 <head> 解析顺序影响，可避免打开窗口时先闪一下默认（暖白）配色。 */
+(function injectBootTheme() {
+  let payload = null;
+  try {
+    payload = api.appInfo && api.appInfo.themeVars;
+  } catch (_) {}
+  const vars = payload && payload.vars;
+  if (!vars) return;
+  const keys = Object.keys(vars);
+  const put = () => {
+    const el = document.documentElement;
+    if (!el || !el.style) return false;
+    keys.forEach((k) => el.style.setProperty('--' + k, vars[k]));
+    return true;
+  };
+  if (put()) return;
+  const obs = new MutationObserver(() => {
+    if (put()) obs.disconnect();
+  });
+  try {
+    obs.observe(document, { childList: true, subtree: true });
+  } catch (_) {}
+  document.addEventListener(
+    'DOMContentLoaded',
+    () => {
+      put();
+      try { obs.disconnect(); } catch (_) {}
+    },
+    { once: true }
+  );
+})();
+

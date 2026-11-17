@@ -44,19 +44,16 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* 无边框窗口的四边 1px 外框。
- * 边框向内收 1px 绘制：Windows 在部分 DPI / 缩放比例下调整窗口尺寸后，
- * 窗口最外 1 像素有时不会重绘，画在最外沿就会表现为右、下边框“消失”。 */
-html { padding: 1px; }
+/* 无边框窗口的外框：上、左边框贴窗口边缘；右、下外侧留 1px 背景色，边框向内收 1px。
+ * 小数缩放（如 125%）下窗口最右 / 最下 1 个物理像素可能被裁掉，
+ * 边框贴在边缘会整条看不见，向内收 1px 才能稳定显示。 */
+html { padding: 1px 2px 2px 1px; background: var(--bg); }
+body { background: var(--bg); }
 body::after {
-  content: ''; position: fixed; inset: 1px;
+  content: ''; position: fixed; top: 0; left: 0; right: 1px; bottom: 1px;
   pointer-events: none; z-index: 9999;
   border: 1px solid var(--line-strong);
 }
-/* Linux 的窗口管理器本身会在窗口边缘画一圈细线，CSS 边框再内收 1px 会被看成双层边框；
- * Linux 下把边框贴回窗口边缘，与系统那一圈重合。 */
-html.os-linux { padding: 0; }
-html.os-linux body::after { inset: 0; }
 
 button, input, select, textarea { font-family: inherit; font-size: inherit; color: inherit; }
 ::-webkit-scrollbar { width: 9px; height: 9px; }
@@ -527,6 +524,8 @@ body.resizing { user-select: none; cursor: grabbing; }
 .term-tab .t-close {
   width: 16px; height: 16px; flex: 0 0 auto; border: 0; border-radius: 4px; background: transparent;
   color: var(--muted); cursor: pointer; font-size: 10px; line-height: 1; padding: 0;
+  /* 与标签名再拉开一点距离，切换标签时不容易误点到关闭按钮 */
+  margin-left: 6px;
 }
 .term-tab .t-close:hover { background: var(--line-strong); color: var(--danger); }
 .tab-add {

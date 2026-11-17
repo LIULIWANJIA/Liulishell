@@ -1,6 +1,5 @@
 'use strict';
 /* 应用入口：初始化、布局、面板切换、全局事件 */
-document.documentElement.classList.add('os-' + (window.api.platform || 'unknown'));
 (function () {
   const $ = U.qs;
   let syncActive = false;
@@ -277,7 +276,7 @@ document.documentElement.classList.add('os-' + (window.api.platform || 'unknown'
         <div class="field" style="margin-top:8px"><label>确认密码</label>
           <input id="exp-pwd2" type="password" placeholder="再次输入" autocomplete="new-password" />
         </div>
-        <div class="hint" style="margin-top:10px;color:#8b95a5;line-height:1.6">
+        <div class="hint" style="margin-top:10px;color:var(--muted);line-height:1.6">
           导出内容包含连接地址、账号、密码与私钥，使用 AES-256-GCM + scrypt 加密，
           可安全拷贝到其他电脑后用「导入配置」恢复。
         </div>`,
@@ -306,7 +305,7 @@ document.documentElement.classList.add('os-' + (window.api.platform || 'unknown'
         <div class="field"><label>配置文件密码 <span class="req">*</span></label>
           <input id="imp-pwd" type="password" placeholder="导出时设置的密码" autocomplete="new-password" />
         </div>
-        <div class="hint" style="margin-top:10px;color:#8b95a5;line-height:1.6">
+        <div class="hint" style="margin-top:10px;color:var(--muted);line-height:1.6">
           导入时会自动创建缺失的分组；已存在（主机 + 端口 + 用户名相同）的连接会被跳过。
         </div>`,
       onOk: async () => {

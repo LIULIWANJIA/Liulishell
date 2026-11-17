@@ -1,7 +1,6 @@
 'use strict';
 /* 文件编辑器：独立窗口，多文件标签 + 顶部菜单 + 行号（支持自动换行）
  * 由主窗口通过 editor:open-file 事件打开文件。 */
-document.documentElement.classList.add('os-' + (window.api.platform || 'unknown'));
 (function () {
   const $ = (s) => document.querySelector(s);
   const tabsEl = $('#etabs');
@@ -31,6 +30,11 @@ document.documentElement.classList.add('os-' + (window.api.platform || 'unknown'
   let activeId = null;
   let seq = 0;
   let wrapOn = true;
+  let themeVars = null;
+  try {
+    const boot = window.api.appInfo && window.api.appInfo.themeVars;
+    if (boot && boot.vars) themeVars = boot.vars;
+  } catch (_) {}
 
   /* ---------------- 基础 ---------------- */
 
@@ -75,28 +79,39 @@ document.documentElement.classList.add('os-' + (window.api.platform || 'unknown'
     if (on && loadText) loadText.textContent = `正在加载 ${t.name} …`;
   }
 
+  function applyThemeVars(payload) {
+    if (!payload || !payload.vars) return;
+    themeVars = payload.vars;
+    const r = document.documentElement.style;
+    Object.keys(themeVars).forEach((k) => r.setProperty('--' + k, themeVars[k]));
+    document.body.classList.toggle('theme-dark', !!payload.dark);
+  }
+
   function applyTheme() {
     window.api.getState().then((d) => {
       const s = (d && d.settings) || {};
       const t = THEMES[s.theme] || THEMES.warm;
       const r = document.documentElement.style;
-      r.setProperty('--bg', t.bg);
-      r.setProperty('--panel', t.panel);
-      r.setProperty('--panel-2', t.p2);
-      r.setProperty('--panel-3', t.p3);
-      r.setProperty('--line', t.line);
-      r.setProperty('--line-strong', t.ls);
-      r.setProperty('--text', t.text);
-      r.setProperty('--text-2', t.t2);
-      r.setProperty('--muted', t.muted);
-      r.setProperty('--accent', t.accent);
-      r.setProperty('--accent-soft', t.soft);
-      r.setProperty('--primary', t.primary);
-      r.setProperty('--primary-hover', t.hover);
+      // 主题变量由 preload 首帧注入 + theme:vars 广播维护，覆盖全部主题预设
+      if (!themeVars) {
+        r.setProperty('--bg', t.bg);
+        r.setProperty('--panel', t.panel);
+        r.setProperty('--panel-2', t.p2);
+        r.setProperty('--panel-3', t.p3);
+        r.setProperty('--line', t.line);
+        r.setProperty('--line-strong', t.ls);
+        r.setProperty('--text', t.text);
+        r.setProperty('--text-2', t.t2);
+        r.setProperty('--muted', t.muted);
+        r.setProperty('--accent', t.accent);
+        r.setProperty('--accent-soft', t.soft);
+        r.setProperty('--primary', t.primary);
+        r.setProperty('--primary-hover', t.hover);
+        document.body.classList.toggle('theme-dark', s.theme === 'night');
+      }
       const f = s.fonts || {};
       r.setProperty('--font-mono', `${f.en || 'Consolas, monospace'}, ${f.zh || '"Microsoft YaHei", sans-serif'}, monospace`);
       r.setProperty('--font-size', (Number(f.size) || 13) + 'px');
-      document.body.classList.toggle('theme-dark', s.theme === 'night');
       // 字体/字号变化会影响行高与换行位置，重新测量
       invalidateMetrics();
       paintGutter();
@@ -822,6 +837,10 @@ document.documentElement.classList.add('os-' + (window.api.platform || 'unknown'
       wrapOn = true;
     }
     applyTheme();
+    if (window.api.getThemeVars) {
+      window.api.getThemeVars().then(applyThemeVars).catch(() => {});
+      window.api.on('theme:vars', applyThemeVars);
+    }
     setWrap(wrapOn, false);
 
     window.api.on('editor:open-file', (payload) => {

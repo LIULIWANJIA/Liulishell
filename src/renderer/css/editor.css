@@ -11,13 +11,13 @@ body {
   background: var(--bg); color: var(--text);
   font-family: "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif; font-size: 12.5px;
 }
-/* 与主窗口一致：外框向内收 1px，避免缩放后右/下边缘的 1px 不被重绘 */
-html { padding: 1px; }
-/* 与主窗口一致的四边 1px 外框 */
-body::after { content: ''; position: fixed; inset: 1px; pointer-events: none; z-index: 9999; border: 1px solid var(--line-strong); }
-/* Linux 下窗口管理器自带一圈细线，边框贴回边缘避免视觉上出现双层边框 */
-html.os-linux { padding: 0; }
-html.os-linux body::after { inset: 0; }
+/* 与主窗口一致：上、左边框贴窗口边缘；右、下外侧留 1px 背景色，边框向内收 1px */
+html { padding: 1px 2px 2px 1px; background: var(--bg); }
+body::after {
+  content: ''; position: fixed; top: 0; left: 0; right: 1px; bottom: 1px;
+  pointer-events: none; z-index: 9999;
+  border: 1px solid var(--line-strong);
+}
 ::selection, *::selection { background: var(--accent-soft); color: var(--text); }
 
 .etitle {
@@ -69,7 +69,7 @@ html.os-linux body::after { inset: 0; }
 /* 未保存标记：文件名后面的 * */
 .edirty { font-style: normal; font-weight: 700; color: #d08a1a; margin-left: 1px; }
 .etab.active .edirty { color: #c57c10; }
-.eclose { border: 0; background: transparent; color: var(--muted); cursor: pointer; padding: 0 2px; font-size: 10px; }
+.eclose { border: 0; background: transparent; color: var(--muted); cursor: pointer; padding: 0 2px; font-size: 10px; margin-left: 4px; }
 .eclose:hover { color: #c0392b; }
 
 /* ---------------- 编辑区 ---------------- */

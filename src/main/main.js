@@ -543,12 +543,10 @@ function ensureDownloadWindow() {
     ...centeredOverMain(820, 480),
     minWidth: 620, minHeight: 360,
     title: msg('下载管理器 - LIULI Shell'),
-    backgroundColor: '#f7f6f2',
-    transparent: false,
-    frame: false,
-    roundedCorners: true,
-    hasShadow: false,
+    backgroundColor: themeWindowBg(),
+    frame: process.platform === 'darwin',
     thickFrame: process.platform === 'win32' ? false : undefined,
+    titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : undefined,
     skipTaskbar: true,
     maximizable: false,
     show: false,
@@ -621,7 +619,7 @@ function ensureFinalShellImportWindow() {
   importWin = new BrowserWindow({
     width: 880, height: 720, minWidth: 700, minHeight: 560,
     title: msg('导入 FinalShell 配置 - LIULI Shell'),
-    backgroundColor: '#f7f6f2',
+    backgroundColor: themeWindowBg(),
     frame: process.platform === 'darwin',
     thickFrame: process.platform === 'win32' ? false : undefined,
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : undefined,
@@ -651,7 +649,7 @@ function ensureEditorWindow() {
     minWidth: 700,
     minHeight: 460,
     title: msg('文件编辑器 - LIULI Shell'),
-    backgroundColor: '#f7f6f2',
+    backgroundColor: themeWindowBg(),
     frame: process.platform === 'darwin',
     thickFrame: process.platform === 'win32' ? false : undefined,
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : undefined,
@@ -1269,9 +1267,22 @@ ipcMain.handle('settings:save', (_e, patch) => {
 
 /* 主题变量缓存：主窗口应用主题后上报，独立窗口（FinalShell 导入等）读取后保持配色一致 */
 let uiThemeVars = null;
+
+/** 独立窗口创建时的底色：用当前主题背景色填充，避免页面渲染前闪一下默认配色 */
+function themeWindowBg() {
+  const v = uiThemeVars && uiThemeVars.vars;
+  return (v && v.bg) || '#f7f6f2';
+}
+
 ipcMain.handle('theme:vars:set', (e, payload) => {
   if (!payload || typeof payload !== 'object' || !payload.vars) return false;
   uiThemeVars = payload;
+  const bg = themeWindowBg();
+  [importWin, editorWin, downloadWin].forEach((w) => {
+    if (w && !w.isDestroyed()) {
+      try { w.setBackgroundColor(bg); } catch (_) {}
+    }
+  });
   BrowserWindow.getAllWindows().forEach((w) => {
     if (!w.isDestroyed() && w.webContents !== e.sender) {
       try { w.webContents.send('theme:vars', payload); } catch (_) {}
