@@ -367,6 +367,7 @@ window.Term = (function () {
       viaProxy: !!viaProxy,
       // 记住本次连接用的代理模式（右键「直接连接」为 none），重连时沿用
       proxyMode: proxyMode || '',
+      promptSeq: 0,
       proxyName: '',
       sysinfo: {},
       stats: null,
@@ -459,6 +460,7 @@ window.Term = (function () {
         config: Object.assign({}, cfg, res.config),
         viaProxy: !!res.viaProxy,
         proxyMode,
+        promptSeq: 0,
         proxyName: res.proxyName || '',
         sysinfo: res.sysinfo || {},
         stats: null,
@@ -556,8 +558,11 @@ window.Term = (function () {
         return;
       }
       window.api.termWrite({ sessionId: sess.id, data });
-      // Ctrl+C 中断后回到最底部，方便看最新输出
-      if (data.indexOf('\x03') >= 0) term.scrollToBottom();
+      // Ctrl+C 中断后停止剩余排队命令，并回到最底部
+      if (data.indexOf('\x03') >= 0) {
+        sess.sendQueue = [];
+        term.scrollToBottom();
+      }
     });
     term.onResize(({ cols, rows }) => {
       window.api.termResize({ sessionId: sess.id, cols, rows });
@@ -566,6 +571,8 @@ window.Term = (function () {
     // OSC 7：shell 上报当前目录 → 同步文件管理器
     try {
       term.parser.registerOscHandler(7, (data) => {
+        // 每次提示符都会上报 OSC7：多行命令用它判断上一条命令是否已经执行完
+        sess.promptSeq = (Number(sess.promptSeq) || 0) + 1;
         const m = /^file:\/\/[^/]*(\/.*)$/.exec(data);
         if (m) {
           let p = m[1];
@@ -968,6 +975,57 @@ window.Term = (function () {
     if (active && active.term) active.term.focus();
   }
 
+  const SUDO_LINE = /(^|[\s;&|])sudo(?=\s|$)/;
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  /** 等当前命令回到 shell 提示符；OSC7 不可用时退化为固定间隔 */
+  function waitForPrompt(sess, baseSeq) {
+    return new Promise((resolve) => {
+      const started = Date.now();
+      const tick = () => {
+        const s = App.session(sess.id);
+        if (!s || s.status !== 'online') return resolve();
+        if (Number(s.promptSeq) > baseSeq) return resolve();
+        const elapsed = Date.now() - started;
+        if (!s.promptSeq && elapsed >= 900) return resolve();
+        if (elapsed >= 180000) {
+          sess.sendQueue = [];
+          U.toast('等待命令完成超时，已停止后续命令', 'error', 3200);
+          return resolve();
+        }
+        setTimeout(tick, 50);
+      };
+      setTimeout(tick, 50);
+    });
+  }
+
+  /**
+   * 多行命令逐行发送。sudo 会清空终端里已经排队但尚未执行的输入，
+   * 一次性写入整段命令时，后续行会丢失；因此 sudo 行要等提示符回来后再发下一行。
+   */
+  function enqueueSequential(sess, lines) {
+    if (!sess.sendQueue) sess.sendQueue = [];
+    sess.sendQueue.push(...lines);
+    if (sess.sending) return;
+    sess.sending = true;
+    (async () => {
+      try {
+        while (sess.sendQueue && sess.sendQueue.length) {
+          const s = App.session(sess.id);
+          if (!s || s.status !== 'online') break;
+          const line = sess.sendQueue.shift();
+          const baseSeq = Number(s.promptSeq) || 0;
+          window.api.termWrite({ sessionId: s.id, data: line + '\r' });
+          if (SUDO_LINE.test(line)) await waitForPrompt(s, baseSeq);
+          else await sleep(30);
+        }
+      } finally {
+        sess.sendQueue = [];
+        sess.sending = false;
+      }
+    })();
+  }
+
   /** 向目标会话发送原始文本（自动追加回车） */
   function sendRaw(text, appendEnter = true) {
     const list = targets();
@@ -977,8 +1035,12 @@ window.Term = (function () {
     }
     // 多行命令统一用回车分隔：直接发送裸 \n 时，部分 shell / 交互程序会吞掉后续行
     const body = String(text == null ? '' : text).replace(/\r\n?|\n/g, '\r');
-    const payload = appendEnter ? body + '\r' : body;
-    list.forEach((s) => window.api.termWrite({ sessionId: s.id, data: payload }));
+    const lines = body.split('\r');
+    const multi = lines.length > 1;
+    list.forEach((s) => {
+      if (multi && appendEnter) enqueueSequential(s, lines);
+      else window.api.termWrite({ sessionId: s.id, data: appendEnter ? body + '\r' : body });
+    });
     // 命令编辑器 / 快捷命令也写入历史（按行记录）
     String(text)
       .split(/\r\n?|\n/)
