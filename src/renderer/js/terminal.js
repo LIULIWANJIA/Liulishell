@@ -140,6 +140,7 @@ window.Term = (function () {
       renderTabs();
       syncPanes();
       fitActive();
+      focusActive();
     });
     App.on('sessions:change', () => {
       renderTabs();
@@ -358,12 +359,14 @@ window.Term = (function () {
 
   /* ---------------- 连接 ---------------- */
 
-  function createPendingSession(cfg, insertAt, viaProxy) {
+  function createPendingSession(cfg, insertAt, viaProxy, proxyMode) {
     const id = 'pending-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6);
     const sess = {
       id,
       config: Object.assign({}, cfg),
       viaProxy: !!viaProxy,
+      // 记住本次连接用的代理模式（右键「直接连接」为 none），重连时沿用
+      proxyMode: proxyMode || '',
       proxyName: '',
       sysinfo: {},
       stats: null,
@@ -442,8 +445,9 @@ window.Term = (function () {
     // 先建一个「连接中」标签，连接进度显示在新标签内，不占用当前终端
     // 从服务器列表 / 最近连接发起的新连接会占用空白标签页；重连时传入原标签位置 insertAt
     const viaProxy = usesProxyFor(cfg, opts);
+    const proxyMode = (opts && opts.proxyMode) || '';
     if (!(opts && opts.keepBlank)) consumeBlankTab();
-    const pending = createPendingSession(cfg, insertAt, viaProxy);
+    const pending = createPendingSession(cfg, insertAt, viaProxy, proxyMode);
     let real = null;
     try {
       const res = await window.api.connect(configId, opts);
@@ -454,6 +458,7 @@ window.Term = (function () {
         id: res.sessionId,
         config: Object.assign({}, cfg, res.config),
         viaProxy: !!res.viaProxy,
+        proxyMode,
         proxyName: res.proxyName || '',
         sysinfo: res.sysinfo || {},
         stats: null,
@@ -467,9 +472,7 @@ window.Term = (function () {
         error: '',
         term: null,
         fit: null,
-        pane: null,
-        typeBuf: '',
-        cmdAnchor: null
+        pane: null
       };
       if (pending.pane && pending.pane.parentNode) pending.pane.parentNode.removeChild(pending.pane);
       const pendingInfo = App.state.pendingSysinfo.get(real.id);
@@ -552,8 +555,9 @@ window.Term = (function () {
         }
         return;
       }
-      trackTyped(sess, data);
       window.api.termWrite({ sessionId: sess.id, data });
+      // Ctrl+C 中断后回到最底部，方便看最新输出
+      if (data.indexOf('\x03') >= 0) term.scrollToBottom();
     });
     term.onResize(({ cols, rows }) => {
       window.api.termResize({ sessionId: sess.id, cols, rows });
@@ -592,94 +596,6 @@ window.Term = (function () {
     if (history.length > 300) history.shift();
     hisIndex = -1;
     if (window.History) History.record(text);
-  }
-
-  /**
-   * 回车时还原「最终执行的那一行」：
-   * 直接在终端里敲字时，输入缓冲只能看到按键，看不到 Tab 补全 / shell 自动补全的结果，
-   * 所以再读一次终端缓冲中光标所在行，用「开始输入时的光标列」到「当前光标列」截出真实命令行。
-   * 读不到或不一致时回退到按键缓冲。
-   */
-  function resolveTypedLine(sess, typed) {
-    const fallback = String(typed || '');
-    const term = sess && sess.term;
-    if (!term) return fallback;
-    try {
-      const b = term.buffer.active;
-      const row = b.baseY + b.cursorY;
-      const line = b.getLine(row);
-      if (!line) return fallback;
-      const raw = line.translateToString(true);
-      const anchor = sess.cmdAnchor;
-      if (!anchor || anchor.row !== row || b.cursorX <= anchor.col) return fallback;
-      const cmd = raw.slice(anchor.col, b.cursorX).trim();
-      if (!cmd) return fallback;
-      const t = fallback.trim();
-      // 抓到的内容必须包含按键缓冲（补全只会让它更长），否则视为串行，宁可用缓冲
-      if (t && !cmd.includes(t)) return fallback;
-      return cmd;
-    } catch (_) {
-      return fallback;
-    }
-  }
-
-  /** 从终端按键流里跟踪当前命令行：回车时记录到历史。
-   *  只用于补全「直接在终端里输入」的命令，方向键调用旧历史的情况不重复记。 */
-  function trackTyped(sess, data) {
-    let text = sess.typeBuf || '';
-    let i = 0;
-    while (i < data.length) {
-      const ch = data[i];
-      if (ch === '\x1b') {
-        i++;
-        if (i >= data.length) break;
-        const c = data[i];
-        if (c === '[') {
-          i++;
-          while (i < data.length && !/[@-~]/.test(data[i])) i++;
-          i++;
-        } else if (c === ']') {
-          i++;
-          while (i < data.length) {
-            if (data[i] === '\x07') { i++; break; }
-            if (data[i] === '\x1b' && data[i + 1] === '\\') { i += 2; break; }
-            i++;
-          }
-        } else {
-          i++;
-        }
-        continue;
-      }
-      if (ch === '\r' || ch === '\n') {
-        recordHistoryLine(resolveTypedLine(sess, text));
-        text = '';
-        sess.cmdAnchor = null;
-        i++;
-        continue;
-      }
-      if (ch === '\x7f' || ch === '\b') { text = text.slice(0, -1); i++; continue; }
-      if (ch === '\x17') { text = text.replace(/\s*\S+$/, ''); i++; continue; }
-      if (ch === '\x03' || ch === '\x15' || ch === '\x0b') {
-        text = '';
-        sess.cmdAnchor = null;
-        i++;
-        continue;
-      }
-      const code = ch.charCodeAt(0);
-      if (code < 32) { i++; continue; }
-      if (!text) {
-        // 第一个字符到达时光标还在提示符末尾：记下命令行起点，供回车时精确截取
-        try {
-          const b = sess.term.buffer.active;
-          sess.cmdAnchor = { row: b.baseY + b.cursorY, col: b.cursorX };
-        } catch (_) {
-          sess.cmdAnchor = null;
-        }
-      }
-      text += ch;
-      i++;
-    }
-    sess.typeBuf = text;
   }
 
   function cleanup(sessionId, opts) {
@@ -985,6 +901,19 @@ window.Term = (function () {
     emptyEl.style.display = showBlank ? 'flex' : 'none';
   }
 
+  /** 切换标签后把键盘焦点交给目标终端，切完即可直接敲命令，无需再点一下终端 */
+  function focusActive() {
+    if (window.Details && Details.getActive()) return; // 详情页在前台时焦点不归终端
+    const s = App.active;
+    if (!s || !s.term) return;
+    setTimeout(() => {
+      if (App.state.activeId !== s.id || (window.Details && Details.getActive())) return;
+      try {
+        s.term.focus();
+      } catch (_) {}
+    }, 0);
+  }
+
   let fitTimer = null;
   function fitActive() {
     if (window.Details && Details.getActive()) return;
@@ -1046,11 +975,13 @@ window.Term = (function () {
       U.toast('当前没有已连接的终端', 'error');
       return 0;
     }
-    const payload = appendEnter ? text + '\r' : text;
+    // 多行命令统一用回车分隔：直接发送裸 \n 时，部分 shell / 交互程序会吞掉后续行
+    const body = String(text == null ? '' : text).replace(/\r\n?|\n/g, '\r');
+    const payload = appendEnter ? body + '\r' : body;
     list.forEach((s) => window.api.termWrite({ sessionId: s.id, data: payload }));
     // 命令编辑器 / 快捷命令也写入历史（按行记录）
     String(text)
-      .split(/\r?\n/)
+      .split(/\r\n?|\n/)
       .map((x) => x.trim())
       .filter(Boolean)
       .forEach(recordHistoryLine);
@@ -1114,9 +1045,13 @@ window.Term = (function () {
     if (s.status !== 'online') return U.toast('连接已断开，无法输入', 'error', 2200);
     const raw = String(text);
     window.api.termWrite({ sessionId: s.id, data: raw.replace(/\r?\n/g, '\r') });
-    // 粘贴内容中的完整行也写入历史
-    const lines = raw.replace(/\r\n?/g, '\n').split('\n');
-    lines.slice(0, -1).map((x) => x.trim()).filter(Boolean).forEach(recordHistoryLine);
+    // 粘贴到终端的命令按行写入历史（含最后一行，避免单条命令粘贴后没有记录）
+    raw
+      .replace(/\r\n?/g, '\n')
+      .split('\n')
+      .map((x) => x.trim())
+      .filter(Boolean)
+      .forEach(recordHistoryLine);
     if (s.term) s.term.focus();
   }
 
@@ -1275,8 +1210,12 @@ window.Term = (function () {
       await window.api.disconnect(s.id);
     } catch (_) {}
     cleanup(s.id, { keepBlank: true });
+    // 沿用这个标签最初建立连接时的代理模式：
+    // 右键「直接连接」失败后点「连接」重连，仍是直连，不会改走配置里的代理
+    const recOpts = Object.assign({}, opts);
+    if (!recOpts.proxyMode && s.proxyMode) recOpts.proxyMode = s.proxyMode;
     U.toast('正在重连 ' + name + ' …', 'info', 1600);
-    return connect(configId, Object.assign({}, opts, { keepBlank: true }), index >= 0 ? index : undefined);
+    return connect(configId, Object.assign(recOpts, { keepBlank: true }), index >= 0 ? index : undefined);
   }
 
   async function reconnectAllOffline() {
@@ -1331,7 +1270,10 @@ window.Term = (function () {
       const s = activeTerm();
       if (!s) return;
       if (s.term.getSelection()) termCopy();
-      else window.api.termWrite({ sessionId: s.id, data: '\x03' }); // 无选中时保持 SIGINT
+      else {
+        window.api.termWrite({ sessionId: s.id, data: '\x03' }); // 无选中时保持 SIGINT
+        s.term.scrollToBottom();
+      }
     } else if (action === 'paste') termPaste();
     else if (action === 'find') openFind();
     else if (action === 'reconnect') reconnectActive();
