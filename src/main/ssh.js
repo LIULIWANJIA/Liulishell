@@ -6,6 +6,7 @@
 const { Client } = require('ssh2');
 const fs = require('fs');
 const nodePath = require('path');
+const { pipeline } = require('stream/promises');
 const { StringDecoder } = require('string_decoder');
 const http = require('http');
 const https = require('https');
@@ -1364,6 +1365,103 @@ class SshSession {
   }
 }
 
+/* ---------------- 跨服务器复制 ---------------- */
+
+function sftpCall(sftp, method, ...args) {
+  return new Promise((resolve, reject) => {
+    sftp[method](...args, (err, res) => (err ? reject(err) : resolve(res)));
+  });
+}
+
+async function sftpExists(sftp, p) {
+  try {
+    await sftpCall(sftp, 'lstat', p);
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
+/** 递归复制一个条目：文件流式传输，目录逐层创建，符号链接保留链接本身 */
+async function copyEntryBetween(srcSess, dstSess, srcPath, dstPath, depth = 0) {
+  if (depth > 32) throw new Error('目录层级过深，已停止复制');
+  const srcSftp = await srcSess.getSftp();
+  const dstSftp = await dstSess.getSftp();
+  let attrs;
+  try {
+    attrs = await sftpCall(srcSftp, 'lstat', srcPath);
+  } catch (err) {
+    throw new Error(`无法读取 ${srcPath}: ${err.message}`);
+  }
+  if (attrs.isDirectory()) {
+    if (!(await sftpExists(dstSftp, dstPath))) {
+      await sftpCall(dstSftp, 'mkdir', dstPath, { mode: (attrs.mode & 0o777) || 0o755 });
+    }
+    const list = await sftpCall(srcSftp, 'readdir', srcPath);
+    for (const e of list || []) {
+      if (!e || e.filename === '.' || e.filename === '..') continue;
+      await copyEntryBetween(
+        srcSess,
+        dstSess,
+        srcSess.posixJoin(srcPath, e.filename),
+        dstSess.posixJoin(dstPath, e.filename),
+        depth + 1
+      );
+    }
+    return;
+  }
+  if (attrs.isSymbolicLink()) {
+    try {
+      const target = await sftpCall(srcSftp, 'readlink', srcPath);
+      if (target) {
+        await sftpCall(dstSftp, 'symlink', target, dstPath);
+        return;
+      }
+    } catch (_) {
+      /* 读不到链接目标时退化为按普通文件复制 */
+    }
+  }
+  if (!attrs.isFile()) throw new Error(`不支持的文件类型：${srcPath}`);
+  await pipeline(
+    srcSftp.createReadStream(srcPath),
+    dstSftp.createWriteStream(dstPath, { mode: (attrs.mode & 0o777) || 0o644 })
+  );
+}
+
+/**
+ * 跨服务器粘贴：items: [{ src, name, overwrite }]
+ * 目标已有同名项且未选择覆盖时直接抛错，由前端提示。
+ */
+async function copyBetweenSessions(source, dest, items, destDir) {
+  if (!source || !dest) throw new Error('源或目标会话不存在');
+  const list = Array.isArray(items) ? items : [];
+  const norm = (p) => String(p || '').replace(/\/+$/, '') || '/';
+  const srcCfg = source.cfg || {};
+  const dstCfg = dest.cfg || {};
+  // 两台“不同会话”可能仍连在同一台服务器上：此时粘贴到自身 / 子目录需要额外保护
+  const sameFs =
+    String(srcCfg.host || '') === String(dstCfg.host || '') &&
+    Number(srcCfg.port || 22) === Number(dstCfg.port || 22);
+  for (const it of list) {
+    const src = String((it && it.src) || '');
+    const name = String((it && it.name) || '').replace(/^\/+/, '');
+    if (!src || !name || name === '.' || name === '..' || name.includes('/')) {
+      throw new Error('非法的粘贴项：' + (it && it.name));
+    }
+    const target = dest.posixJoin(destDir, name);
+    if (sameFs && norm(target) === norm(src)) continue; // 同一文件，无需也不应覆盖
+    if (sameFs && norm(src) !== '/' && (norm(target) + '/').startsWith(norm(src) + '/')) {
+      throw new Error('不能把文件夹粘贴到它自己的子目录中');
+    }
+    if (await dest.remoteExists(target)) {
+      if (!it.overwrite) throw new Error(`目标已存在同名文件或文件夹：${name}`);
+      await dest.remove([target]);
+    }
+    await copyEntryBetween(source, dest, src, target);
+  }
+  return true;
+}
+
 /* ---------------- 对外接口 ---------------- */
 
 function createSession(cfg, secrets, send) {
@@ -1403,6 +1501,7 @@ module.exports = {
   getSession,
   closeSession,
   closeAll,
+  copyBetweenSessions,
   findSessionByConfig,
   isIp,
   resolveDoh,

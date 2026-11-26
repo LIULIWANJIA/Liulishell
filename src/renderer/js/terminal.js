@@ -21,6 +21,22 @@ window.Term = (function () {
 
   let dragSid = null;
   let dropAfter = false;
+  let tabPendingRender = false;
+  let tabSuppressUntil = 0;
+
+  /** 清理残留的标签拖拽状态：拖拽被连接状态变化 / 失焦打断时 dragend 可能不触发 */
+  function clearTabDragState() {
+    dragSid = null;
+    if (!tabsEl) return;
+    tabsEl.querySelectorAll('.term-tab.dragging').forEach((n) => n.classList.remove('dragging'));
+  }
+
+  function flushTabPendingRender() {
+    if (!tabPendingRender) return;
+    tabPendingRender = false;
+    renderTabs();
+    syncPanes();
+  }
   /* 空白标签页：软件启动时默认存在，+ 最多只保留一个；连接服务器时被占用 */
   let blankExists = true;
   let blankActive = true;
@@ -106,6 +122,21 @@ window.Term = (function () {
     if (prevBtn) prevBtn.addEventListener('click', () => moveTabRow(-1));
     if (nextBtn) nextBtn.addEventListener('click', () => moveTabRow(1));
     if (tabsSecondScroll) tabsSecondScroll.addEventListener('scroll', updateTabArrows);
+    window.addEventListener('blur', () => {
+      if (!dragSid) return;
+      clearTabDragState();
+      flushTabPendingRender();
+    });
+    document.addEventListener('mouseup', () => {
+      if (!dragSid) return;
+      const current = dragSid;
+      setTimeout(() => {
+        // 若这期间已经开始了新的拖拽，不能误清新的拖拽状态
+        if (dragSid !== current) return;
+        clearTabDragState();
+        flushTabPendingRender();
+      }, 150);
+    });
     setupInteractions();
     cmdInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
@@ -364,6 +395,7 @@ window.Term = (function () {
     const sess = {
       id,
       config: Object.assign({}, cfg),
+      cancelled: false,
       viaProxy: !!viaProxy,
       // 记住本次连接用的代理模式（右键「直接连接」为 none），重连时沿用
       proxyMode: proxyMode || '',
@@ -450,10 +482,28 @@ window.Term = (function () {
     if (!(opts && opts.keepBlank)) consumeBlankTab();
     const pending = createPendingSession(cfg, insertAt, viaProxy, proxyMode);
     let real = null;
+    // 标签在连接过程中被关闭：放弃这次连接结果，避免关闭后又“复活”一个新标签
+    const isCancelled = () => !!pending.cancelled || !App.session(pending.id);
+    const discardSession = async (sessionId) => {
+      App.state.pendingData.delete(sessionId);
+      App.state.pendingSysinfo.delete(sessionId);
+      try {
+        await window.api.disconnect(sessionId);
+      } catch (_) {}
+    };
     try {
       const res = await window.api.connect(configId, opts);
+      if (isCancelled()) {
+        await discardSession(res.sessionId);
+        return null;
+      }
       // 先打开 shell，成功后再把占位标签替换为真实终端
       await window.api.termOpen({ sessionId: res.sessionId, cols: 100, rows: 30 });
+      // 打开 shell 期间也可能被关闭
+      if (isCancelled()) {
+        await discardSession(res.sessionId);
+        return null;
+      }
 
       real = {
         id: res.sessionId,
@@ -505,6 +555,7 @@ window.Term = (function () {
       U.toast('已连接 ' + (cfg.name || cfg.host) + (real.viaProxy ? '（经代理）' : ''), 'ok', 1800);
       return real;
     } catch (err) {
+      if (pending.cancelled) return null;
       if (real) {
         try { await window.api.disconnect(real.id); } catch (_) {}
         cleanup(real.id);
@@ -609,6 +660,7 @@ window.Term = (function () {
     const s = App.session(sessionId);
     if (!s) return;
     s.closing = true;
+    s.cancelled = true;
     try {
       if (s.term) s.term.dispose();
     } catch (_) {}
@@ -648,6 +700,8 @@ window.Term = (function () {
     const s = App.session(sessionId);
     if (!s) return;
     s.closing = true;
+    // 同步标记取消：主进程连接可能在校验前刚好返回，避免关闭后标签又被“复活”
+    s.cancelled = true;
     try {
       await window.api.disconnect(sessionId);
     } catch (_) {}
@@ -657,7 +711,12 @@ window.Term = (function () {
   /* ---------------- 标签 ---------------- */
 
   function renderTabs() {
-    if (dragSid) return; // 拖动中不重绘，避免打断拖拽
+    if (dragSid) {
+      // 拖动中不重绘，避免打断拖拽；结束后补一次渲染，防止标签栏永久停在旧状态
+      tabPendingRender = true;
+      return;
+    }
+    clearTabDragState();
     const list = Array.from(App.state.sessions.values());
     const details = window.Details ? Details.list() : [];
     const activeDetail = window.Details ? Details.getActive() : null;
@@ -711,6 +770,7 @@ window.Term = (function () {
       // 用 click 而非 mousedown：拖动排序时不会因重绘中断 dragstart
       tab.addEventListener('click', (e) => {
         if (e.target.closest('.t-close')) return;
+        if (Date.now() < tabSuppressUntil) return;
         blankActive = false;
         if (window.Details) Details.deactivate();
         App.setActive(tab.dataset.sid);
@@ -720,6 +780,7 @@ window.Term = (function () {
       tab.draggable = true;
       tab.addEventListener('dragstart', (e) => {
         dragSid = tab.dataset.sid;
+        tabSuppressUntil = Date.now() + 300;
         tab.classList.add('dragging');
         if (e.dataTransfer) {
           e.dataTransfer.effectAllowed = 'move';
@@ -734,18 +795,22 @@ window.Term = (function () {
         dropAfter = e.clientX > r.left + r.width / 2;
       });
       tab.addEventListener('drop', (e) => {
-        if (!dragSid || dragSid === tab.dataset.sid) return;
+        if (!dragSid || dragSid === tab.dataset.sid) {
+          clearTabDragState();
+          flushTabPendingRender();
+          return;
+        }
         e.preventDefault();
         App.moveSession(dragSid, tab.dataset.sid, dropAfter);
-        dragSid = null;
+        clearTabDragState();
+        tabPendingRender = false;
         renderTabs();
         syncPanes();
       });
       tab.addEventListener('dragend', () => {
-        tab.classList.remove('dragging');
-        dragSid = null;
-        renderTabs();
-        syncPanes();
+        tabSuppressUntil = Date.now() + 300;
+        clearTabDragState();
+        flushTabPendingRender();
       });
     });
     tabsEl.querySelectorAll('.term-tab[data-dkey]').forEach((tab) => {
@@ -1318,6 +1383,8 @@ window.Term = (function () {
     ) return;
     const combo = Settings.comboOf(e);
     if (!combo) return;
+    // 文件管理器右侧区域：Ctrl+C / Ctrl+V 用于复制粘贴文件，不触发终端快捷键
+    if (e.target && e.target.closest && e.target.closest('#file-drop')) return;
     if (isTextField(e)) return; // 输入框保留系统复制 / 粘贴
     const sc = App.settings.shortcuts || {};
     let action = '';

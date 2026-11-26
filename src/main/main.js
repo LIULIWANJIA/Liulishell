@@ -2024,7 +2024,13 @@ ipcMain.handle('fs:home', async (_e, { sessionId }) => {
  * refresh=true 用于「刷新」按钮，强制走 SFTP 并等待结果。
  */
 ipcMain.handle('fs:list', async (_e, { sessionId, path: dir, refresh }) => {
-  const sess = ssh.getSession(sessionId);
+  let sess;
+  try {
+    sess = ssh.getSession(sessionId);
+  } catch (_) {
+    // 会话在请求途中被关闭：返回离线标记，由渲染层静默显示“连接已断开”，不当作异常
+    return { path: dir, entries: [], offline: true };
+  }
   const ck = sessionConnKey(sess);
   if (!refresh) {
     const hit = dirCache.get(ck, dir);
@@ -2062,6 +2068,15 @@ ipcMain.handle('fs:copy', async (_e, { sessionId, sources, dest, move, items }) 
   if (Array.isArray(items) && items.length) await sess.copyItems(items, dest, !!move);
   else await sess.copy(sources || [], dest, !!move);
   dirCache.invalidate(sessionConnKey(sess), [dest].concat(sources || []));
+  return true;
+});
+
+ipcMain.handle('fs:copyCross', async (_e, { sourceSessionId, sessionId, dest, items, move }) => {
+  if (move) throw new Error('跨服务器暂不支持剪切');
+  const src = ssh.getSession(sourceSessionId);
+  const dst = ssh.getSession(sessionId);
+  await ssh.copyBetweenSessions(src, dst, items || [], dest);
+  dirCache.invalidate(sessionConnKey(dst), [dest]);
   return true;
 });
 

@@ -602,6 +602,7 @@ body.resizing { user-select: none; cursor: grabbing; }
 .file-toolbar .path { flex: 1 1 120px; min-width: 70px; display: flex; }
 .file-toolbar .path input { width: 100%; min-width: 0; height: 25px; font-family: var(--font-mono); font-size: 12px; }
 .file-table-wrap { flex: 1 1 auto; overflow: auto; min-height: 0; position: relative; }
+.file-table-wrap:focus, .file-table-wrap:focus-visible { outline: none; }
 .file-table-wrap.dragover::after {
   content: "松开以上传到当前目录"; position: absolute; inset: 6px; border: 2px dashed var(--accent);
   border-radius: 8px; background: rgba(var(--accent-rgb), .06); display: flex; align-items: center; justify-content: center;

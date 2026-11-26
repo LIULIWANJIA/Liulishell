@@ -120,8 +120,48 @@ window.Snippets = (function () {
   }
 
   let dragId = null;
+  let pendingRender = false;
+  let suppressClickUntil = 0;
+
+  /** 清理残留拖拽状态：拖拽被断开连接 / 重绘 / 失焦打断时 dragend 可能不触发 */
+  function clearDragState() {
+    dragId = null;
+    const wrap = $('#snip-list');
+    if (!wrap) return;
+    wrap.querySelectorAll('.snip-item').forEach((n) => n.classList.remove('dragging', 'drop-before', 'drop-after'));
+  }
+
+  function flushPendingRender() {
+    if (!pendingRender) return;
+    pendingRender = false;
+    render();
+  }
+
+  window.addEventListener('blur', () => {
+    if (!dragId) return;
+    clearDragState();
+    flushPendingRender();
+  });
+
+  // 原生拖拽期间一般不会派发 mouseup；这里作为拖拽被取消、dragend 丢失时的兜底
+  document.addEventListener('mouseup', () => {
+    if (!dragId) return;
+    const current = dragId;
+    setTimeout(() => {
+      // 若这期间已经开始了新的拖拽，不能误清新的拖拽状态
+      if (dragId !== current) return;
+      clearDragState();
+      flushPendingRender();
+    }, 150);
+  });
 
   function render() {
+    if (dragId) {
+      // 拖拽中不重建列表，避免源节点被移除后 dragend 丢失；结束后补一次渲染
+      pendingRender = true;
+      return;
+    }
+    clearDragState();
     const list = boards();
     if (!activeBoard && list.length) activeBoard = list[0].id;
     const board = currentBoard();
@@ -192,7 +232,8 @@ window.Snippets = (function () {
 
     wrap.querySelectorAll('.snip-item').forEach((item) => {
       item.addEventListener('click', () => {
-        if (dragId) return; // 拖动结束后的这次 click 不触发执行
+        // 拖动结束后的这次 click 不触发执行；用时间戳兜底，避免 dragId 异常残留后永久无法点击
+        if (dragId || Date.now() < suppressClickUntil) return;
         const data = board.items.find((x) => x.id === item.dataset.id);
         if (!data) return;
         // 全局开关「允许单击命令直接运行」关闭时，单击一律只填入编辑器，不直接执行
@@ -229,6 +270,7 @@ window.Snippets = (function () {
       /* ---- 拖动排序 ---- */
       item.addEventListener('dragstart', (e) => {
         dragId = item.dataset.id;
+        suppressClickUntil = Date.now() + 300;
         e.dataTransfer.effectAllowed = 'move';
         try {
           e.dataTransfer.setData('text/plain', dragId);
@@ -236,8 +278,9 @@ window.Snippets = (function () {
         setTimeout(() => item.classList.add('dragging'), 0);
       });
       item.addEventListener('dragend', () => {
-        dragId = null;
-        wrap.querySelectorAll('.snip-item').forEach((n) => n.classList.remove('dragging', 'drop-before', 'drop-after'));
+        suppressClickUntil = Date.now() + 300;
+        clearDragState();
+        flushPendingRender();
       });
       item.addEventListener('dragover', (e) => {
         if (!dragId || dragId === item.dataset.id) return;
@@ -253,7 +296,12 @@ window.Snippets = (function () {
         e.preventDefault();
         const targetId = item.dataset.id;
         item.classList.remove('drop-before', 'drop-after');
-        if (!dragId || dragId === targetId) return;
+        if (!dragId || dragId === targetId) {
+          // 落在源按钮自身时也要清理，否则 dragId 会残留导致后续点击全部失效
+          clearDragState();
+          flushPendingRender();
+          return;
+        }
         const r = item.getBoundingClientRect();
         const after = e.clientX > r.left + r.width / 2;
         const items = board.items.slice();
@@ -265,8 +313,10 @@ window.Snippets = (function () {
         if (after) to += 1;
         items.splice(to, 0, moved);
         board.items = items;
-        dragId = null;
+        clearDragState();
+        suppressClickUntil = Date.now() + 300;
         await persist();
+        pendingRender = false;
         render();
       });
     });

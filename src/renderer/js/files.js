@@ -42,6 +42,14 @@ window.Files = (function () {
     const fileArea = U.qs('.file-right') || dropEl;
     fileArea.addEventListener('contextmenu', onRowContext);
 
+    // 右侧文件区域支持键盘操作：Ctrl+A 全选 / Ctrl+C 复制 / Ctrl+V 粘贴
+    dropEl.tabIndex = 0;
+    dropEl.addEventListener('mousedown', (e) => {
+      if (e.target.closest('input, textarea, select, button')) return;
+      dropEl.focus({ preventScroll: true });
+    });
+    dropEl.addEventListener('keydown', onFilesKeyDown);
+
     treeEl.addEventListener('click', onTreeClick);
     treeEl.addEventListener('contextmenu', onTreeContext);
     $('#btn-toggle-tree').addEventListener('click', (e) => {
@@ -144,11 +152,20 @@ window.Files = (function () {
   async function load(path, opts = {}) {
     const sess = App.active;
     if (!sess) return;
+    // 会话已断开时不再发起 SFTP 请求，避免关闭瞬间产生“会话不存在”的异常提示
+    if (sess.status !== 'online') {
+      setStatus(sess.status === 'connecting' ? '正在连接…' : '连接已断开');
+      return;
+    }
     const mySeq = ++seq;
     setStatus('加载中…');
     try {
       const res = await window.api.fsList({ sessionId: sess.id, path, refresh: !!opts.force });
       if (mySeq !== seq || App.active !== sess) return;
+      if (res && res.offline) {
+        setStatus('连接已断开');
+        return;
+      }
       sess.remotePath = res.path;
       entries = res.entries || [];
       selection.clear();
@@ -157,6 +174,7 @@ window.Files = (function () {
       render();
       // 切换目录后文件列表回到顶部（否则沿用了上一个目录的滚动位置，看起来像空列表）
       dropEl.scrollTop = 0;
+      if (opts.selectName) selectEntryByName(opts.selectName);
       setStatus(
         res.cached
           ? `${res.path} · ${entries.length} 项 · 缓存（正在后台刷新…）`
@@ -183,6 +201,7 @@ window.Files = (function () {
   function refresh() {
     const sess = App.active;
     if (!sess || !sess.remotePath) return;
+    if (sess.status !== 'online') return;
     load(sess.remotePath, { force: true });
   }
 
@@ -242,7 +261,7 @@ window.Files = (function () {
 
   async function loadNode(node) {
     const sess = App.active;
-    if (!sess || node.loading || node.children) return;
+    if (!sess || sess.status !== 'online' || node.loading || node.children) return;
     node.loading = true;
     try {
       const res = await window.api.fsList({ sessionId: sess.id, path: node.path });
@@ -337,7 +356,11 @@ window.Files = (function () {
       renderTree();
       return;
     }
-    if (!node.isDir) return;
+    if (!node.isDir) {
+      // 单击文件：右侧打开它所在的文件夹，并选中该文件
+      await navigate(U.posix.dirname(node.path), { selectName: node.name });
+      return;
+    }
     node.expanded = true;
     await loadNode(node);
     renderTree();
@@ -403,6 +426,32 @@ window.Files = (function () {
     selEl.textContent = selection.size ? `已选 ${selection.size} 项` : '';
   }
 
+  /** 文件区键盘快捷键（仅在焦点位于右侧文件列表时生效，输入框保留系统行为） */
+  function onFilesKeyDown(e) {
+    if (!(e.ctrlKey || e.metaKey) || e.altKey) return;
+    const t = e.target;
+    if (t && (/INPUT|TEXTAREA|SELECT/.test(t.tagName) || t.isContentEditable)) return;
+    const key = String(e.key || '').toLowerCase();
+    if (key === 'a') {
+      e.preventDefault();
+      selectAllEntries();
+    } else if (key === 'c') {
+      if (!selection.size) return;
+      e.preventDefault();
+      copySelection();
+    } else if (key === 'v') {
+      e.preventDefault();
+      pasteHere();
+    }
+  }
+
+  function selectAllEntries() {
+    if (!entries.length) return;
+    selection = new Set(entries.map((f) => f.name));
+    lastIndex = entries.length - 1;
+    updateRowSelection();
+  }
+
   function onRowClick(e) {
     const tr = e.target.closest('tr[data-i]');
     if (!tr) return;
@@ -429,6 +478,17 @@ window.Files = (function () {
       tr.classList.toggle('selected', !!(f && selection.has(f.name)));
     });
     updateSelInfo();
+  }
+
+  /** 目录树单击文件后，在右侧列表中选中并滚到该文件 */
+  function selectEntryByName(name) {
+    const idx = entries.findIndex((f) => f.name === name);
+    if (idx < 0) return;
+    selection = new Set([name]);
+    lastIndex = idx;
+    updateRowSelection();
+    const tr = tbody.querySelector(`tr[data-i="${idx}"]`);
+    if (tr) tr.scrollIntoView({ block: 'nearest' });
   }
 
   function onRowDblClick(e) {
@@ -766,12 +826,38 @@ window.Files = (function () {
     if (!sess) return;
     const list = selectedEntries();
     if (!list.length) return U.toast('请先选择要复制的文件', 'error');
+    const c = sess.config || {};
     App.state.clipboard = {
       sessionId: sess.id,
+      configId: c.id || '',
+      serverName: c.name || c.host || '',
+      sourcePath: sess.remotePath,
       paths: list.map((f) => U.posix.join(sess.remotePath, f.name)),
       names: list.map((f) => f.name)
     };
     U.toast(`已复制 ${list.length} 项，请到目标目录粘贴`, 'ok');
+  }
+
+  /** 找到剪贴板来源会话：优先原会话；原会话已关闭时尝试同一配置的其他在线会话 */
+  function resolveSourceSession(cb) {
+    const cur = App.session(cb.sessionId);
+    if (cur && cur.status === 'online') return cur;
+    if (!cb.configId) return null;
+    for (const s of App.state.sessions.values()) {
+      if (s.status === 'online' && s.config && s.config.id === cb.configId) return s;
+    }
+    return null;
+  }
+
+  /** 两个会话是否实际连在同一台服务器（同主机 + 端口 + 用户） */
+  function sameServerSession(a, b) {
+    const x = (a && a.config) || {};
+    const y = (b && b.config) || {};
+    return (
+      String(x.host || '') === String(y.host || '') &&
+      Number(x.port || 22) === Number(y.port || 22) &&
+      String(x.user || '') === String(y.user || '')
+    );
   }
 
   async function pasteHere() {
@@ -786,10 +872,21 @@ window.Files = (function () {
     await doPaste(sess, dir);
   }
 
+  let pasting = false;
+
   async function doPaste(sess, dest) {
     const cb = App.state.clipboard;
     if (!cb || !cb.paths || !cb.paths.length) return U.toast('剪贴板为空，请先复制', 'error');
-    if (cb.sessionId !== sess.id) return U.toast('暂不支持跨服务器粘贴', 'error');
+    if (pasting) return;
+
+    // 跨服务器：来源会话必须仍在线（原会话关闭时尝试同一配置的其他在线会话）
+    let sourceSess = null;
+    if (cb.sessionId !== sess.id) {
+      sourceSess = resolveSourceSession(cb);
+      if (!sourceSess) return U.toast('源服务器会话已断开，请重新复制', 'error');
+      // 同一配置重连后会话 ID 会变化，或同主机/端口/用户的多开标签：回退到同机复制（含防递归保护）
+      if (sourceSess.id === sess.id || sameServerSession(sourceSess, sess)) sourceSess = null;
+    }
 
     // 先取一次目标目录的最新列表，用于判断是否重名（避免用缓存做出错误判断）
     let existing = [];
@@ -823,14 +920,28 @@ window.Files = (function () {
     }
     if (!items.length) return;
 
+    pasting = true;
     try {
-      await window.api.fsCopy({ sessionId: sess.id, dest, items, move: false });
-      const renamed = items.filter((it) => it.name !== U.posix.basename(it.src)).length;
-      U.toast(`已粘贴 ${items.length} 项` + (renamed ? `（其中 ${renamed} 项已重命名）` : ''), 'ok');
+      if (sourceSess) {
+        U.toast(`正在从 ${cb.serverName || '源服务器'} 复制 ${items.length} 项…`, 'info', 2400);
+        await window.api.fsCopyCross({
+          sourceSessionId: sourceSess.id,
+          sessionId: sess.id,
+          dest,
+          items
+        });
+        U.toast(`已从 ${cb.serverName || '源服务器'} 粘贴 ${items.length} 项`, 'ok', 3200);
+      } else {
+        await window.api.fsCopy({ sessionId: sess.id, dest, items, move: false });
+        const renamed = items.filter((it) => it.name !== U.posix.basename(it.src)).length;
+        U.toast(`已粘贴 ${items.length} 项` + (renamed ? `（其中 ${renamed} 项已重命名）` : ''), 'ok');
+      }
       if (dest === sess.remotePath) refresh();
       else afterDirMutation(dest);
     } catch (err) {
       U.toast('粘贴失败: ' + U.cleanError(err), 'error', 4200);
+    } finally {
+      pasting = false;
     }
   }
 

@@ -82,6 +82,7 @@ const api = {
   fsDelete: (payload) => ipcRenderer.invoke('fs:delete', payload),
   fsDeletePlain: (payload) => ipcRenderer.invoke('fs:deletePlain', payload),
   fsCopy: (payload) => ipcRenderer.invoke('fs:copy', payload),
+  fsCopyCross: (payload) => ipcRenderer.invoke('fs:copyCross', payload),
   fsMkdir: (payload) => ipcRenderer.invoke('fs:mkdir', payload),
   fsRename: (payload) => ipcRenderer.invoke('fs:rename', payload),
   fsChmod: (payload) => ipcRenderer.invoke('fs:chmod', payload),
